@@ -42,4 +42,10 @@ public class CheckCalculator {
     private ChessGame.TeamColor getOpponentTeamColor() {
         return teamColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
     }
+
+    public Boolean moveCausesCheck(ChessMove move) {
+        ChessBoard copyBoard = board.clone();
+        copyBoard.makeMove(move);
+        return new CheckCalculator(copyBoard, teamColor).isInCheck();
+    }
 }

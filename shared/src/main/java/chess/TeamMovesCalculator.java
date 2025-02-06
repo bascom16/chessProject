@@ -1,5 +1,6 @@
 package chess;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -29,5 +30,18 @@ public class TeamMovesCalculator {
             teamMoveList.addAll(pieceMoveList);
         }
         return teamMoveList;
+    }
+
+    public Collection<ChessMove> getValidTeamMoves(ChessGame.TeamColor teamColor) {
+        Collection<ChessMove> moves = getTeamMoves(teamColor);
+        Collection<ChessMove> invalidMoves = new ArrayList<>();
+        for (ChessMove move : moves) {
+            CheckCalculator checkCalculator = new CheckCalculator(board, teamColor);
+            if (checkCalculator.moveCausesCheck(move)) {
+                invalidMoves.add(move);
+            }
+        }
+        moves.removeAll(invalidMoves);
+        return moves;
     }
 }
