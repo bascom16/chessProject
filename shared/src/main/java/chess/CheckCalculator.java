@@ -30,7 +30,8 @@ public class CheckCalculator {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPosition = new ChessPosition(i, j);
                 if (board.getPiece(currentPosition) != null) {
-                    if (board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
+                    ChessPiece currentPiece = board.getPiece(currentPosition);
+                    if (currentPiece.getPieceType() == ChessPiece.PieceType.KING && currentPiece.getTeamColor() == teamColor) {
                         return currentPosition;
                     }
                 }
@@ -46,6 +47,7 @@ public class CheckCalculator {
     public Boolean moveCausesCheck(ChessMove move) {
         ChessBoard copyBoard = board.clone();
         copyBoard.makeMove(move);
-        return new CheckCalculator(copyBoard, teamColor).isInCheck();
+        CheckCalculator checkCalculator = new CheckCalculator(copyBoard, teamColor);
+        return checkCalculator.isInCheck();
     }
 }
