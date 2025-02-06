@@ -100,9 +100,13 @@ public class ChessBoard implements Cloneable {
     public ChessBoard clone() {
         try {
             ChessBoard clone = (ChessBoard) super.clone();
+            ChessPiece[][] oldBoard = clone.squares;
             clone.squares = new ChessPiece[8][8];
             for (int i = 0; i < squares.length; i++) {
-                clone.squares[i] = squares[i].clone();
+                for (int j = 0; j < squares[i].length; j++)
+                    if (oldBoard[i][j] != null) {
+                        clone.squares[i][j] = oldBoard[i][j].clone();
+                    }
             }
             return clone;
         } catch (CloneNotSupportedException e) {
