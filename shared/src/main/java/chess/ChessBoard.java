@@ -89,10 +89,23 @@ public class ChessBoard implements Cloneable {
     }
 
     public void makeMove(ChessMove move) {
+        if (move.getPromotionPiece() != null) {
+            makePromotionMove(move);
+            return;
+        }
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece myPiece = getPiece(startPosition);
         addPiece(endPosition, myPiece);
+        addPiece(startPosition, null);
+    }
+
+    private void makePromotionMove(ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece originalPiece = getPiece(startPosition);
+        ChessPiece promotionPiece = new ChessPiece(originalPiece.getTeamColor(), move.getPromotionPiece());
+        addPiece(endPosition, promotionPiece);
         addPiece(startPosition, null);
     }
 
