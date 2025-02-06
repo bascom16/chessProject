@@ -1,6 +1,5 @@
 package chess;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -54,8 +53,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece currentPiece = board.getPiece(startPosition);
-        return new ArrayList<>(currentPiece.pieceMoves(board, startPosition));
+        return new ArrayList<>(currentPiece.validPieceMoves(board, startPosition));
     }
+
 
     /**
      * Makes a move in a chess game

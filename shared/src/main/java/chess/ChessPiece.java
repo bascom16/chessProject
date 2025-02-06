@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -61,6 +62,19 @@ public class ChessPiece {
             case ROOK -> new RookMoveCalculator().pieceMove(board, myPosition);
             case PAWN -> new PawnMoveCalculator().pieceMove(board, myPosition);
         };
+    }
+
+    public Collection<ChessMove> validPieceMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> allMoves = pieceMoves(board, myPosition);
+        Collection<ChessMove> invalidMoves = new ArrayList<>();
+        for (ChessMove move : allMoves) {
+            CheckCalculator checkCalculator = new CheckCalculator(board, pieceColor);
+            if (checkCalculator.moveCausesCheck(move)) {
+                invalidMoves.add(move);
+            }
+        }
+        allMoves.removeAll(invalidMoves);
+        return allMoves;
     }
 
     @Override
