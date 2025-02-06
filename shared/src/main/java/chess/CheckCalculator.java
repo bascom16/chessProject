@@ -3,8 +3,8 @@ package chess;
 import java.util.Collection;
 
 public class CheckCalculator {
-    private final ChessBoard board;
-    private final ChessGame.TeamColor teamColor;
+    protected final ChessBoard board;
+    protected final ChessGame.TeamColor teamColor;
 
     CheckCalculator(ChessBoard board, ChessGame.TeamColor teamColor) {
         this.board = board;
@@ -12,7 +12,7 @@ public class CheckCalculator {
     }
 
     public Boolean isInCheck() {
-        /* Calculate all valid moves for the opposite team. */
+        /* Calculate all moves for the opposite team. */
         ChessGame.TeamColor oppositeColor = getOpponentTeamColor();
         Collection<ChessMove> teamMoves = new TeamMovesCalculator(board).getTeamMoves(oppositeColor);
         /* See if any of those moves end on the King's position. */
@@ -25,7 +25,7 @@ public class CheckCalculator {
         return false;
     }
 
-    private ChessPosition getKingPosition() {
+    protected ChessPosition getKingPosition() {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPosition = new ChessPosition(i, j);
@@ -40,11 +40,11 @@ public class CheckCalculator {
         return null;
     }
 
-    private ChessGame.TeamColor getOpponentTeamColor() {
+    protected ChessGame.TeamColor getOpponentTeamColor() {
         return teamColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
     }
 
-    public Boolean moveCausesCheck(ChessMove move) {
+    protected Boolean moveCausesCheck(ChessMove move) {
         ChessBoard copyBoard = board.clone();
         copyBoard.makeMove(move);
         CheckCalculator checkCalculator = new CheckCalculator(copyBoard, teamColor);
