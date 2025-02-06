@@ -14,19 +14,12 @@ public class ChessPiece implements Cloneable {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+    private Boolean hasMoved;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-    }
-
-    @Override
-    public ChessPiece clone() {
-        try {
-            return (ChessPiece) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        hasMoved = false;
     }
 
     /**
@@ -75,6 +68,8 @@ public class ChessPiece implements Cloneable {
 
     public Collection<ChessMove> validPieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> allMoves = pieceMoves(board, myPosition);
+        allMoves.addAll(castleMoves(board, myPosition));
+        // allMoves.addAll(enPassantMoves(board, myPosition));
         Collection<ChessMove> invalidMoves = new ArrayList<>();
         for (ChessMove move : allMoves) {
             CheckCalculator checkCalculator = new CheckCalculator(board, pieceColor);
@@ -84,6 +79,96 @@ public class ChessPiece implements Cloneable {
         }
         allMoves.removeAll(invalidMoves);
         return allMoves;
+    }
+
+    private Collection<ChessMove> castleMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> castleMoveList = new ArrayList<>();
+        ChessPiece myPiece = board.getPiece(myPosition);
+        /* Piece is a king, is not in check, and has not moved. Eligible for Castle. */
+        if (myPiece.getPieceType() != PieceType.KING) {
+            return castleMoveList;
+        } else {
+            if (myPosition.getColumn() != 5) {
+                myPiece.setHasMoved(true);
+            }
+        }
+        if (myPiece.getHasMoved()) {
+            return castleMoveList;
+        }
+        CheckCalculator checkCalculator = new CheckCalculator(board, myPiece.pieceColor);
+        if (checkCalculator.isInCheck()) {
+            return castleMoveList;
+        }
+        int rookRow = myPiece.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : 8;
+        ChessPosition leftRookPosition = new ChessPosition(rookRow, 1);
+        ChessPiece leftRook = board.getPiece(leftRookPosition);
+        if (leftRook != null && !leftRook.getHasMoved()) {
+            /* left rook is eligible for castle */
+            boolean leftEligible = true;
+            /* Ensure each tile is empty */
+            for (int tileInBetween = 2; tileInBetween <= 4 && leftEligible; tileInBetween++) {
+                ChessPosition inBetweenPosition = new ChessPosition(rookRow, tileInBetween);
+                if (board.getPiece(inBetweenPosition) != null) {
+                    leftEligible = false;
+                }
+            }
+            /* Ensure the king does not pass through check */
+            ChessPosition firstPosition = new ChessPosition(rookRow, 4);
+            ChessMove firstMove = new ChessMove(myPosition, firstPosition, null);
+            if (checkCalculator.moveCausesCheck(firstMove)) {
+                leftEligible = false;
+            }
+            ChessPosition secondPosition = new ChessPosition(rookRow, 3);
+            ChessMove secondMove = new ChessMove(myPosition, secondPosition, null);
+            if (checkCalculator.moveCausesCheck(secondMove)) {
+                leftEligible = false;
+            }
+            /* if all conditions are met, add left castle to the move list */
+            if (leftEligible) {
+                castleMoveList.add(secondMove);
+            }
+        }
+        ChessPosition rightRookPosition = new ChessPosition(rookRow, 8);
+        ChessPiece rightRook = board.getPiece(rightRookPosition);
+        if (rightRook != null && !rightRook.getHasMoved()) {
+            /* right rook is eligible for castle */
+            boolean rightEligible = true;
+            /* Ensure each tile is empty */
+            for (int tileInBetween = 7; tileInBetween >= 6 && rightEligible; tileInBetween--) {
+                ChessPosition inBetweenPosition = new ChessPosition(rookRow, tileInBetween);
+                if (board.getPiece(inBetweenPosition) != null) {
+                    rightEligible = false;
+                }
+            }
+            /* Ensure the king does not pass through check */
+            ChessPosition firstPosition = new ChessPosition(rookRow, 6);
+            ChessMove firstMove = new ChessMove(myPosition, firstPosition, null);
+            if (checkCalculator.moveCausesCheck(firstMove)) {
+                rightEligible = false;
+            }
+            ChessPosition secondPosition = new ChessPosition(rookRow, 7);
+            ChessMove secondMove = new ChessMove(myPosition, secondPosition, null);
+            if (checkCalculator.moveCausesCheck(secondMove)) {
+                rightEligible = false;
+            }
+            /* if all conditions are met, add right castle to the move list */
+            if (rightEligible) {
+                castleMoveList.add(secondMove);
+            }
+        }
+        return castleMoveList;
+    }
+
+    private Collection<ChessMove> enPassantMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public Boolean getHasMoved() {
+        return hasMoved;
+    }
+
+    public void setHasMoved(Boolean hasMoved) {
+        this.hasMoved = hasMoved;
     }
 
     @Override
@@ -106,5 +191,14 @@ public class ChessPiece implements Cloneable {
                 "pieceColor=" + pieceColor +
                 ", type=" + type +
                 '}';
+    }
+
+    @Override
+    public ChessPiece clone() {
+        try {
+            return (ChessPiece) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

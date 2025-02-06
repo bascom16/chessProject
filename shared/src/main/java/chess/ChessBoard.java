@@ -96,8 +96,28 @@ public class ChessBoard implements Cloneable {
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece myPiece = getPiece(startPosition);
+        if (myPiece != null) {
+            if (myPiece.getPieceType() == ChessPiece.PieceType.KING && (Math.abs(startPosition.getColumn() - endPosition.getColumn()) == 2)) {
+                /* Castle */
+                ChessMove rookMove = getCastleMove(startPosition, endPosition);
+                makeMove(rookMove);
+            }
+        }
         addPiece(endPosition, myPiece);
+        if (myPiece != null) {
+            myPiece.setHasMoved(true);
+        }
         addPiece(startPosition, null);
+    }
+
+    private static ChessMove getCastleMove(ChessPosition startPosition, ChessPosition endPosition) {
+        int rookRow = startPosition.getRow();
+        int rookDirection = (startPosition.getColumn() < endPosition.getColumn()) ? -1 : 1;
+        int rookStartCol = rookDirection == -1 ? 8 : 1;
+        int rookEndCol = endPosition.getColumn() + rookDirection;
+        ChessPosition rookStartPosition = new ChessPosition(rookRow, rookStartCol);
+        ChessPosition rookEndPosition = new ChessPosition(rookRow, rookEndCol);
+        return new ChessMove(rookStartPosition, rookEndPosition, null);
     }
 
     private void makePromotionMove(ChessMove move) {
@@ -106,6 +126,7 @@ public class ChessBoard implements Cloneable {
         ChessPiece originalPiece = getPiece(startPosition);
         ChessPiece promotionPiece = new ChessPiece(originalPiece.getTeamColor(), move.getPromotionPiece());
         addPiece(endPosition, promotionPiece);
+        promotionPiece.setHasMoved(true);
         addPiece(startPosition, null);
     }
 
