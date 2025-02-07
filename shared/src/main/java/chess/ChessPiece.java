@@ -69,7 +69,7 @@ public class ChessPiece implements Cloneable {
     public Collection<ChessMove> validPieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> allMoves = pieceMoves(board, myPosition);
         allMoves.addAll(castleMoves(board, myPosition));
-        // allMoves.addAll(enPassantMoves(board, myPosition));
+        allMoves.addAll(enPassantMoves(board, myPosition));
         Collection<ChessMove> invalidMoves = new ArrayList<>();
         for (ChessMove move : allMoves) {
             CheckCalculator checkCalculator = new CheckCalculator(board, pieceColor);
@@ -160,7 +160,35 @@ public class ChessPiece implements Cloneable {
     }
 
     private Collection<ChessMove> enPassantMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> enPassantMoveList = new ArrayList<>();
+        ChessPiece myPiece = board.getPiece(myPosition);
+        /* Current piece must be a pawn and in row 4 or 5 with corresponding team */
+        if (myPiece.getPieceType() != PieceType.PAWN) {
+            return enPassantMoveList;
+        }
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        int direction = myPiece.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+        if (myRow == 4 && direction == -1 || myRow == 5 && direction == 1) {
+            /* Previous move must be by a pawn, distance of 2, and in a neighboring column */
+            ChessPosition previousMovePosition = board.getPreviousMove().getEndPosition();
+            ChessPiece previousPiece = board.getPiece(previousMovePosition);
+            if (previousPiece.getPieceType() != PieceType.PAWN) {
+                return enPassantMoveList;
+            }
+            int previousMoveDistance = Math.abs(board.getPreviousMove().getStartPosition().getRow() - previousMovePosition.getRow());
+            if (previousMoveDistance != 2) {
+                return enPassantMoveList;
+            }
+            int horizontalDirection = myCol - previousMovePosition.getColumn();
+            if (horizontalDirection == 1 || horizontalDirection == -1) {
+                /* Eligible for En Passant */
+                ChessPosition enPassantEndPosition = new ChessPosition(myRow + direction, myCol - horizontalDirection);
+                ChessMove enPassantMove = new ChessMove(myPosition, enPassantEndPosition, null);
+                enPassantMoveList.add(enPassantMove);
+            }
+        }
+        return enPassantMoveList;
     }
 
     public Boolean getHasMoved() {

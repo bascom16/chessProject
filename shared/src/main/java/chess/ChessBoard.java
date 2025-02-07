@@ -12,9 +12,10 @@ import java.util.Objects;
 public class ChessBoard implements Cloneable {
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessMove previousMove;
 
     public ChessBoard() {
-        
+        previousMove = null;
     }
 
     /**
@@ -102,12 +103,22 @@ public class ChessBoard implements Cloneable {
                 ChessMove rookMove = getCastleMove(startPosition, endPosition);
                 makeMove(rookMove);
             }
+            if (myPiece.getPieceType() == ChessPiece.PieceType.PAWN ) {
+                if (Math.abs(startPosition.getColumn() - endPosition.getColumn()) == 1) {
+                    if (Math.abs(startPosition.getRow() - endPosition.getRow()) == 1) {
+                        /* En Passant */
+                        ChessMove enPassantMove = getEnPassantMove(startPosition, endPosition);
+                        makeMove(enPassantMove);
+                    }
+                }
+            }
         }
         addPiece(endPosition, myPiece);
         if (myPiece != null) {
             myPiece.setHasMoved(true);
         }
         addPiece(startPosition, null);
+        previousMove = move;
     }
 
     private static ChessMove getCastleMove(ChessPosition startPosition, ChessPosition endPosition) {
@@ -118,6 +129,16 @@ public class ChessBoard implements Cloneable {
         ChessPosition rookStartPosition = new ChessPosition(rookRow, rookStartCol);
         ChessPosition rookEndPosition = new ChessPosition(rookRow, rookEndCol);
         return new ChessMove(rookStartPosition, rookEndPosition, null);
+    }
+
+    private static ChessMove getEnPassantMove(ChessPosition startPosition, ChessPosition endPosition) {
+        int direction = (endPosition.getRow() > startPosition.getRow()) ? -1 : 1;
+        ChessPosition enemyPosition = new ChessPosition(endPosition.getRow() + direction, endPosition.getColumn());
+        return new ChessMove(endPosition, enemyPosition, null);
+    }
+
+    public ChessMove getPreviousMove() {
+        return previousMove;
     }
 
     private void makePromotionMove(ChessMove move) {
