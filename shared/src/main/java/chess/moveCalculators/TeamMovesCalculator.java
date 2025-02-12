@@ -1,4 +1,6 @@
-package chess;
+package chess.moveCalculators;
+
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +8,7 @@ import java.util.Collection;
 public class TeamMovesCalculator {
     private final ChessBoard board;
 
-    TeamMovesCalculator (ChessBoard board) {
+    public TeamMovesCalculator(ChessBoard board) {
         this.board = board;
     }
 

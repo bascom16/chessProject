@@ -1,5 +1,7 @@
 package chess;
 
+import chess.moveCalculators.TeamMovesCalculator;
+
 import java.util.Collection;
 
 public class CheckmateCalculator extends CheckCalculator {

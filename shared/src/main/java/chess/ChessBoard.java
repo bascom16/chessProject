@@ -158,10 +158,11 @@ public class ChessBoard implements Cloneable {
             ChessPiece[][] oldBoard = clone.squares;
             clone.squares = new ChessPiece[8][8];
             for (int i = 0; i < squares.length; i++) {
-                for (int j = 0; j < squares[i].length; j++)
+                for (int j = 0; j < squares[i].length; j++) {
                     if (oldBoard[i][j] != null) {
                         clone.squares[i][j] = oldBoard[i][j].clone();
                     }
+                }
             }
             return clone;
         } catch (CloneNotSupportedException e) {

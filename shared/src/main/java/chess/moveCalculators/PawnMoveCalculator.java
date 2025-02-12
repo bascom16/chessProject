@@ -1,4 +1,6 @@
-package chess;
+package chess.moveCalculators;
+
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,13 +19,7 @@ public class PawnMoveCalculator implements PieceMoveCalculator {
             ChessMove nextMove = new ChessMove(position, endPosition, null);
             if (checkMove(board, nextMove)) {
                 if (checkPromotion(board, position)) {
-                    for (ChessPiece.PieceType promotionPieceType : ChessPiece.PieceType.values()) {
-                        if (    promotionPieceType != ChessPiece.PieceType.KING &&
-                                promotionPieceType != ChessPiece.PieceType.PAWN) {
-                            ChessMove promotionMove = new ChessMove(position, endPosition, promotionPieceType);
-                            moveList.add(promotionMove);
-                        }
-                    }
+                    moveList.addAll(getPromotionMoves(nextMove));
                 } else {
                     moveList.add(nextMove);
                 }
@@ -84,5 +80,19 @@ public class PawnMoveCalculator implements PieceMoveCalculator {
         int direction = myColor == ChessGame.TeamColor.WHITE ? 1 : -1;
         int myRow = position.getRow();
         return myRow == 7 && direction == 1 || myRow == 2 && direction == -1;
+    }
+
+    private Collection<ChessMove> getPromotionMoves(ChessMove move) {
+        ArrayList<ChessMove> moveList = new ArrayList<>();
+        ChessPosition myPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        for (ChessPiece.PieceType promotionPieceType : ChessPiece.PieceType.values()) {
+            if (    promotionPieceType != ChessPiece.PieceType.KING &&
+                    promotionPieceType != ChessPiece.PieceType.PAWN) {
+                ChessMove promotionMove = new ChessMove(myPosition, endPosition, promotionPieceType);
+                moveList.add(promotionMove);
+            }
+        }
+        return moveList;
     }
 }
