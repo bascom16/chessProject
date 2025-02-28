@@ -83,6 +83,14 @@ public class ChessPiece implements Cloneable {
         return allMoves;
     }
 
+    public Collection<ChessMove> pieceMovesByLevel(int level, ChessBoard board, ChessPosition myPosition) {
+        if (level >= 1) {
+            return validPieceMoves(board, myPosition);
+        } else {
+            return pieceMoves(board, myPosition);
+        }
+    }
+
     private Collection<ChessMove> castleMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> castleMoveList = new ArrayList<>();
         ChessPiece myPiece = board.getPiece(myPosition);

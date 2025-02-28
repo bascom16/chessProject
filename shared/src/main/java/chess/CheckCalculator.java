@@ -16,7 +16,7 @@ public class CheckCalculator {
     public Boolean isInCheck() {
         /* Calculate all moves for the opposite team. */
         ChessGame.TeamColor oppositeColor = getOpponentTeamColor();
-        Collection<ChessMove> teamMoves = new TeamMovesCalculator(board).getTeamMoves(oppositeColor);
+        Collection<ChessMove> teamMoves = new TeamMovesCalculator(board).getAllTeamMoves(oppositeColor);
         /* See if any of those moves end on the King's position. */
         ChessPosition kingPosition = getKingPosition();
         for (ChessMove currentMove : teamMoves) {
