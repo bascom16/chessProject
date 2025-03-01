@@ -3,7 +3,6 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import model.*;
 import handler.request.*;
 import handler.result.*;
 
@@ -21,6 +20,11 @@ public class ServiceManager {
     public RegisterResult register(RegisterRequest request) {
         RegisterService service = new RegisterService(userDataAccess, authDataAccess, gameDataAccess);
 
-        throw new RuntimeException("Not implemented");
+        String username = request.username();
+        String password = request.password();
+        String email = request.email();
+        String authToken = service.register(username, password, email);
+
+        return new RegisterResult(username, authToken);
     }
 }

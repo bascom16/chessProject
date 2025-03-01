@@ -2,9 +2,6 @@ package service;
 
 import dataaccess.*;
 
-import model.UserData;
-import model.AuthData;
-
 public class RegisterService extends BaseService {
 
     public RegisterService(UserDAO userDataAccess, AuthDAO authDataAccess, GameDAO gameDataAccess) {
