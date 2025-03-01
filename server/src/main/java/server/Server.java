@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import service.ServiceManager;
 import spark.*;
 
 public class Server {
@@ -9,7 +10,7 @@ public class Server {
     private final AuthDAO authDataAccess = new MemoryAuthDAO();
     private final GameDAO gameDataAccess = new MemoryGameDAO();
 
-    public final Service service = new Service(userDataAccess, authDataAccess, gameDataAccess);
+    public final ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

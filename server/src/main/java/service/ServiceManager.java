@@ -3,6 +3,9 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import model.*;
+import handler.request.*;
+import handler.result.*;
 
 public class ServiceManager {
     private final UserDAO userDataAccess;
@@ -13,5 +16,11 @@ public class ServiceManager {
         this.userDataAccess = userDataAccess;
         this.authDataAccess = authDataAccess;
         this.gameDataAccess = gameDataAccess;
+    }
+
+    public RegisterResult register(RegisterRequest request) {
+        RegisterService service = new RegisterService(userDataAccess, authDataAccess, gameDataAccess);
+
+        throw new RuntimeException("Not implemented");
     }
 }
