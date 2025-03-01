@@ -44,7 +44,7 @@ public class Server {
     }
 
     private Object handleRegister(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        return registerHandler.register(req, res);
     }
 
     private Object handleClear(Request req, Response res) {
