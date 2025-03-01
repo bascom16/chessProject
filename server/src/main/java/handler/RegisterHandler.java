@@ -1,4 +1,13 @@
 package handler;
 
-public class RegisterHandler extends Handler {
+import service.ServiceManager;
+
+public class RegisterHandler extends BaseHandler {
+    public RegisterHandler(ServiceManager service) {
+        super(service);
+    }
+
+    public Object register(Object body) {
+        throw new RuntimeException("Not implemented");
+    }
 }
