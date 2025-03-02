@@ -22,6 +22,7 @@ public class RegisterHandler extends BaseHandler {
             return gson.toJson(new FailureResponse("Invalid input"));
         }
 
+        res.type("application/json");
         res.status(200); // Success
         RegisterResult registerResult = service.register(registerRequest);
 

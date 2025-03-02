@@ -27,4 +27,9 @@ public class ServiceManager {
 
         return new RegisterResult(username, authToken);
     }
+
+    public void clear() {
+        ClearService service = new ClearService(userDataAccess, authDataAccess, gameDataAccess);
+        service.clear();
+    }
 }

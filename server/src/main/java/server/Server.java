@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.*;
 import exception.ResponseException;
+import handler.ClearHandler;
 import handler.RegisterHandler;
 import service.ServiceManager;
 import spark.*;
@@ -17,6 +18,7 @@ public class Server {
 
     // Handlers
     private final RegisterHandler registerHandler = new RegisterHandler(service);
+    private final ClearHandler clearHandler = new ClearHandler(service);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -25,12 +27,12 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::handleRegister);
-        // Spark.delete("/db", this::handleClear);
-        // Spark.post("/session", this::handleLogin);
-        // Spark.delete("/session", this::handleLogout);
-        // Spark.get("/game", this::handleListGames);
-        // Spark.post("/game", this::handleCreateGame);
-        // Spark.put("/game", this::handleJoinGame);
+        Spark.delete("/db", this::handleClear);
+        Spark.post("/session", this::handleLogin);
+        Spark.delete("/session", this::handleLogout);
+        Spark.get("/game", this::handleListGames);
+        Spark.post("/game", this::handleCreateGame);
+        Spark.put("/game", this::handleJoinGame);
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
@@ -50,27 +52,32 @@ public class Server {
     }
 
     private Object handleClear(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        return clearHandler.clear(req, res);
     }
 
     private Object handleLogin(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        res.status(500);
+        return "";
     }
 
     private Object handleLogout(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        res.status(500);
+        return "";
     }
 
     private Object handleListGames(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        res.status(500);
+        return "";
     }
 
     private Object handleCreateGame(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        res.status(500);
+        return "";
     }
 
     private Object handleJoinGame(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        res.status(500);
+        return "";
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
