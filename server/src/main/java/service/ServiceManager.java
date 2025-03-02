@@ -34,4 +34,8 @@ public class ServiceManager {
         ClearService service = new ClearService(userDataAccess, authDataAccess, gameDataAccess);
         service.clear();
     }
+
+    public LoginResult login() throws ResponseException {
+        throw new RuntimeException("Not implemented");
+    }
 }
