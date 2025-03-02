@@ -2,10 +2,7 @@ package server;
 
 import dataaccess.*;
 import exception.ResponseException;
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.RegisterHandler;
+import handler.*;
 import service.ServiceManager;
 import spark.*;
 
@@ -23,6 +20,7 @@ public class Server {
     private final ClearHandler clearHandler = new ClearHandler(service);
     private final LoginHandler loginHandler = new LoginHandler(service);
     private final LogoutHandler logoutHandler = new LogoutHandler(service);
+    private final ListHandler listHandler = new ListHandler(service);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -68,8 +66,7 @@ public class Server {
     }
 
     private Object handleListGames(Request req, Response res) {
-        res.status(500);
-        return "";
+        return listHandler.list(req, res);
     }
 
     private Object handleCreateGame(Request req, Response res) {

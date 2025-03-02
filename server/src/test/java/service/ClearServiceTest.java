@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.DataAccessException;
 import handler.request.RegisterRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

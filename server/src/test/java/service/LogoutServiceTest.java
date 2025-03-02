@@ -2,8 +2,6 @@ package service;
 
 import exception.ResponseException;
 import handler.request.AuthorizationRequest;
-import handler.request.LoginRequest;
-import handler.result.LoginResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

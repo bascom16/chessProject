@@ -3,11 +3,7 @@ package service;
 import exception.ResponseException;
 import handler.request.AuthorizationRequest;
 import handler.request.LoginRequest;
-import handler.request.RegisterRequest;
 import handler.result.LoginResult;
-import handler.result.RegisterResult;
-import model.AuthData;
-import model.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

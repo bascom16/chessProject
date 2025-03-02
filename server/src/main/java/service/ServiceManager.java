@@ -50,4 +50,10 @@ public class ServiceManager {
         String authToken = request.authToken();
         service.logout(authToken);
     }
+
+    public ListResult list(AuthorizationRequest request) throws ResponseException {
+        ListService service = new ListService(userDataAccess, authDataAccess, gameDataAccess);
+        String authToken = request.authToken();
+        return new ListResult(service.list(authToken));
+    }
 }
