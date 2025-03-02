@@ -3,7 +3,6 @@ package service;
 import exception.ResponseException;
 import handler.request.RegisterRequest;
 import handler.result.RegisterResult;
-import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +49,6 @@ class RegisterServiceTest extends BaseServiceTest {
 
         assertNotNull(authDataAccess.read(result1.authToken()));
         assertNotNull(authDataAccess.read(result2.authToken()));
-
-        AuthData authData1 = authDataAccess.read("username1");
-        AuthData authData2 = authDataAccess.read("username2");
     }
 
     @Test

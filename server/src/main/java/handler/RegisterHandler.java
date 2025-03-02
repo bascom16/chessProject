@@ -8,8 +8,6 @@ import service.ServiceManager;
 import spark.*;
 import com.google.gson.Gson;
 
-import java.util.Map;
-
 public class RegisterHandler extends BaseHandler {
     public RegisterHandler(ServiceManager service) {
         super(service);

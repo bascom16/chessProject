@@ -7,8 +7,6 @@ import service.ServiceManager;
 import spark.*;
 import com.google.gson.Gson;
 
-import java.util.Map;
-
 public class LoginHandler extends BaseHandler {
     public LoginHandler(ServiceManager service) {
         super(service);

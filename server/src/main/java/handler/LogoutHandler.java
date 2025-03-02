@@ -6,7 +6,6 @@ import exception.ResponseException;
 import handler.request.AuthorizationRequest;
 import service.ServiceManager;
 import spark.*;
-import com.google.gson.Gson;
 
 public class LogoutHandler extends BaseHandler {
     public LogoutHandler(ServiceManager service) {
