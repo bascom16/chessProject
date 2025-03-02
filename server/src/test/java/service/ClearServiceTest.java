@@ -1,0 +1,49 @@
+package service;
+
+import dataaccess.DataAccessException;
+import handler.request.RegisterRequest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ClearServiceTest extends BaseServiceTest{
+
+    @Test
+    @DisplayName("Single Clear Success")
+    void singleClearSuccess() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        service.register(request);
+
+        assertDoesNotThrow( () -> service.clear());
+
+        assertNull(userDataAccess.read("username"));
+        assertNull(authDataAccess.read("username"));
+    }
+
+    @Test
+    @DisplayName("Multiple Clear Success")
+    void multipleClearSuccess() {
+        RegisterRequest request = new RegisterRequest("username", "password", "email");
+        service.register(request);
+
+        assertDoesNotThrow( () -> {
+            service.clear();
+            service.clear();
+            service.clear();
+        });
+
+        assertNull(userDataAccess.read("username"));
+        assertNull(authDataAccess.read("username"));
+    }
+
+    @Test
+    @DisplayName("Clear Fail")
+    void clearFail() {
+        userDataAccess = null;
+        authDataAccess = null;
+        gameDataAccess = null;
+
+        assertThrows(DataAccessException.class, () -> service.clear());
+    }
+}

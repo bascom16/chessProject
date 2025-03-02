@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
@@ -10,7 +11,10 @@ public class ClearService extends BaseService{
         super(userDataAccess, authDataAccess, gameDataAccess);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
+        if (userDataAccess == null || authDataAccess == null || gameDataAccess == null) {
+            throw new DataAccessException("Error: Invalid Data Access");
+        }
         userDataAccess.deleteAll();
         authDataAccess.deleteAll();
         gameDataAccess.deleteAll();

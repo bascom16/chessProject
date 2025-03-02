@@ -1,5 +1,6 @@
 package handler;
 
+import com.google.gson.JsonObject;
 import service.ServiceManager;
 import exception.FailureResponse;
 import spark.*;
@@ -17,7 +18,7 @@ public class ClearHandler extends BaseHandler {
             res.type("application/json");
             res.status(200);
 
-            return new Gson().toJson("");
+            return new JsonObject();
         } catch (Exception e) {
             res.status(500);
             return new Gson().toJson(new FailureResponse("Error: " + e.getMessage()));

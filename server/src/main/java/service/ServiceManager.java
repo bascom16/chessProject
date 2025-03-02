@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import handler.request.*;
@@ -28,7 +29,7 @@ public class ServiceManager {
         return new RegisterResult(username, authToken);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         ClearService service = new ClearService(userDataAccess, authDataAccess, gameDataAccess);
         service.clear();
     }

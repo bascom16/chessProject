@@ -1,34 +1,15 @@
 package service;
 
-import dataaccess.*;
 import handler.request.RegisterRequest;
 import handler.result.RegisterResult;
 import model.AuthData;
 import model.UserData;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.security.Provider;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class RegisterServiceTest {
-
-    private static UserDAO userDataAccess;
-    private static AuthDAO authDataAccess;
-    private static GameDAO gameDataAccess;
-
-    private static ServiceManager service;
-
-    @BeforeEach
-    void setUp() {
-        userDataAccess = new MemoryUserDAO();
-        authDataAccess = new MemoryAuthDAO();
-        gameDataAccess = new MemoryGameDAO();
-
-        service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
-    }
+class RegisterServiceTest extends BaseServiceTest {
 
     @Test
     @DisplayName("Single Register Success")
