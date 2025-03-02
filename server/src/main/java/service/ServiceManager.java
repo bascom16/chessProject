@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import exception.ResponseException;
 import handler.request.*;
 import handler.result.*;
 
@@ -18,7 +19,7 @@ public class ServiceManager {
         this.gameDataAccess = gameDataAccess;
     }
 
-    public RegisterResult register(RegisterRequest request) {
+    public RegisterResult register(RegisterRequest request) throws ResponseException {
         RegisterService service = new RegisterService(userDataAccess, authDataAccess, gameDataAccess);
 
         String username = request.username();

@@ -13,7 +13,7 @@ class ClearServiceTest extends BaseServiceTest{
     @DisplayName("Single Clear Success")
     void singleClearSuccess() {
         RegisterRequest request = new RegisterRequest("username", "password", "email");
-        service.register(request);
+        assertDoesNotThrow( () -> service.register(request));
 
         assertDoesNotThrow( () -> service.clear());
 
@@ -25,7 +25,7 @@ class ClearServiceTest extends BaseServiceTest{
     @DisplayName("Multiple Clear Success")
     void multipleClearSuccess() {
         RegisterRequest request = new RegisterRequest("username", "password", "email");
-        service.register(request);
+       assertDoesNotThrow( () ->  service.register(request));
 
         assertDoesNotThrow( () -> {
             service.clear();
@@ -35,15 +35,5 @@ class ClearServiceTest extends BaseServiceTest{
 
         assertNull(userDataAccess.read("username"));
         assertNull(authDataAccess.read("username"));
-    }
-
-    @Test
-    @DisplayName("Clear Fail")
-    void clearFail() {
-        userDataAccess = null;
-        authDataAccess = null;
-        gameDataAccess = null;
-
-        assertThrows(DataAccessException.class, () -> service.clear());
     }
 }

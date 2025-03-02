@@ -1,5 +1,6 @@
 package handler;
 
+import exception.ResponseException;
 import handler.request.RegisterRequest;
 import handler.result.RegisterResult;
 import exception.FailureResponse;
@@ -15,17 +16,23 @@ public class RegisterHandler extends BaseHandler {
     }
 
     public Object register(Request req, Response res) {
-        Gson gson = new Gson();
-        RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
-        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
-            res.status(400); // Bad Request
-            return gson.toJson(new FailureResponse("Invalid input"));
+        try {
+            Gson gson = new Gson();
+            RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
+            if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
+                res.status(400); // Bad Request
+                return gson.toJson(new FailureResponse("Error: bad request"));
+            }
+
+            res.type("application/json");
+            res.status(200); // Success
+            RegisterResult registerResult = service.register(registerRequest);
+
+            return gson.toJson(Map.of("username", registerResult.username(),"authToken", registerResult.authToken()));
+        } catch (ResponseException ex) {
+            res.status(ex.StatusCode());
+            FailureResponse response = new FailureResponse("Error: " + ex.getMessage());
+            return new Gson().toJson(Map.of("message", response.message()));
         }
-
-        res.type("application/json");
-        res.status(200); // Success
-        RegisterResult registerResult = service.register(registerRequest);
-
-        return gson.toJson(Map.of("username", registerResult.username(),"authToken", registerResult.authToken()));
     }
 }
