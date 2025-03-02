@@ -22,6 +22,7 @@ public class Server {
     private final LogoutHandler logoutHandler = new LogoutHandler(service);
     private final ListHandler listHandler = new ListHandler(service);
     private final CreateHandler createHandler = new CreateHandler(service);
+    private final JoinHandler joinHandler = new JoinHandler(service);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -75,8 +76,7 @@ public class Server {
     }
 
     private Object handleJoinGame(Request req, Response res) {
-        res.status(500);
-        return "";
+        return joinHandler.join(req, res);
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {

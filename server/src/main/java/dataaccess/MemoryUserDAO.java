@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class MemoryUserDAO implements UserDAO {
-    private Map<String, UserData> userDataMap = new HashMap<>();
+    private final Map<String, UserData> userDataMap = new HashMap<>();
 
     @Override
     public void create(UserData userData) {

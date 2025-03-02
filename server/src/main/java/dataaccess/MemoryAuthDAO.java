@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class MemoryAuthDAO implements AuthDAO {
-    private Map<String, AuthData> authDataMap = new HashMap<>() {
+    private final Map<String, AuthData> authDataMap = new HashMap<>() {
     };
 
     @Override

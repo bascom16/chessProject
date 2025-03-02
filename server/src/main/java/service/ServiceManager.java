@@ -61,4 +61,10 @@ public class ServiceManager {
         CreateService service = new CreateService(userDataAccess, authDataAccess, gameDataAccess);
         return service.create(authRequest.authToken(), createRequest.gameName());
     }
+
+    public void join(AuthorizationRequest authRequest, JoinRequest joinRequest)
+            throws ResponseException, DataAccessException {
+        JoinService service = new JoinService(userDataAccess, authDataAccess, gameDataAccess);
+        service.join(authRequest.authToken(), joinRequest.playerColor(), joinRequest.gameID());
+    }
 }
