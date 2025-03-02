@@ -13,13 +13,13 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void create(AuthData authData) {
-        String username = authData.username();
-        authDataMap.put(username, authData);
+        String authToken = authData.authToken();
+        authDataMap.put(authToken, authData);
     }
 
     @Override
-    public AuthData read(String username) {
-        return authDataMap.get(username);
+    public AuthData read(String authData) {
+        return authDataMap.get(authData);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class MemoryAuthDAO implements AuthDAO {
         authDataMap.clear();
     }
 
-    private Boolean isInDatabase(String username) {
-        return authDataMap.containsKey(username);
+    private Boolean isInDatabase(String authData) {
+        return authDataMap.containsKey(authData);
     }
 }

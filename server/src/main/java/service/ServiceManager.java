@@ -7,6 +7,8 @@ import dataaccess.UserDAO;
 import exception.ResponseException;
 import handler.request.*;
 import handler.result.*;
+import model.AuthData;
+import org.eclipse.jetty.util.log.Log;
 
 public class ServiceManager {
     private final UserDAO userDataAccess;
@@ -25,9 +27,9 @@ public class ServiceManager {
         String username = request.username();
         String password = request.password();
         String email = request.email();
-        String authToken = service.register(username, password, email);
+        AuthData authData = service.register(username, password, email);
 
-        return new RegisterResult(username, authToken);
+        return new RegisterResult(username, authData.authToken());
     }
 
     public void clear() throws DataAccessException {
@@ -35,7 +37,12 @@ public class ServiceManager {
         service.clear();
     }
 
-    public LoginResult login() throws ResponseException {
-        throw new RuntimeException("Not implemented");
+    public LoginResult login(LoginRequest request) throws ResponseException {
+        LoginService service = new LoginService(userDataAccess, authDataAccess, gameDataAccess);
+        String username = request.username();
+        String password = request.password();
+        AuthData authData = service.login(username, password);
+
+        return new LoginResult(username, authData.authToken());
     }
 }

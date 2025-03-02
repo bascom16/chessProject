@@ -9,7 +9,7 @@ public interface AuthDAO extends DAO<AuthData>{
     void create(AuthData authData);
 
     @Override
-    AuthData read(String username);
+    AuthData read(String authToken);
 
     @Override
     Collection<AuthData> readAll();

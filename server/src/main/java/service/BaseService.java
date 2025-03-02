@@ -1,11 +1,15 @@
 package service;
 
+import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
+import java.util.Map;
 import java.util.UUID;
 
+import exception.FailureResponse;
+import exception.ResponseException;
 import model.*;
 
 public class BaseService {
@@ -28,15 +32,23 @@ public class BaseService {
         userDataAccess.create(userData);
     }
 
-    public String createAuth(String username) {
+    public AuthData createAuth(String username) {
         String authToken = generateToken();
         AuthData authData = new AuthData(authToken, username);
         authDataAccess.create(authData);
-        return authToken;
+        return authData;
     }
 
     private static String generateToken() {
         return UUID.randomUUID().toString();
     }
 
+    protected AuthData authenticate(String authToken) throws ResponseException {
+        AuthData authData = authDataAccess.read(authToken);
+        if (authData == null) {
+            throw new ResponseException(401, "unauthorized");
+        } else {
+            return authData;
+        }
+    }
 }

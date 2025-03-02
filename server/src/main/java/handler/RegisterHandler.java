@@ -30,9 +30,7 @@ public class RegisterHandler extends BaseHandler {
 
             return gson.toJson(Map.of("username", registerResult.username(),"authToken", registerResult.authToken()));
         } catch (ResponseException ex) {
-            res.status(ex.StatusCode());
-            FailureResponse response = new FailureResponse("Error: " + ex.getMessage());
-            return new Gson().toJson(Map.of("message", response.message()));
+            return handleResponseException(res, ex);
         }
     }
 }
