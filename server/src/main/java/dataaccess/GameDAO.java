@@ -24,4 +24,6 @@ public interface GameDAO extends DAO<GameData>{
 
     @Override
     void deleteAll();
+
+    int getGameID();
 }

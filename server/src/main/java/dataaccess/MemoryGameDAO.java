@@ -59,4 +59,12 @@ public class MemoryGameDAO implements GameDAO {
     private Boolean isInDatabase(int gameID) {
         return gameDataMap.containsKey(gameID);
     }
+
+    static int gameID = 0;
+
+    @Override
+    public int getGameID() {
+        gameID += 1;
+        return gameID;
+    }
 }

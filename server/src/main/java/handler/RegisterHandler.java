@@ -28,7 +28,7 @@ public class RegisterHandler extends BaseHandler {
             res.status(200); // Success
             RegisterResult registerResult = service.register(registerRequest);
 
-            return gson.toJson(Map.of("username", registerResult.username(),"authToken", registerResult.authToken()));
+            return gson.toJson(registerResult);
         } catch (ResponseException ex) {
             return handleResponseException(res, ex);
         }

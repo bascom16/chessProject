@@ -24,7 +24,7 @@ public class LoginHandler extends BaseHandler {
             res.type("application/json");
             res.status(200); // Success
             LoginResult loginResult = service.login(loginRequest);
-            return gson.toJson(Map.of("username", loginResult.username(),"authToken", loginResult.authToken()));
+            return gson.toJson(loginResult);
         } catch (ResponseException ex) {
             return handleResponseException(res, ex);
         }
