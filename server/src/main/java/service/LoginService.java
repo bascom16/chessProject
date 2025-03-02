@@ -6,7 +6,6 @@ import dataaccess.UserDAO;
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.server.Response;
 
 import java.util.Objects;
 

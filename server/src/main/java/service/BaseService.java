@@ -1,14 +1,11 @@
 package service;
 
-import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
-import java.util.Map;
 import java.util.UUID;
 
-import exception.FailureResponse;
 import exception.ResponseException;
 import model.*;
 

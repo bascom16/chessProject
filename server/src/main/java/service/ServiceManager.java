@@ -8,7 +8,6 @@ import exception.ResponseException;
 import handler.request.*;
 import handler.result.*;
 import model.AuthData;
-import org.eclipse.jetty.util.log.Log;
 
 public class ServiceManager {
     private final UserDAO userDataAccess;
@@ -44,5 +43,11 @@ public class ServiceManager {
         AuthData authData = service.login(username, password);
 
         return new LoginResult(username, authData.authToken());
+    }
+
+    public void logout(AuthorizationRequest request) throws ResponseException, DataAccessException {
+        LogoutService service = new LogoutService(userDataAccess, authDataAccess, gameDataAccess);
+        String authToken = request.authToken();
+        service.logout(authToken);
     }
 }

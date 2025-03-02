@@ -1,6 +1,5 @@
 package handler;
 
-import exception.FailureResponse;
 import exception.ResponseException;
 import handler.request.LoginRequest;
 import handler.result.LoginResult;

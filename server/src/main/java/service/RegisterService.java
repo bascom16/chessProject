@@ -14,11 +14,11 @@ public class RegisterService extends BaseService {
      * Returns AuthToken as String
      */
     public AuthData register(String username, String password, String email) throws ResponseException {
-        if (doesUserExist(username)) {
-            throw new ResponseException(403, "already taken");
-        }
         if (username == null || password == null || email == null) {
             throw new ResponseException(400, "bad request");
+        }
+        if (doesUserExist(username)) {
+            throw new ResponseException(403, "already taken");
         }
         createUser(username, password, email);
         return createAuth(username);

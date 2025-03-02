@@ -4,8 +4,8 @@ import dataaccess.*;
 import exception.ResponseException;
 import handler.ClearHandler;
 import handler.LoginHandler;
+import handler.LogoutHandler;
 import handler.RegisterHandler;
-import org.eclipse.jetty.util.log.Log;
 import service.ServiceManager;
 import spark.*;
 
@@ -22,6 +22,7 @@ public class Server {
     private final RegisterHandler registerHandler = new RegisterHandler(service);
     private final ClearHandler clearHandler = new ClearHandler(service);
     private final LoginHandler loginHandler = new LoginHandler(service);
+    private final LogoutHandler logoutHandler = new LogoutHandler(service);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -63,8 +64,7 @@ public class Server {
     }
 
     private Object handleLogout(Request req, Response res) {
-        res.status(500);
-        return "";
+        return logoutHandler.logout(req, res);
     }
 
     private Object handleListGames(Request req, Response res) {

@@ -42,11 +42,11 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void delete(AuthData authData) throws DataAccessException {
-        String username = authData.username();
-        if (!isInDatabase(username)) {
+        String authToken = authData.authToken();
+        if (!isInDatabase(authToken)) {
             throw new DataAccessException("Deletion failed: Authorization does not exist");
         }
-        authDataMap.remove(username);
+        authDataMap.remove(authToken);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class MemoryAuthDAO implements AuthDAO {
         authDataMap.clear();
     }
 
-    private Boolean isInDatabase(String authData) {
-        return authDataMap.containsKey(authData);
+    private Boolean isInDatabase(String authToken) {
+        return authDataMap.containsKey(authToken);
     }
 }
