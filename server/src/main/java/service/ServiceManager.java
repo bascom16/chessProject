@@ -57,7 +57,8 @@ public class ServiceManager {
         return new ListResult(service.list(authToken));
     }
 
-    public CreateResult create(AuthorizationRequest authRequest, CreateRequest createRequest) throws ResponseException {
+    public CreateResult create(AuthorizationRequest authRequest, CreateRequest createRequest)
+            throws ResponseException, DataAccessException {
         CreateService service = new CreateService(userDataAccess, authDataAccess, gameDataAccess);
         return service.create(authRequest.authToken(), createRequest.gameName());
     }

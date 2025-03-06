@@ -4,8 +4,9 @@ import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AuthDAOTest extends DAOTest<AuthData>{
+public class AuthDAOTest extends DAOTest<AuthData, String>{
     @BeforeEach
     void setUp() {
         dataAccessObject = new MemoryAuthDAO();
@@ -22,5 +23,6 @@ public class AuthDAOTest extends DAOTest<AuthData>{
         assertDoesNotThrow( () -> dataAccessObject.create(data));
         AuthData modifiedData = new AuthData("differentAuthToken", identifier);
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
+        assertEquals(modifiedData, dataAccessObject.read(identifier));
     }
 }

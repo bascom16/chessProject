@@ -8,15 +8,12 @@ public class MemoryGameDAO implements GameDAO {
     private final Map<Integer, GameData> gameDataMap = new HashMap<>();
 
     @Override
-    public void create(GameData gameData) {
+    public void create(GameData gameData) throws DataAccessException {
+        if (gameData == null) {
+            throw new DataAccessException("Passed in null value");
+        }
         int gameID = gameData.gameID();
         gameDataMap.put(gameID, gameData);
-    }
-
-    @Override
-    public GameData read(String gameID) {
-        int intID = Integer.parseInt(gameID);
-        return read(intID);
     }
 
     @Override

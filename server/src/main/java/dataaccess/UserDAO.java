@@ -4,7 +4,7 @@ import model.UserData;
 
 import java.util.Collection;
 
-public interface UserDAO extends DAO<UserData>{
+public interface UserDAO extends DAO<UserData, String>{
     @Override
     void create(UserData userData) throws DataAccessException;
 

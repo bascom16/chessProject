@@ -4,13 +4,11 @@ import model.GameData;
 
 import java.util.Collection;
 
-public interface GameDAO extends DAO<GameData>{
+public interface GameDAO extends DAO<GameData, Integer>{
     @Override
-    void create(GameData gameData);
+    void create(GameData gameData) throws DataAccessException;
 
     @Override
-    GameData read(String gameID);
-
     GameData read(Integer gameID);
 
     @Override

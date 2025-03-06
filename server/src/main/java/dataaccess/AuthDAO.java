@@ -4,7 +4,7 @@ import model.AuthData;
 
 import java.util.Collection;
 
-public interface AuthDAO extends DAO<AuthData>{
+public interface AuthDAO extends DAO<AuthData, String>{
     @Override
     void create(AuthData authData) throws DataAccessException;
 

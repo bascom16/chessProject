@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class DAOTest<T> {
-    protected DAO<T> dataAccessObject;
-    protected String identifier;
+abstract class DAOTest<T, K> {
+    protected DAO<T, K> dataAccessObject;
+    protected K identifier;
     protected T data;
-    protected String identifier2;
+    protected K identifier2;
     protected T data2;
-    protected String identifier3;
+    protected K identifier3;
     protected T data3;
 
     @Test

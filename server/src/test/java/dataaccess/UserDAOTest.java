@@ -4,8 +4,9 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UserDAOTest extends DAOTest<UserData>{
+public class UserDAOTest extends DAOTest<UserData, String>{
     @BeforeEach
     void setUp() {
         dataAccessObject = new MemoryUserDAO();
@@ -22,5 +23,6 @@ public class UserDAOTest extends DAOTest<UserData>{
         assertDoesNotThrow( () -> dataAccessObject.create(data));
         UserData modifiedData = new UserData(identifier, "password", "differentEmail");
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
+        assertEquals(modifiedData, dataAccessObject.read(identifier));
     }
 }

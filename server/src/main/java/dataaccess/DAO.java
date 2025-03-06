@@ -2,10 +2,10 @@ package dataaccess;
 
 import java.util.Collection;
 
-public interface DAO<T> {
+public interface DAO<T, K> {
     void create(T data) throws DataAccessException;
 
-    T read(String identifier);
+    T read(K identifier);
 
     Collection<T> readAll();
 
