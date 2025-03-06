@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
@@ -24,7 +25,7 @@ public class BaseService {
         return userDataAccess.read(username);
     }
 
-    public void createUser(String username, String password, String email) {
+    public void createUser(String username, String password, String email) throws DataAccessException {
         UserData userData = new UserData(username, password, email);
         userDataAccess.create(userData);
     }

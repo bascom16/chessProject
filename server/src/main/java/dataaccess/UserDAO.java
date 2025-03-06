@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface UserDAO extends DAO<UserData>{
     @Override
-    void create(UserData userData);
+    void create(UserData userData) throws DataAccessException;
 
     @Override
     UserData read(String username);

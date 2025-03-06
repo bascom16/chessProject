@@ -11,7 +11,10 @@ public class MemoryUserDAO implements UserDAO {
     private final Map<String, UserData> userDataMap = new HashMap<>();
 
     @Override
-    public void create(UserData userData) {
+    public void create(UserData userData) throws DataAccessException {
+        if (userData == null) {
+            throw new DataAccessException("Passed in null value");
+        }
         String username = userData.username();
         userDataMap.put(username, userData);
     }

@@ -20,7 +20,7 @@ public class ServiceManager {
         this.gameDataAccess = gameDataAccess;
     }
 
-    public RegisterResult register(RegisterRequest request) throws ResponseException {
+    public RegisterResult register(RegisterRequest request) throws ResponseException, DataAccessException {
         RegisterService service = new RegisterService(userDataAccess, authDataAccess, gameDataAccess);
 
         String username = request.username();

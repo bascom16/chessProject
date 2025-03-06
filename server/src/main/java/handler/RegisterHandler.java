@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import handler.request.RegisterRequest;
 import handler.result.RegisterResult;
@@ -29,6 +30,8 @@ public class RegisterHandler extends BaseHandler {
             return gson.toJson(registerResult);
         } catch (ResponseException ex) {
             return handleResponseException(res, ex);
+        } catch (DataAccessException ex) {
+            return handleDataAccessException(res, ex);
         }
     }
 }
