@@ -36,7 +36,7 @@ public class ServiceManager {
         service.clear();
     }
 
-    public LoginResult login(LoginRequest request) throws ResponseException {
+    public LoginResult login(LoginRequest request) throws ResponseException, DataAccessException {
         LoginService service = new LoginService(userDataAccess, authDataAccess, gameDataAccess);
         String username = request.username();
         String password = request.password();

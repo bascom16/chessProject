@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import exception.ResponseException;
@@ -14,7 +15,7 @@ public class LoginService extends BaseService {
         super(userDataAccess, authDataAccess, gameDataAccess);
     }
 
-    public AuthData login(String username, String password) throws ResponseException {
+    public AuthData login(String username, String password) throws ResponseException, DataAccessException {
         UserData userData = getUser(username);
         if (userData == null) {
             throw new ResponseException(401, "unauthorized");

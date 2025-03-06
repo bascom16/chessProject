@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import handler.request.LoginRequest;
 import handler.result.LoginResult;
@@ -25,6 +26,8 @@ public class LoginHandler extends BaseHandler {
             return gson.toJson(loginResult);
         } catch (ResponseException ex) {
             return handleResponseException(res, ex);
+        } catch (DataAccessException ex) {
+            return handleDataAccessException(res, ex);
         }
     }
 }

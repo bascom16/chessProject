@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface AuthDAO extends DAO<AuthData>{
     @Override
-    void create(AuthData authData);
+    void create(AuthData authData) throws DataAccessException;
 
     @Override
     AuthData read(String authToken);

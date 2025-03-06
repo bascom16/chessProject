@@ -30,7 +30,7 @@ public class BaseService {
         userDataAccess.create(userData);
     }
 
-    public AuthData createAuth(String username) {
+    public AuthData createAuth(String username) throws DataAccessException {
         String authToken = generateToken();
         AuthData authData = new AuthData(authToken, username);
         authDataAccess.create(authData);

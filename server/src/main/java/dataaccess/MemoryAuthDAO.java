@@ -12,7 +12,10 @@ public class MemoryAuthDAO implements AuthDAO {
     };
 
     @Override
-    public void create(AuthData authData) {
+    public void create(AuthData authData) throws DataAccessException {
+        if (authData == null) {
+            throw new DataAccessException("Passed in null value");
+        }
         String authToken = authData.authToken();
         authDataMap.put(authToken, authData);
     }
