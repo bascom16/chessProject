@@ -15,7 +15,8 @@ public class JoinService extends BaseService {
         super(userDataAccess, authDataAccess, gameDataAccess);
     }
 
-    public void join(String authToken, String playerColor, Integer gameID) throws ResponseException, DataAccessException {
+    public void join(String authToken, String playerColor, Integer gameID)
+            throws ResponseException, DataAccessException {
         AuthData authData = authenticate(authToken);
         GameData gameData = gameDataAccess.read(gameID);
         if (gameData == null) {

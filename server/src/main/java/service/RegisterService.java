@@ -13,7 +13,8 @@ public class RegisterService extends BaseService {
      * Takes in Register Request Data
      * Returns AuthToken as String
      */
-    public AuthData register(String username, String password, String email) throws ResponseException, DataAccessException {
+    public AuthData register(String username, String password, String email)
+            throws ResponseException, DataAccessException {
         if (username == null || password == null || email == null) {
             throw new ResponseException(400, "bad request");
         }
