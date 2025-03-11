@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class GameDAOTest extends DAOTest<GameData, Integer>{
     @BeforeEach
     void setUp() {
-        dataAccessObject = new MemoryGameDAO();
+        dataAccessObject = new MySQLGameDAO();
         identifier = 1;
         identifier2 = 2;
         identifier3 = 3;
@@ -24,10 +24,15 @@ public class GameDAOTest extends DAOTest<GameData, Integer>{
 
     @Override
     void updateSuccess() {
+
         assertDoesNotThrow( () -> dataAccessObject.create(data));
         GameData modifiedData =
                 new GameData(identifier, "user2", "user1", "game4", new ChessGame());
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
         assertEquals(modifiedData, dataAccessObject.read(identifier));
+/*
+        Edit test to actually update a game!
+*/
+        throw new RuntimeException("Not implemented");
     }
 }

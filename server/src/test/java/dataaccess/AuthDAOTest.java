@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AuthDAOTest extends DAOTest<AuthData, String>{
     @BeforeEach
     void setUp() {
-        dataAccessObject = new MemoryAuthDAO();
+        dataAccessObject = new MySQLAuthDAO();
         identifier = "authToken";
         identifier2 = "authToken2";
         identifier3 = "authToken3";
