@@ -10,7 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class GameDAOTest extends DAOTest<GameData, Integer>{
     @BeforeEach
     void setUp() {
-        dataAccessObject = new MySQLGameDAO();
+        try {
+            dataAccessObject = new MySQLGameDAO();
+        } catch (Exception ignored) {}
+
         identifier = 1;
         identifier2 = 2;
         identifier3 = 3;

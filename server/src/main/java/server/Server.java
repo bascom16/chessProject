@@ -8,9 +8,9 @@ import spark.*;
 
 public class Server {
     // Memory data structures
-    private final UserDAO userDataAccess = new MemoryUserDAO();
-    private final AuthDAO authDataAccess = new MemoryAuthDAO();
-    private final GameDAO gameDataAccess = new MemoryGameDAO();
+    private UserDAO userDataAccess = new MemoryUserDAO();
+    private AuthDAO authDataAccess = new MemoryAuthDAO();
+    private GameDAO gameDataAccess = new MemoryGameDAO();
 
     // Service Manager
     private final ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
@@ -28,6 +28,14 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        try {
+            userDataAccess = new MySQLUserDAO();
+            authDataAccess = new MySQLAuthDAO();
+            gameDataAccess = new MySQLGameDAO();
+        } catch (Exception ex) {
+            System.out.println("MySQL database uninitialized");
+        }
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::handleRegister);

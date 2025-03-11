@@ -5,7 +5,11 @@ import model.GameData;
 import java.util.Collection;
 import java.util.List;
 
-public class MySQLGameDAO implements GameDAO {
+public class MySQLGameDAO extends MySQLDAO implements GameDAO {
+    public MySQLGameDAO() throws DataAccessException {
+        super();
+    }
+
     @Override
     public void create(GameData gameData) throws DataAccessException {
         throw new RuntimeException("not implemented");

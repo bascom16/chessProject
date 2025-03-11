@@ -5,7 +5,11 @@ import model.AuthData;
 import java.util.Collection;
 import java.util.List;
 
-public class MySQLAuthDAO implements AuthDAO {
+public class MySQLAuthDAO extends MySQLDAO implements AuthDAO {
+    public MySQLAuthDAO() throws DataAccessException {
+        super();
+    }
+
     @Override
     public void create(AuthData authData) throws DataAccessException {
         throw new RuntimeException("not implemented");

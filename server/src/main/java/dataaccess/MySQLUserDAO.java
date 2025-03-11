@@ -5,7 +5,11 @@ import model.UserData;
 import java.util.Collection;
 import java.util.List;
 
-public class MySQLUserDAO implements UserDAO {
+public class MySQLUserDAO extends MySQLDAO implements UserDAO {
+    public MySQLUserDAO() throws DataAccessException {
+        super();
+    }
+
     @Override
     public void create(UserData userData) throws DataAccessException {
         throw new RuntimeException("not implemented");
