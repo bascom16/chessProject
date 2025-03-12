@@ -11,7 +11,9 @@ public class AuthDAOTest extends DAOTest<AuthData, String>{
     void setUp() {
         try {
             dataAccessObject = new MySQLAuthDAO();
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
         identifier = "authToken";
         identifier2 = "authToken2";
