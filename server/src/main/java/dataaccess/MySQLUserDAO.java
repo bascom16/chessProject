@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UserData;
 
+import java.sql.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -12,7 +13,17 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
 
     @Override
     public void create(UserData userData) throws DataAccessException {
-        throw new RuntimeException("not implemented");
+        try (Connection connection = DatabaseManager.getConnection();) {
+            String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            try (var preparedStatement = connection.prepareStatement(statement);) {
+                preparedStatement.setString(1, userData.username());
+                preparedStatement.setString(2, userData.password());
+                preparedStatement.setString(3, userData.email());
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to create user");
+        }
     }
 
     @Override
