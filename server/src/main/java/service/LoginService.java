@@ -7,6 +7,7 @@ import dataaccess.UserDAO;
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 
@@ -27,6 +28,6 @@ public class LoginService extends BaseService {
     }
 
     private Boolean matchPassword(String password, UserData userData) {
-        return Objects.equals(password, userData.password());
+        return BCrypt.checkpw(password, userData.password());
     }
 }

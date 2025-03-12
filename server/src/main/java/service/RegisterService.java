@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import exception.ResponseException;
 import model.AuthData;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class RegisterService extends BaseService {
 
@@ -21,11 +22,15 @@ public class RegisterService extends BaseService {
         if (doesUserExist(username)) {
             throw new ResponseException(403, "already taken");
         }
-        createUser(username, password, email);
+        createUser(username, hashPassword(password), email);
         return createAuth(username);
     }
 
     private Boolean doesUserExist(String username) throws DataAccessException {
         return getUser(username) != null;
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 }
