@@ -73,7 +73,7 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read user");
+            throw new DataAccessException("Unable to read users");
         }
         return userData;
     }
