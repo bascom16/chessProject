@@ -9,8 +9,6 @@ import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.Objects;
-
 public class LoginService extends BaseService {
     public LoginService(UserDAO userDataAccess, AuthDAO authDataAccess, GameDAO gameDataAccess) {
         super(userDataAccess, authDataAccess, gameDataAccess);

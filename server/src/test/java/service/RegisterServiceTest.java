@@ -21,7 +21,6 @@ class RegisterServiceTest extends BaseServiceTest {
 
         UserData userData = assertDoesNotThrow( () -> userDataAccess.read("username"));
         assertEquals("username", userData.username());
-        assertEquals("password", userData.password());
         assertEquals("email", userData.email());
 
         assertNotNull(assertDoesNotThrow( () -> authDataAccess.read(result.authToken())) );
@@ -42,8 +41,6 @@ class RegisterServiceTest extends BaseServiceTest {
         UserData userData2 = assertDoesNotThrow( () -> userDataAccess.read("username2"));
         assertEquals("username1", userData1.username());
         assertEquals("username2", userData2.username());
-        assertEquals("password1", userData1.password());
-        assertEquals("password2", userData2.password());
         assertEquals("email1", userData1.email());
         assertEquals("email2", userData2.email());
 
