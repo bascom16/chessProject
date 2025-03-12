@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     public MySQLGameDAO() throws DataAccessException {
         super();
+        gameID = 0;
     }
 
     @Override
@@ -91,18 +92,15 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
         if (!isInDatabase(gameData)) {
             throw new DataAccessException("Unable to update game: game not found");
         }
-        GameData oldGameData = read(gameData.gameID());
-        delete(oldGameData);
         try (Connection connection = DatabaseManager.getConnection()) {
-            String statement =  "INSERT INTO game (gameID, whiteUser, blackUser, gameName, gameData)" +
-                    " VALUES (?, ?, ?, ?, ?);";
+            String statement =  "UPDATE game SET whiteUser=?, blackUser=?, gameName=?, gameData=? WHERE gameID=?";
             try (var preparedStatement = connection.prepareStatement(statement)) {
-                preparedStatement.setInt(1, gameData.gameID());
-                preparedStatement.setString(2, gameData.whiteUsername());
-                preparedStatement.setString(3, gameData.blackUsername());
-                preparedStatement.setString(4, gameData.gameName());
+                preparedStatement.setString(1, gameData.whiteUsername());
+                preparedStatement.setString(2, gameData.blackUsername());
+                preparedStatement.setString(3, gameData.gameName());
                 Object gameJSON = new Gson().toJson(gameData.game());
-                preparedStatement.setString(5, gameJSON.toString());
+                preparedStatement.setString(4, gameJSON.toString());
+                preparedStatement.setInt(5, gameData.gameID());
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
@@ -134,7 +132,7 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
         executeBasicStatement(statement, "Unable to delete user data");
     }
 
-    static int gameID = 0;
+    static int gameID;
 
     @Override
     public int getGameID() {

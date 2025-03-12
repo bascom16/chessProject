@@ -1,5 +1,6 @@
 package dataaccess;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -93,5 +94,15 @@ abstract class DAOTest<T, K> {
         assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier)));
         assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier2)));
         assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier3)));
+    }
+
+    @AfterEach
+    void reset() {
+        try {
+            dataAccessObject.reset();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new RuntimeException("Table not reset");
+        }
     }
 }

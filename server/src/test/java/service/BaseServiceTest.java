@@ -16,9 +16,17 @@ public class BaseServiceTest {
 
     @BeforeEach
     void setUp() {
-        userDataAccess = new MemoryUserDAO();
-        authDataAccess = new MemoryAuthDAO();
-        gameDataAccess = new MemoryGameDAO();
+        try {
+            userDataAccess = new MySQLUserDAO();
+            authDataAccess = new MySQLAuthDAO();
+            gameDataAccess = new MySQLGameDAO();
+            userDataAccess.reset();
+            authDataAccess.reset();
+            gameDataAccess.reset();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new RuntimeException("Failed to initialize database");
+        }
 
         service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
     }

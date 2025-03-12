@@ -38,12 +38,8 @@ public class GameDAOTest extends DAOTest<GameData, Integer>{
         assertDoesNotThrow( () -> dataAccessObject.create(data));
 
         ChessGame complexGame = new ChessGame();
-        ChessBoard board = new ChessBoard();
-        ChessPosition startPosition = new ChessPosition(1, 1);
-        ChessPosition endPosition = new ChessPosition(3, 3);
-        ChessPiece piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
-        board.addPiece(startPosition, piece);
-        complexGame.setBoard(board);
+        ChessPosition startPosition = new ChessPosition(2, 1);
+        ChessPosition endPosition = new ChessPosition(3, 1);
         ChessMove move = new ChessMove(startPosition, endPosition, null);
         assertDoesNotThrow( () -> complexGame.makeMove(move));
         GameData modifiedData =
