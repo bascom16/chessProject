@@ -3,7 +3,6 @@ package dataaccess;
 import model.GameData;
 
 import java.util.Collection;
-import java.util.List;
 
 public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     public MySQLGameDAO() throws DataAccessException {
