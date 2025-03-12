@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -60,8 +61,22 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
     }
 
     @Override
-    public Collection<UserData> readAll() {
-        throw new RuntimeException("not implemented");
+    public Collection<UserData> readAll() throws DataAccessException {
+        Collection<UserData> userData = new ArrayList<>();
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT username, password, email FROM user;";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        userData.add(readUserData(resultSet));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to read user");
+        }
+        return userData;
     }
 
     @Override
