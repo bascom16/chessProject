@@ -22,7 +22,7 @@ class LoginServiceTest extends BaseServiceTest {
                 () -> service.login(new LoginRequest("username", "password")) );
         String authToken2 = loginResult.authToken();
 
-        assertEquals("username", authDataAccess.read(authToken2).username());
+        assertEquals("username", assertDoesNotThrow( () -> authDataAccess.read(authToken2).username()) );
     }
 
     @Test
@@ -46,6 +46,4 @@ class LoginServiceTest extends BaseServiceTest {
         assertThrows(ResponseException.class,
                 () -> service.login(new LoginRequest(null, null)) );
     }
-
-
 }

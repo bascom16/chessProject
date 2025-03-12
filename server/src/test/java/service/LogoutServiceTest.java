@@ -16,7 +16,7 @@ class LogoutServiceTest extends BaseServiceTest {
 
         assertDoesNotThrow( () -> service.logout(new AuthorizationRequest(authToken)));
 
-        assertNull(authDataAccess.read(authToken));
+        assertNull(assertDoesNotThrow( () -> authDataAccess.read(authToken)));
     }
 
     @Test
@@ -26,7 +26,7 @@ class LogoutServiceTest extends BaseServiceTest {
 
         assertThrows(ResponseException.class, () -> service.logout(new AuthorizationRequest("wrongToken")));
 
-        assertNotNull(authDataAccess.read(authToken));
+        assertNotNull(assertDoesNotThrow( () -> authDataAccess.read(authToken)) );
     }
 
     @Test
@@ -35,6 +35,6 @@ class LogoutServiceTest extends BaseServiceTest {
         String authToken = register("username", "password", "email");
 
         assertThrows(ResponseException.class, () -> service.logout(new AuthorizationRequest(null)));
-        assertNotNull(authDataAccess.read(authToken));
+        assertNotNull(assertDoesNotThrow( () -> authDataAccess.read(authToken)));
     }
 }

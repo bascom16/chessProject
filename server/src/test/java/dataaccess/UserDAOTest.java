@@ -28,6 +28,6 @@ public class UserDAOTest extends DAOTest<UserData, String>{
         assertDoesNotThrow( () -> dataAccessObject.create(data));
         UserData modifiedData = new UserData(identifier, "password", "differentEmail");
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
-        assertEquals(modifiedData, dataAccessObject.read(identifier));
+        assertEquals(modifiedData, assertDoesNotThrow( () -> dataAccessObject.read(identifier)) );
     }
 }

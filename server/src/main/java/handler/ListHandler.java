@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import handler.request.AuthorizationRequest;
 import handler.result.ListResult;
@@ -30,6 +31,8 @@ public class ListHandler extends BaseHandler {
             return new Gson().toJson(Map.of("games", list));
         } catch (ResponseException ex) {
             return handleResponseException(res, ex);
+        } catch (DataAccessException ex) {
+            return handleDataAccessException(res, ex);
         }
     }
 }

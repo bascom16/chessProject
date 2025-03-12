@@ -32,9 +32,9 @@ public class MySQLDAO {
     """,
     """
     CREATE TABLE IF NOT EXISTS auth (
-    username VARCHAR(256) NOT NULL,
     authToken VARCHAR(256) NOT NULL,
-    PRIMARY KEY (username)
+    username VARCHAR(256) NOT NULL,
+    PRIMARY KEY (authToken)
     );
     """,
     """

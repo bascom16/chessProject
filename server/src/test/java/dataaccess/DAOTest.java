@@ -18,7 +18,7 @@ abstract class DAOTest<T, K> {
     @Test
     void createSuccess() {
         assertDoesNotThrow( () -> dataAccessObject.create(data));
-        assertNotNull( dataAccessObject.read(identifier));
+        assertNotNull( assertDoesNotThrow( () -> dataAccessObject.read(identifier)) );
     }
 
     @Test
@@ -29,13 +29,14 @@ abstract class DAOTest<T, K> {
     @Test
     void readSuccess() {
         assertDoesNotThrow( () -> dataAccessObject.create(data));
-        assertEquals(data, dataAccessObject.read(identifier));
+        assertEquals(data, assertDoesNotThrow( () -> dataAccessObject.read(identifier)));
     }
 
     @Test
     void readFailure() {
-        dataAccessObject.deleteAll();
-        assertNull(dataAccessObject.read(identifier));
+        assertDoesNotThrow( () -> dataAccessObject.deleteAll());
+
+        assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier)));
     }
 
     @Test
@@ -50,14 +51,14 @@ abstract class DAOTest<T, K> {
         expectedList.add(data3);
 
         for (T entry : expectedList) {
-            assertTrue(dataAccessObject.readAll().contains(entry));
+            assertTrue(assertDoesNotThrow( () -> dataAccessObject.readAll().contains(entry)));
         }
     }
 
     @Test
     void readAllFailure() {
         ArrayList<T> emptyList = new ArrayList<>();
-        assertEquals(emptyList, dataAccessObject.readAll());
+        assertEquals(emptyList, assertDoesNotThrow( () -> dataAccessObject.readAll()));
     }
 
     @Test
@@ -86,10 +87,11 @@ abstract class DAOTest<T, K> {
         assertDoesNotThrow( () -> dataAccessObject.create(data2));
         assertDoesNotThrow( () -> dataAccessObject.create(data3));
 
-        dataAccessObject.deleteAll();
+        assertDoesNotThrow( () -> dataAccessObject.deleteAll());
 
-        assertNull(dataAccessObject.read(identifier));
-        assertNull(dataAccessObject.read(identifier2));
-        assertNull(dataAccessObject.read(identifier3));
+
+        assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier)));
+        assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier2)));
+        assertNull(assertDoesNotThrow( () -> dataAccessObject.read(identifier3)));
     }
 }

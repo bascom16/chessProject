@@ -21,7 +21,7 @@ public class BaseService {
         this.gameDataAccess = gameDataAccess;
     }
 
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         return userDataAccess.read(username);
     }
 
@@ -41,7 +41,7 @@ public class BaseService {
         return UUID.randomUUID().toString();
     }
 
-    protected AuthData authenticate(String authToken) throws ResponseException {
+    protected AuthData authenticate(String authToken) throws ResponseException, DataAccessException {
         AuthData authData = authDataAccess.read(authToken);
         if (authData == null) {
             throw new ResponseException(401, "unauthorized");

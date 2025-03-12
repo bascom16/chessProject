@@ -16,8 +16,8 @@ class ClearServiceTest extends BaseServiceTest{
 
         assertDoesNotThrow( () -> service.clear());
 
-        assertNull(userDataAccess.read("username"));
-        assertNull(authDataAccess.read("username"));
+        assertNull(assertDoesNotThrow( () -> userDataAccess.read("username")));
+        assertNull(assertDoesNotThrow( () -> authDataAccess.read("username")));
     }
 
     @Test
@@ -32,7 +32,7 @@ class ClearServiceTest extends BaseServiceTest{
             service.clear();
         });
 
-        assertNull(userDataAccess.read("username"));
-        assertNull(authDataAccess.read("username"));
+        assertNull(assertDoesNotThrow( () -> userDataAccess.read("username")) );
+        assertNull(assertDoesNotThrow( () -> authDataAccess.read("username")) );
     }
 }

@@ -13,9 +13,9 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
 
     @Override
     public void create(UserData userData) throws DataAccessException {
-        try (Connection connection = DatabaseManager.getConnection();) {
+        try (Connection connection = DatabaseManager.getConnection()) {
             String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-            try (var preparedStatement = connection.prepareStatement(statement);) {
+            try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, userData.username());
                 preparedStatement.setString(2, userData.password());
                 preparedStatement.setString(3, userData.email());
@@ -27,8 +27,30 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
     }
 
     @Override
-    public UserData read(String username) {
-        throw new RuntimeException("not implemented");
+    public UserData read(String username) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT username, password, email FROM user WHERE user=?";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return readUserData(resultSet);
+                    }
+                }
+
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to read user");
+        }
+        return null;
+    }
+
+    private UserData readUserData(ResultSet resultSet) throws SQLException {
+        String username = resultSet.getString("username");
+        String password = resultSet.getString("password");
+        String email = resultSet.getString("email");
+        return new UserData(username, password, email);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class GameDAOTest extends DAOTest<GameData, Integer>{
         GameData modifiedData =
                 new GameData(identifier, "user2", "user1", "game4", new ChessGame());
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
-        assertEquals(modifiedData, dataAccessObject.read(identifier));
+        assertEquals(modifiedData, assertDoesNotThrow( () -> dataAccessObject.read(identifier)));
 /*
         Edit test to actually update a game!
 */

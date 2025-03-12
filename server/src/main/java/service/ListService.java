@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import exception.ResponseException;
@@ -13,7 +14,7 @@ public class ListService extends BaseService {
         super(userDataAccess, authDataAccess, gameDataAccess);
     }
 
-    public Collection<GameData> list(String authToken) throws ResponseException {
+    public Collection<GameData> list(String authToken) throws ResponseException, DataAccessException {
         authenticate(authToken);
         return listGameData();
     }

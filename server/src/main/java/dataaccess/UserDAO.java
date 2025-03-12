@@ -9,10 +9,10 @@ public interface UserDAO extends DAO<UserData, String>{
     void create(UserData userData) throws DataAccessException;
 
     @Override
-    UserData read(String username);
+    UserData read(String username) throws DataAccessException;
 
     @Override
-    Collection<UserData> readAll();
+    Collection<UserData> readAll() throws DataAccessException;
 
     @Override
     void update(UserData userData) throws DataAccessException;
@@ -21,5 +21,5 @@ public interface UserDAO extends DAO<UserData, String>{
     void delete(UserData userData) throws DataAccessException;
 
     @Override
-    void deleteAll();
+    void deleteAll() throws DataAccessException;
 }

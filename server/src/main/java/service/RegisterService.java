@@ -25,7 +25,7 @@ public class RegisterService extends BaseService {
         return createAuth(username);
     }
 
-    private Boolean doesUserExist(String username) {
+    private Boolean doesUserExist(String username) throws DataAccessException {
         return getUser(username) != null;
     }
 }

@@ -9,10 +9,10 @@ public interface AuthDAO extends DAO<AuthData, String>{
     void create(AuthData authData) throws DataAccessException;
 
     @Override
-    AuthData read(String authToken);
+    AuthData read(String authToken) throws DataAccessException;
 
     @Override
-    Collection<AuthData> readAll();
+    Collection<AuthData> readAll() throws DataAccessException;
 
     @Override
     void update (AuthData authData) throws DataAccessException;
@@ -21,5 +21,5 @@ public interface AuthDAO extends DAO<AuthData, String>{
     void delete(AuthData authData) throws DataAccessException;
 
     @Override
-    void deleteAll();
+    void deleteAll() throws DataAccessException;
 }

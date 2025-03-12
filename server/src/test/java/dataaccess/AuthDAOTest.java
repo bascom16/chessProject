@@ -28,6 +28,6 @@ public class AuthDAOTest extends DAOTest<AuthData, String>{
         assertDoesNotThrow( () -> dataAccessObject.create(data));
         AuthData modifiedData = new AuthData("differentAuthToken", identifier);
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
-        assertEquals(modifiedData, dataAccessObject.read(identifier));
+        assertEquals(modifiedData, assertDoesNotThrow( () -> dataAccessObject.read(identifier)) );
     }
 }

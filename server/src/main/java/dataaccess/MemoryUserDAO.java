@@ -20,7 +20,7 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData read(String username) {
+    public UserData read(String username) throws DataAccessException {
         return userDataMap.get(username);
     }
 
