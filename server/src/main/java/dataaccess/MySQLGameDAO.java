@@ -6,6 +6,7 @@ import model.GameData;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import com.google.gson.Gson;
 
@@ -67,18 +68,64 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> readAll() {
-        throw new RuntimeException("not implemented");
+    public Collection<GameData> readAll() throws DataAccessException {
+        Collection<GameData> gameDataList = new ArrayList<>();
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT gameID, whiteUser, blackUser, gameName, gameData FROM game;";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        gameDataList.add(readGameData(resultSet));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to read games");
+        }
+        return gameDataList;
     }
 
     @Override
     public void update(GameData gameData) throws DataAccessException {
-        throw new RuntimeException("not implemented");
+        if (!isInDatabase(gameData)) {
+            throw new DataAccessException("Unable to update game: game not found");
+        }
+        GameData oldGameData = read(gameData.gameID());
+        delete(oldGameData);
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement =  "INSERT INTO game (gameID, whiteUser, blackUser, gameName, gameData)" +
+                    " VALUES (?, ?, ?, ?, ?);";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameData.gameID());
+                preparedStatement.setString(2, gameData.whiteUsername());
+                preparedStatement.setString(3, gameData.blackUsername());
+                preparedStatement.setString(4, gameData.gameName());
+                Object gameJSON = new Gson().toJson(gameData.game());
+                preparedStatement.setString(5, gameJSON.toString());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to update user");
+        }
     }
 
     @Override
     public void delete(GameData gameData) throws DataAccessException {
-        throw new RuntimeException("not implemented");
+        try (Connection connection = DatabaseManager.getConnection()) {
+            if (!isInDatabase(gameData)) {
+                throw new DataAccessException("Unable to delete game: game not found");
+            }
+            String statement = "DELETE FROM game WHERE gameID=?;";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameData.gameID());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to delete game");
+        }
     }
 
     @Override
@@ -101,5 +148,9 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
         executeBasicStatement(statement, "Unable to reset game table");
         configureDatabase();
         gameID = 0;
+    }
+
+    private Boolean isInDatabase(GameData data) throws DataAccessException {
+        return read(data.gameID()) != null;
     }
 }
