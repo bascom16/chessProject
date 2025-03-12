@@ -24,7 +24,7 @@ class JoinServiceTest extends BaseServiceTest{
 
         JoinRequest joinRequest = new JoinRequest("WHITE", createResult.gameID());
         assertDoesNotThrow( () -> service.join(authRequest, joinRequest));
-        GameData gameData = gameDataAccess.read(createResult.gameID());
+        GameData gameData = assertDoesNotThrow( () -> gameDataAccess.read(createResult.gameID()));
         assertEquals("username", gameData.whiteUsername());
     }
 
@@ -40,7 +40,7 @@ class JoinServiceTest extends BaseServiceTest{
         JoinRequest joinRequest = new JoinRequest("WHITE", createResult.gameID());
         AuthorizationRequest authRequest2 = new AuthorizationRequest("try this");
         assertThrows(ResponseException.class, () -> service.join(authRequest2, joinRequest));
-        GameData gameData = gameDataAccess.read(createResult.gameID());
+        GameData gameData = assertDoesNotThrow( () -> gameDataAccess.read(createResult.gameID()));
         assertNotEquals("username", gameData.whiteUsername());
     }
 
@@ -62,7 +62,7 @@ class JoinServiceTest extends BaseServiceTest{
         JoinRequest joinRequest2 = new JoinRequest("WHITE", createResult.gameID());
         assertThrows(ResponseException.class, () -> service.join(authRequest2, joinRequest2));
 
-        GameData gameData = gameDataAccess.read(createResult.gameID());
+        GameData gameData = assertDoesNotThrow( () -> gameDataAccess.read(createResult.gameID()));
         assertEquals("username1", gameData.whiteUsername());
     }
 }

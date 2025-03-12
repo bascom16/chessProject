@@ -19,7 +19,7 @@ public class ListService extends BaseService {
         return listGameData();
     }
 
-    private Collection<GameData> listGameData() {
+    private Collection<GameData> listGameData() throws DataAccessException {
         return gameDataAccess.readAll();
     }
 }

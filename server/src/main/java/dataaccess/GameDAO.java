@@ -9,10 +9,10 @@ public interface GameDAO extends DAO<GameData, Integer>{
     void create(GameData gameData) throws DataAccessException;
 
     @Override
-    GameData read(Integer gameID);
+    GameData read(Integer gameID) throws DataAccessException;
 
     @Override
-    Collection<GameData> readAll();
+    Collection<GameData> readAll() throws DataAccessException;
 
     @Override
     void update(GameData gameData) throws DataAccessException;
@@ -21,7 +21,7 @@ public interface GameDAO extends DAO<GameData, Integer>{
     void delete(GameData gameData) throws DataAccessException;
 
     @Override
-    void deleteAll();
+    void deleteAll() throws DataAccessException;
 
     @Override
     void reset() throws DataAccessException;

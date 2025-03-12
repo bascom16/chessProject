@@ -23,9 +23,9 @@ class ListServiceTest extends BaseServiceTest{
         CreateResult result1 = assertDoesNotThrow( () -> service.create(authRequest, createRequest1));
         CreateResult result2 = assertDoesNotThrow( () -> service.create(authRequest, createRequest2));
         CreateResult result3 = assertDoesNotThrow( () -> service.create(authRequest, createRequest3));
-        assertNotNull(gameDataAccess.read(result1.gameID()));
-        assertNotNull(gameDataAccess.read(result2.gameID()));
-        assertNotNull(gameDataAccess.read(result3.gameID()));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result1.gameID())));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result2.gameID())));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result3.gameID())));
         assertDoesNotThrow( () -> service.list(authRequest));
     }
 

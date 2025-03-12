@@ -19,7 +19,7 @@ class CreateServiceTest extends BaseServiceTest{
         CreateRequest createRequest = new CreateRequest("game");
 
         CreateResult result = assertDoesNotThrow( () -> service.create(authRequest, createRequest));
-        assertNotNull(gameDataAccess.read(result.gameID()));
+        assertNotNull( assertDoesNotThrow( () -> gameDataAccess.read(result.gameID())) );
     }
 
     @Test
@@ -31,9 +31,9 @@ class CreateServiceTest extends BaseServiceTest{
         CreateRequest createRequest2 = new CreateRequest("game2");
 
         CreateResult result1 = assertDoesNotThrow( () -> service.create(authRequest, createRequest1));
-        assertNotNull(gameDataAccess.read(result1.gameID()));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result1.gameID())));
         CreateResult result2 = assertDoesNotThrow( () -> service.create(authRequest, createRequest2));
-        assertNotNull(gameDataAccess.read(result2.gameID()));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result2.gameID())));
     }
 
     @Test
@@ -47,9 +47,9 @@ class CreateServiceTest extends BaseServiceTest{
         CreateRequest createRequest2 = new CreateRequest("game2");
 
         CreateResult result1 = assertDoesNotThrow( () -> service.create(authRequest1, createRequest1));
-        assertNotNull(gameDataAccess.read(result1.gameID()));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result1.gameID())));
         CreateResult result2 = assertDoesNotThrow( () -> service.create(authRequest2, createRequest2));
-        assertNotNull(gameDataAccess.read(result2.gameID()));
+        assertNotNull(assertDoesNotThrow( () -> gameDataAccess.read(result2.gameID())));
     }
 
     @Test

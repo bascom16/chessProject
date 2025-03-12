@@ -1,8 +1,10 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import com.google.gson.Gson;
@@ -36,8 +38,32 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     }
 
     @Override
-    public GameData read(Integer gameID) {
-        throw new RuntimeException("not implemented");
+    public GameData read(Integer gameID) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String statement = "SELECT gameID, whiteUser, blackUser, gameName, gameData FROM game WHERE gameID=?;";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameID);
+                try (var resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return readGameData(resultSet);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to read game");
+        }
+        return null;
+    }
+
+    private GameData readGameData(ResultSet resultSet) throws SQLException {
+        int gameID = resultSet.getInt("gameID");
+        String whiteUsername = resultSet.getString("whiteUser");
+        String blackUsername = resultSet.getString("blackUser");
+        String gameName = resultSet.getString("gameName");
+        String gameDataObject = resultSet.getString("gameData");
+        ChessGame gameData = new Gson().fromJson(gameDataObject, ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, gameData);
     }
 
     @Override
@@ -56,8 +82,9 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     }
 
     @Override
-    public void deleteAll() {
-        throw new RuntimeException("not implemented");
+    public void deleteAll() throws DataAccessException {
+        String statement = "TRUNCATE TABLE game;";
+        executeBasicStatement(statement, "Unable to delete user data");
     }
 
     static int gameID = 0;
@@ -73,5 +100,6 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
         String statement = "DROP TABLE game;";
         executeBasicStatement(statement, "Unable to reset game table");
         configureDatabase();
+        gameID = 0;
     }
 }
