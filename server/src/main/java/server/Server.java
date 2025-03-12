@@ -8,21 +8,39 @@ import spark.*;
 
 public class Server {
     // Memory data structures
-    private UserDAO userDataAccess = new MemoryUserDAO();
-    private AuthDAO authDataAccess = new MemoryAuthDAO();
-    private GameDAO gameDataAccess = new MemoryGameDAO();
-
-    // Service Manager
-    private final ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
+    private UserDAO userDataAccess;
+    private AuthDAO authDataAccess;
+    private GameDAO gameDataAccess;
 
     // Handlers
-    private final RegisterHandler registerHandler = new RegisterHandler(service);
-    private final ClearHandler clearHandler = new ClearHandler(service);
-    private final LoginHandler loginHandler = new LoginHandler(service);
-    private final LogoutHandler logoutHandler = new LogoutHandler(service);
-    private final ListHandler listHandler = new ListHandler(service);
-    private final CreateHandler createHandler = new CreateHandler(service);
-    private final JoinHandler joinHandler = new JoinHandler(service);
+    private final RegisterHandler registerHandler;
+    private final ClearHandler clearHandler;
+    private final LoginHandler loginHandler;
+    private final LogoutHandler logoutHandler;
+    private final ListHandler listHandler;
+    private final CreateHandler createHandler;
+    private final JoinHandler joinHandler;
+
+    public Server() {
+        try {
+            userDataAccess = new MySQLUserDAO();
+            authDataAccess = new MySQLAuthDAO();
+            gameDataAccess = new MySQLGameDAO();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        // Service Manager
+        ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
+
+        registerHandler = new RegisterHandler(service);
+        clearHandler = new ClearHandler(service);
+        loginHandler = new LoginHandler(service);
+        logoutHandler = new LogoutHandler(service);
+        listHandler = new ListHandler(service);
+        createHandler = new CreateHandler(service);
+        joinHandler = new JoinHandler(service);
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

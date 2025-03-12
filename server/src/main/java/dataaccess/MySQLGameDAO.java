@@ -25,7 +25,7 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
             String statement =  "INSERT INTO game (gameID, whiteUser, blackUser, gameName, gameData)" +
                                 " VALUES (?, ?, ?, ?, ?);";
             try (var preparedStatement = connection.prepareStatement(statement)) {
-                preparedStatement.setInt(1, getGameID());
+                preparedStatement.setInt(1, gameData.gameID());
                 preparedStatement.setString(2, gameData.whiteUsername());
                 preparedStatement.setString(3, gameData.blackUsername());
                 preparedStatement.setString(4, gameData.gameName());
