@@ -15,6 +15,7 @@ public class GameDAOTest extends DAOTest<GameData, Integer>{
             dataAccessObject = new MySQLGameDAO();
             dataAccessObject.reset();
         } catch (Exception ex) {
+            System.out.println(ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         }
 
