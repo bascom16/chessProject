@@ -5,7 +5,6 @@ import model.UserData;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class MySQLUserDAO extends MySQLDAO implements UserDAO {
     public MySQLUserDAO() throws DataAccessException {
@@ -81,7 +80,12 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
 
     @Override
     public void update(UserData userData) throws DataAccessException {
-        throw new RuntimeException("not implemented");
+        if (!isInDatabase(userData)) {
+            throw new DataAccessException("Unable to update user: user not found");
+        }
+        UserData oldUserData = read(userData.username());
+        delete(oldUserData);
+        create(userData);
     }
 
     @Override

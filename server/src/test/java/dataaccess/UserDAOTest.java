@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,9 +26,10 @@ public class UserDAOTest extends DAOTest<UserData, String>{
     }
 
     @Override
+    @Test
     void updateSuccess() {
         assertDoesNotThrow( () -> dataAccessObject.create(data));
-        UserData modifiedData = new UserData(identifier, "password", "differentEmail");
+        UserData modifiedData = new UserData(identifier, "differentPassword", "differentEmail");
         assertDoesNotThrow( () -> dataAccessObject.update(modifiedData));
         assertEquals(modifiedData, assertDoesNotThrow( () -> dataAccessObject.read(identifier)) );
     }
