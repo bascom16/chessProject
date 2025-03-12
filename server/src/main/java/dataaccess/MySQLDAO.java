@@ -8,7 +8,7 @@ public class MySQLDAO {
         configureDatabase();
     }
 
-    private void configureDatabase() throws DataAccessException {
+    protected void configureDatabase() throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
             for (String statement : createStatements) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
@@ -48,4 +48,15 @@ public class MySQLDAO {
     );
     """
     };
+
+    protected void executeBasicStatement(String statement, String failureMessage) throws DataAccessException {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException(failureMessage);
+        }
+    }
 }

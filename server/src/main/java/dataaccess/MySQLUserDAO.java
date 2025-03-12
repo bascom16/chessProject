@@ -14,11 +14,12 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
     @Override
     public void create(UserData userData) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?);";
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, userData.username());
                 preparedStatement.setString(2, userData.password());
                 preparedStatement.setString(3, userData.email());
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
@@ -29,7 +30,7 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
     @Override
     public UserData read(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            String statement = "SELECT username, password, email FROM user WHERE user=?";
+            String statement = "SELECT username, password, email FROM user WHERE username=?;";
             try (var preparedStatement = connection.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 try (var resultSet = preparedStatement.executeQuery()) {
@@ -69,7 +70,14 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
     }
 
     @Override
-    public void deleteAll() {
-        throw new RuntimeException("not implemented");
+    public void deleteAll() throws DataAccessException {
+        String statement = "TRUNCATE TABLE user;";
+        executeBasicStatement(statement, "Unable to delete user data");
+    }
+
+    public void reset() throws DataAccessException {
+        String statement = "DROP TABLE user;";
+        executeBasicStatement(statement, "Unable to reset user table");
+        configureDatabase();
     }
 }

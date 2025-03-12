@@ -56,6 +56,11 @@ public class MemoryUserDAO implements UserDAO {
         userDataMap.clear();
     }
 
+    @Override
+    public void reset() {
+        deleteAll();
+    }
+
     private Boolean isInDatabase(String username) {
         return userDataMap.containsKey(username);
     }

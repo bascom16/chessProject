@@ -69,4 +69,11 @@ public class MySQLAuthDAO extends MySQLDAO implements AuthDAO {
     public void deleteAll() {
         throw new RuntimeException("not implemented");
     }
+
+    @Override
+    public void reset() throws DataAccessException {
+        String statement = "DROP TABLE auth;";
+        executeBasicStatement(statement, "Unable to reset authorization table");
+        configureDatabase();
+    }
 }

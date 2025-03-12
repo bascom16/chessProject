@@ -22,4 +22,7 @@ public interface UserDAO extends DAO<UserData, String>{
 
     @Override
     void deleteAll() throws DataAccessException;
+
+    @Override
+    void reset() throws DataAccessException;
 }

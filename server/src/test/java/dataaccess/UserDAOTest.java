@@ -11,6 +11,7 @@ public class UserDAOTest extends DAOTest<UserData, String>{
     void setUp() {
         try {
             dataAccessObject = new MySQLUserDAO();
+            dataAccessObject.reset();
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }

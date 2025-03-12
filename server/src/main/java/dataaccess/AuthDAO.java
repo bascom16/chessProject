@@ -22,4 +22,7 @@ public interface AuthDAO extends DAO<AuthData, String>{
 
     @Override
     void deleteAll() throws DataAccessException;
+
+    @Override
+    void reset() throws DataAccessException;
 }

@@ -53,6 +53,11 @@ public class MemoryGameDAO implements GameDAO {
         gameDataMap.clear();
     }
 
+    @Override
+    public void reset() {
+        deleteAll();
+    }
+
     private Boolean isInDatabase(int gameID) {
         return gameDataMap.containsKey(gameID);
     }

@@ -41,6 +41,11 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     }
 
     @Override
+    public void reset() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public int getGameID() {
         throw new RuntimeException("not implemented");
     }

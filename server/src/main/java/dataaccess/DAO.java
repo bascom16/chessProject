@@ -14,4 +14,6 @@ public interface DAO<T, K> {
     void delete(T data) throws DataAccessException;
 
     void deleteAll() throws DataAccessException;
+
+    void reset() throws DataAccessException;
 }
