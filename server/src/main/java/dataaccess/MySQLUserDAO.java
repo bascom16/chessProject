@@ -13,6 +13,9 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
 
     @Override
     public void create(UserData userData) throws DataAccessException {
+        if (userData == null) {
+            throw new DataAccessException("Unable to create user: invalid input");
+        }
         try (Connection connection = DatabaseManager.getConnection()) {
             String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?);";
             try (var preparedStatement = connection.prepareStatement(statement)) {
@@ -38,7 +41,6 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
                         return readUserData(resultSet);
                     }
                 }
-
             }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
@@ -51,6 +53,9 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
         String username = resultSet.getString("username");
         String password = resultSet.getString("password");
         String email = resultSet.getString("email");
+        if (username == null || password == null || email == null) {
+            return null;
+        }
         return new UserData(username, password, email);
     }
 
@@ -66,7 +71,19 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
 
     @Override
     public void delete(UserData userData) throws DataAccessException {
-        throw new RuntimeException("not implemented");
+        try (Connection connection = DatabaseManager.getConnection()) {
+            if (!isInDatabase(userData)) {
+                throw new DataAccessException("Unable to delete user: user not found");
+            }
+            String statement = "DELETE FROM user WHERE username=?;";
+            try (var preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, userData.username());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            throw new DataAccessException("Unable to delete user");
+        }
     }
 
     @Override
@@ -79,5 +96,9 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
         String statement = "DROP TABLE user;";
         executeBasicStatement(statement, "Unable to reset user table");
         configureDatabase();
+    }
+
+    private Boolean isInDatabase(UserData data) throws DataAccessException {
+        return read(data.username()) != null;
     }
 }
