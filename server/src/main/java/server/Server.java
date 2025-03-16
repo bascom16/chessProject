@@ -109,4 +109,8 @@ public class Server {
         res.status(ex.statusCode());
         res.body(ex.toJson());
     }
+
+    public int port() {
+        return Spark.port();
+    }
 }
