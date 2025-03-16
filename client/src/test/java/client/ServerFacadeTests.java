@@ -43,7 +43,8 @@ public class ServerFacadeTests {
     @Test
     public void registerSuccess() {
         RegisterRequest request = new RegisterRequest(username, password, email);
-        assertDoesNotThrow( () -> facade.register(request));
+        AuthData data = assertDoesNotThrow( () -> facade.register(request));
+        assertEquals(username, data.username());
     }
 
     @Test
@@ -61,6 +62,32 @@ public class ServerFacadeTests {
 
         LoginRequest request = new LoginRequest(username, password);
         assertDoesNotThrow( () -> facade.login(request));
+    }
+
+    @Test
+    public void unauthorizedLogin() {
+        String authToken = register().authToken();
+        logout(authToken);
+
+        LoginRequest request = new LoginRequest(username, "the wrong password");
+        ResponseException error = assertThrows(ResponseException.class,
+                () -> facade.login(request), "Wrong password should invalidate login");
+        assertEquals(401, error.statusCode());
+    }
+
+    @Test
+    public void logoutSuccess() {
+        String authToken = register().authToken();
+        assertDoesNotThrow( () -> facade.logout(authToken));
+    }
+
+    @Test
+    public void unauthorizedLogout() {
+        register();
+        ResponseException error = assertThrows(ResponseException.class,
+                () -> facade.logout("the wrong authorization"),
+                "Wrong authToken should invalidate Logout");
+        assertEquals(401, error.statusCode());
     }
 
     private AuthData register(String username, String password, String email) {

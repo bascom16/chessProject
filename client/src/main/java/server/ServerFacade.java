@@ -104,10 +104,8 @@ public class ServerFacade {
 
     private static void writeHeader(String authToken, HttpURLConnection http) throws IOException {
         if (authToken != null) {
-            http.addRequestProperty("Accept", "text/html");
-            try (OutputStream requestHeader = http.getOutputStream()) {
-                requestHeader.write(authToken.getBytes());
-            }
+            http.setRequestProperty("Authorization", authToken);
+            http.setRequestProperty("Accept", "application/json");
         }
     }
 
