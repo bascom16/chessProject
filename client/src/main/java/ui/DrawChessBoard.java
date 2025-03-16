@@ -12,6 +12,7 @@ import java.util.*;
 
 public class DrawChessBoard {
 
+//    Colors
     private static final String SET_BORDER_COLOR = EscapeSequences.SET_BG_COLOR_MAGENTA;
     private static final String SET_BORDER_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_WHITE;
     private static final String SET_LIGHT_TILE_COLOR = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
@@ -22,7 +23,7 @@ public class DrawChessBoard {
     private static final String SET_BLACK_PIECE_COLOR = EscapeSequences.SET_TEXT_COLOR_BLUE;
 
     private static final int A = 1;
-    public static final int H = 8;
+    private static final int H = 8;
 
     private static ChessGame.TeamColor teamColor;
     private static int startRow;
@@ -47,11 +48,13 @@ public class DrawChessBoard {
         new DrawChessBoard(board, out).drawBoard(ChessGame.TeamColor.WHITE);
         out.println();
         new DrawChessBoard(board, out).drawBoard(ChessGame.TeamColor.BLACK);
+        out.println();
+        new DrawChessBoard(board, out).drawBoard(null);
     }
 
     public void drawBoard(ChessGame.TeamColor color) {
         teamColor = color;
-        if (color == ChessGame.TeamColor.WHITE) {
+        if (color == ChessGame.TeamColor.WHITE || color == null) {
             startRow = 8;
             endRow = 1;
             startCol = A;
