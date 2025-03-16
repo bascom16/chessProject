@@ -18,13 +18,14 @@ public class BaseHandler {
 
     protected Object handleResponseException(Response res, ResponseException ex) {
         res.status(ex.statusCode());
-        FailureResponse response = new FailureResponse("Error: " + ex.getMessage());
-        return new Gson().toJson(Map.of("message", response.message()));
+        FailureResponse response = new FailureResponse("Error: " + ex.getMessage(), ex.statusCode());
+        return new Gson().toJson(Map.of("message", response.message(), "status", ex.statusCode()));
     }
 
     protected Object handleDataAccessException(Response res, DataAccessException ex) {
-        res.status(500);
-        FailureResponse response = new FailureResponse("Error: " + ex.getMessage());
-        return new Gson().toJson(Map.of("message", response.message()));
+        int status = 500;
+        res.status(status);
+        FailureResponse response = new FailureResponse("Error: " + ex.getMessage(), status);
+        return new Gson().toJson(Map.of("message", response.message(), "status", response.status()));
     }
 }

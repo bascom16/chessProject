@@ -16,9 +16,9 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade facade;
 
-    private static String username = "username";
-    private static String password = "password";
-    private static String email = "email";
+    private static final String username = "username";
+    private static final String password = "password";
+    private static final String email = "email";
 
 
     @BeforeAll
@@ -64,7 +64,7 @@ public class ServerFacadeTests {
     }
 
     private AuthData register(String username, String password, String email) {
-        return facade.register(new RegisterRequest(username, password, email));
+        return assertDoesNotThrow( () -> facade.register(new RegisterRequest(username, password, email)));
     }
 
     private AuthData register() {
@@ -72,6 +72,6 @@ public class ServerFacadeTests {
     }
 
     private void logout(String authToken) {
-        facade.logout(authToken);
+        assertDoesNotThrow( () -> facade.logout(authToken));
     }
 }

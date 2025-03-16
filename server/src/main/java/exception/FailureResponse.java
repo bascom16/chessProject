@@ -1,4 +1,4 @@
 package exception;
 
-public record FailureResponse(String message) {
+public record FailureResponse(String message, int status) {
 }

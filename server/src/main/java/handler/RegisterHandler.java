@@ -21,8 +21,9 @@ public class RegisterHandler extends BaseHandler {
             if (    registerRequest.username() == null ||
                     registerRequest.password() == null ||
                     registerRequest.email() == null) {
-                res.status(400); // Bad Request
-                return gson.toJson(new FailureResponse("Error: bad request"));
+                int status = 400;
+                res.status(status); // Bad Request
+                return gson.toJson(new FailureResponse("Error: bad request", status));
             }
 
             res.type("application/json");

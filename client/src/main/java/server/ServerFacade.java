@@ -21,27 +21,27 @@ public class ServerFacade {
 
 //    Passes username, password, email in body
 //    Returns username and authToken
-    public AuthData register(RegisterRequest request) {
+    public AuthData register(RegisterRequest request) throws ResponseException {
         String path = "/user";
         return this.makeRequest("POST", path, request, null, AuthData.class);
     }
 
 //    passes username and password in body
 //    Returns username and authToken
-    public AuthData login(LoginRequest request) {
+    public AuthData login(LoginRequest request) throws ResponseException {
         String path = "/session";
         return this.makeRequest("POST", path, request, null, AuthData.class);
     }
 
 //    passes authToken in header
-    public void logout(String authToken) {
+    public void logout(String authToken) throws ResponseException {
         String path = "/session";
         this.makeRequest("DELETE", path, null, authToken, null);
     }
 
 //    passes authToken in header
 //    Returns list of gameData
-    public GameData[] list(String authToken) {
+    public GameData[] list(String authToken) throws ResponseException {
         String path = "/game";
         record listGameData(GameData[] list) {}
         listGameData response = this.makeRequest("GET", path, null, authToken, listGameData.class);
@@ -51,24 +51,25 @@ public class ServerFacade {
 //    passes authToken in header
 //    passes gameName in body
 //    Returns gameID
-    public Integer create(CreateRequest request, String authToken) {
+    public Integer create(CreateRequest request, String authToken) throws ResponseException {
         String path = "/game";
         return this.makeRequest("POST", path, request, authToken, Integer.class);
     }
 
 //    passes authToken in header
 //    passes playerColor, gameID in body
-    public void join(JoinRequest request, String authToken) {
+    public void join(JoinRequest request, String authToken) throws ResponseException {
         String path = "/game";
         this.makeRequest("PUT", path, request, authToken, null);
     }
 
-    public void clear() {
+    public void clear() throws ResponseException {
         String path = "/db";
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) {
+    private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass)
+            throws ResponseException {
         try {
             URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -80,8 +81,14 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
+        } catch (IOException | URISyntaxException ex) {
+            throw new ResponseException(500, ex.getMessage());
         } catch (Exception ex) {
-            throw new RuntimeException("Not implemented");
+            if (ex instanceof ResponseException) {
+                throw ex;
+            } else {
+                throw new ResponseException(500, ex.getMessage());
+            }
         }
     }
 

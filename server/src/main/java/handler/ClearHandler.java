@@ -20,8 +20,9 @@ public class ClearHandler extends BaseHandler {
 
             return new JsonObject();
         } catch (Exception e) {
-            res.status(500);
-            return new Gson().toJson(new FailureResponse("Error: " + e.getMessage()));
+            int status = 500;
+            res.status(status);
+            return new Gson().toJson(new FailureResponse("Error: " + e.getMessage(), status));
         }
     }
 }
