@@ -52,12 +52,9 @@ public class ServerFacadeTests {
 
     @Test
     public void registerMultipleSuccess() {
-        RegisterRequest request1 = new RegisterRequest(username, password, email);
-        AuthData data1 = assertDoesNotThrow( () -> facade.register(request1));
-        assertEquals(username, data1.username());
-        RegisterRequest request2 = new RegisterRequest("username2", "password2", "email2");
-        AuthData data2 = assertDoesNotThrow( () -> facade.register(request2));
-        assertEquals("username2", data2.username());
+        assertEquals(username, register().username());
+        String user2 = "username2";
+        assertEquals(user2, register(user2, "password2", "email2").username());
     }
 
     @Test

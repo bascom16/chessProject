@@ -7,13 +7,11 @@ import handler.request.JoinRequest;
 import handler.request.LoginRequest;
 import handler.request.RegisterRequest;
 import handler.result.CreateResult;
-import handler.result.ListResult;
 import model.AuthData;
 import model.GameData;
 
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
 
 public class ServerFacade {
     private final String serverURL;
