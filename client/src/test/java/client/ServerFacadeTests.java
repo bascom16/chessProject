@@ -103,6 +103,16 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void createBadRequest() {
+        String authToken = register().authToken();
+        CreateRequest request = new CreateRequest(null);
+        assertThrows(ResponseException.class,
+                () -> facade.create(request, authToken), "Null gameName should cancel create");
+        GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
+        assertEquals(0, list.length);
+    }
+
+    @Test
     public void listSuccess() {
         String authToken = register().authToken();
         String game1 = "game1";
@@ -116,6 +126,11 @@ public class ServerFacadeTests {
         assertEquals(game1, list[0].gameName());
         assertEquals(game2, list[1].gameName());
         assertEquals(2, list.length);
+    }
+
+    @Test
+    public void listUnauthorized() {
+        assertThrows(ResponseException.class, () -> facade.list(null), "Unauthorized request");
     }
 
     private AuthData register(String username, String password, String email) {
