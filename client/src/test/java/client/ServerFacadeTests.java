@@ -51,11 +51,30 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void registerMultipleSuccess() {
+        RegisterRequest request1 = new RegisterRequest(username, password, email);
+        AuthData data1 = assertDoesNotThrow( () -> facade.register(request1));
+        assertEquals(username, data1.username());
+        RegisterRequest request2 = new RegisterRequest("username2", "password2", "email2");
+        AuthData data2 = assertDoesNotThrow( () -> facade.register(request2));
+        assertEquals("username2", data2.username());
+    }
+
+    @Test
     public void registerBadRequest() {
         RegisterRequest request = new RegisterRequest(null, password, email);
         ResponseException error = assertThrows(ResponseException.class,
                 () -> facade.register(request), "Bad register request should throw error");
         assertEquals(400, error.statusCode());
+    }
+
+    @Test
+    public void registerUsernameTaken() {
+        RegisterRequest request1 = new RegisterRequest(username, password, email);
+        AuthData data1 = assertDoesNotThrow( () -> facade.register(request1));
+        assertEquals(username, data1.username());
+        RegisterRequest request2 = new RegisterRequest(username, "password2", "email2");
+        assertThrows(ResponseException.class, () -> facade.register(request2), "Username taken");
     }
 
     @Test
@@ -133,6 +152,39 @@ public class ServerFacadeTests {
         assertThrows(ResponseException.class, () -> facade.list(null), "Unauthorized request");
     }
 
+    @Test
+    public void joinWhiteSuccess() {
+        String authToken = register().authToken();
+        String game = "gameName";
+        int gameID = create(game, authToken);
+        assertDoesNotThrow( () -> facade.join(new JoinRequest("WHITE", gameID), authToken));
+        GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
+        assertEquals(username, list[0].whiteUsername());
+    }
+
+    @Test
+    public void joinBlackSuccess() {
+        String authToken = register().authToken();
+        String game = "gameName";
+        int gameID = create(game, authToken);
+        assertDoesNotThrow( () -> facade.join(new JoinRequest("BLACK", gameID), authToken));
+        GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
+        assertEquals(username, list[0].blackUsername());
+    }
+
+    @Test
+    public void joinBadRequest() {
+        String authToken = register().authToken();
+        String game = "gameName";
+        int gameID = create(game, authToken);
+        assertThrows(ResponseException.class,
+                () -> facade.join(new JoinRequest("NOT_A_COLOR", gameID), authToken),
+                "Invalid color");
+        GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
+        assertNotEquals(username, list[0].whiteUsername());
+        assertNotEquals(username, list[0].blackUsername());
+    }
+
     private AuthData register(String username, String password, String email) {
         return assertDoesNotThrow( () -> facade.register(new RegisterRequest(username, password, email)));
     }
@@ -143,5 +195,9 @@ public class ServerFacadeTests {
 
     private void logout(String authToken) {
         assertDoesNotThrow( () -> facade.logout(authToken));
+    }
+
+    private int create(String gameName, String authToken) {
+        return assertDoesNotThrow( () -> facade.create(new CreateRequest(gameName), authToken));
     }
 }
