@@ -6,11 +6,14 @@ import handler.request.CreateRequest;
 import handler.request.JoinRequest;
 import handler.request.LoginRequest;
 import handler.request.RegisterRequest;
+import handler.result.CreateResult;
+import handler.result.ListResult;
 import model.AuthData;
 import model.GameData;
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 public class ServerFacade {
     private final String serverURL;
@@ -43,9 +46,9 @@ public class ServerFacade {
 //    Returns list of gameData
     public GameData[] list(String authToken) throws ResponseException {
         String path = "/game";
-        record listGameData(GameData[] list) {}
-        listGameData response = this.makeRequest("GET", path, null, authToken, listGameData.class);
-        return response.list();
+        record GameList(GameData[] games) {}
+        GameList response = this.makeRequest("GET", path, null, authToken, GameList.class);
+        return response.games();
     }
 
 //    passes authToken in header
@@ -53,7 +56,7 @@ public class ServerFacade {
 //    Returns gameID
     public Integer create(CreateRequest request, String authToken) throws ResponseException {
         String path = "/game";
-        return this.makeRequest("POST", path, request, authToken, Integer.class);
+        return this.makeRequest("POST", path, request, authToken, CreateResult.class).gameID();
     }
 
 //    passes authToken in header
@@ -75,9 +78,8 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
-            writeBody(request, http);
             writeHeader(authToken, http);
+            writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);

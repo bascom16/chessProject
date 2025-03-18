@@ -1,9 +1,12 @@
 package client;
 
 import exception.ResponseException;
+import handler.request.CreateRequest;
+import handler.request.JoinRequest;
 import handler.request.LoginRequest;
 import handler.request.RegisterRequest;
 import model.AuthData;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -88,6 +91,31 @@ public class ServerFacadeTests {
                 () -> facade.logout("the wrong authorization"),
                 "Wrong authToken should invalidate Logout");
         assertEquals(401, error.statusCode());
+    }
+
+    @Test
+    public void createSuccess() {
+        String authToken = register().authToken();
+        CreateRequest request = new CreateRequest("game1");
+        assertDoesNotThrow( () -> facade.create(request, authToken));
+        GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
+        assertEquals(1, list.length);
+    }
+
+    @Test
+    public void listSuccess() {
+        String authToken = register().authToken();
+        String game1 = "game1";
+        CreateRequest request1 = new CreateRequest(game1);
+        assertDoesNotThrow( () -> facade.create(request1, authToken));
+        String game2 = "game2";
+        CreateRequest request2 = new CreateRequest(game2);
+        assertDoesNotThrow( () -> facade.create(request2, authToken));
+
+        GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
+        assertEquals(game1, list[0].gameName());
+        assertEquals(game2, list[1].gameName());
+        assertEquals(2, list.length);
     }
 
     private AuthData register(String username, String password, String email) {
