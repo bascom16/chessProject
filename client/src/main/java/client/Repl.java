@@ -1,3 +1,5 @@
+package client;
+
 import ui.EscapeSequences;
 
 import java.util.Objects;

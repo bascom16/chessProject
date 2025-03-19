@@ -1,8 +1,11 @@
+package client;
+
 import exception.ResponseException;
 import handler.request.LoginRequest;
 import handler.request.RegisterRequest;
+import state.ClientState;
 
-public class PreLogin implements ClientState {
+public class PreLogin implements ClientStateInterface {
 
     public String help() {
         return """
@@ -34,7 +37,7 @@ public class PreLogin implements ClientState {
             String username = params[0];
             String password = params[1];
             ChessClient.setAuthData(ChessClient.server.login(new LoginRequest(username, password)));
-            ChessClient.state = State.POST_LOGIN;
+            ChessClient.state = ClientState.POST_LOGIN;
             return String.format("You signed in as user [%s]", username) + ChessClient.help();
         }
         throw new ResponseException(400, "Expected <username> <password>");
@@ -46,7 +49,7 @@ public class PreLogin implements ClientState {
             String password = params[1];
             String email = params[2];
             ChessClient.setAuthData(ChessClient.server.register(new RegisterRequest(username, password, email)));
-            ChessClient.state = State.POST_LOGIN;
+            ChessClient.state = ClientState.POST_LOGIN;
             return String.format("You registered as new user [%s]", username) + ChessClient.help();
         }
         throw new ResponseException(400, "Expected <username> <password> <email>");

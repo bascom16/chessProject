@@ -1,6 +1,8 @@
+package client;
+
 import exception.ResponseException;
 
-public interface ClientState {
+public interface ClientStateInterface {
 
     String help();
 

@@ -1,6 +1,9 @@
+package client;
+
 import model.GameData;
 import server.ServerFacade;
 import model.AuthData;
+import state.ClientState;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,7 +11,7 @@ import java.util.HashMap;
 public class ChessClient {
     protected static ServerFacade server;
     private final String serverURL;
-    protected static State state = State.PRE_LOGIN;
+    protected static ClientState state = ClientState.PRE_LOGIN;
     private static AuthData authData;
 
     private static final PreLogin preLogin = new PreLogin();
@@ -24,11 +27,11 @@ public class ChessClient {
         return getStateObject(state).help();
     }
 
-    private static ClientState getStateObject(State state) {
+    private static ClientStateInterface getStateObject(ClientState state) {
         return switch (state) {
-            case PRE_LOGIN -> preLogin;
-            case POST_LOGIN -> postLogin;
-            case GAMEPLAY -> gameplay;
+            case ClientState.PRE_LOGIN -> preLogin;
+            case ClientState.POST_LOGIN -> postLogin;
+            case ClientState.GAMEPLAY -> gameplay;
         };
     }
 

@@ -1,7 +1,10 @@
+package client;
+
 import exception.ResponseException;
+import state.ClientState;
 import state.GameplayState;
 
-public class Gameplay implements ClientState {
+public class Gameplay implements ClientStateInterface {
 
     public String help() {
         return """
@@ -31,12 +34,12 @@ public class Gameplay implements ClientState {
     private String logout() throws ResponseException {
         ChessClient.clearGameDataMap();
         ChessClient.server.logout(ChessClient.getAuthorization());
-        ChessClient.state = State.PRE_LOGIN;
+        ChessClient.state = ClientState.PRE_LOGIN;
         return "Successfully logged out" + ChessClient.help();
     }
 
     private String exit() {
-        ChessClient.state = State.POST_LOGIN;
+        ChessClient.state = ClientState.POST_LOGIN;
         return "Exited game" + ChessClient.help();
     }
 

@@ -1,16 +1,19 @@
+package client;
+
 import chess.ChessBoard;
 import chess.ChessGame;
 import exception.ResponseException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
 import model.GameData;
+import state.ClientState;
 import state.GameplayState;
 import ui.DrawChessBoard;
 import ui.EscapeSequences;
 
 import java.util.Objects;
 
-public class PostLogin implements ClientState {
+public class PostLogin implements ClientStateInterface {
 
     public String help() {
         return """
@@ -45,7 +48,7 @@ public class PostLogin implements ClientState {
     private String logout() throws ResponseException {
         ChessClient.clearGameDataMap();
         ChessClient.server.logout(ChessClient.getAuthorization());
-        ChessClient.state = State.PRE_LOGIN;
+        ChessClient.state = ClientState.PRE_LOGIN;
         return "Successfully logged out" + ChessClient.help();
     }
 
@@ -95,7 +98,7 @@ public class PostLogin implements ClientState {
             }
             ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
             updateGameDataMap();
-            ChessClient.state = State.GAMEPLAY;
+            ChessClient.state = ClientState.GAMEPLAY;
             ChessClient.setCurrentGameID(gameID);
             GameplayState joinState;
             if (color.equals("white")) {
@@ -143,7 +146,7 @@ public class PostLogin implements ClientState {
             }
             int gameID = Integer.parseInt(params[0]);
 
-            ChessClient.state = State.GAMEPLAY;
+            ChessClient.state = ClientState.GAMEPLAY;
             ChessClient.setCurrentGameID(gameID);
             Gameplay.setState(GameplayState.OBSERVE);
 
