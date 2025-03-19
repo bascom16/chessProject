@@ -1,13 +1,15 @@
-import exception.ResponseException;
-import server.Server;
+import model.GameData;
 import server.ServerFacade;
+import model.AuthData;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ChessClient {
     protected static ServerFacade server;
     private final String serverURL;
     protected static State state = State.PRE_LOGIN;
+    protected static AuthData authData;
 
     private static final PreLogin preLogin = new PreLogin();
     private static final PostLogin postLogin = new PostLogin();
@@ -18,11 +20,11 @@ public class ChessClient {
         this.serverURL = serverURL;
     }
 
-    public String help(State state) {
+    public static String help() {
         return getStateObject(state).help();
     }
 
-    private ClientState getStateObject(State state) {
+    private static ClientState getStateObject(State state) {
         return switch (state) {
             case PRE_LOGIN -> preLogin;
             case POST_LOGIN -> postLogin;
@@ -32,12 +34,83 @@ public class ChessClient {
 
     public String eval (String input) {
         try {
-            String[] tokens = input.toLowerCase().split(" ");
+            String[] tokens = input.split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return getStateObject(state).eval(cmd);
+            return getStateObject(state).eval(cmd.toLowerCase(), params);
         } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    private static int currentGameID;
+
+    public int getCurrentGameID() {
+        return currentGameID;
+    }
+
+    public static void setCurrentGameID(int currentGameID) {
+        ChessClient.currentGameID = currentGameID;
+    }
+
+    private static final HashMap<Integer, GameData> gameDataMap = new HashMap<>();
+
+    public static void fillGameDataMap(GameData... params) {
+        clearGameDataMap();
+        for (GameData game : params) {
+            gameDataMap.put(game.gameID(), game);
+        }
+    }
+
+    public static void clearGameDataMap() {
+        gameDataMap.clear();
+    }
+
+    public static String readGameDataMap() {
+        StringBuilder listGames = new StringBuilder();
+        for (int i = 1; i < gameDataMap.size() + 1; i++) {
+            GameData game = gameDataMap.get(i);
+            listGames.append(readGame(game));
+            listGames.append("\n");
+        }
+        return listGames.toString();
+    }
+
+    private static String readGame(GameData game) {
+        StringBuilder leftSide = new StringBuilder();
+        leftSide.append(" -");
+        leftSide.append(game.gameID());
+        leftSide.append(" [");
+        leftSide.append(game.gameName());
+        leftSide.append("] ");
+        String left = leftSide.toString();
+        left = padString(left, 20);
+
+        StringBuilder middleSide = new StringBuilder();
+        middleSide.append(left);
+        middleSide.append("| ");
+        middleSide.append("White - ");
+        String white = game.whiteUsername() == null ? "<Available>" : "[" + game.whiteUsername() + "]";
+        middleSide.append(white);
+        String middle = middleSide.toString();
+        middle = padString(middle, 20 + 30);
+
+        StringBuilder rightSide = new StringBuilder();
+        rightSide.append(middle);
+        rightSide.append(" | Black - ");
+        String black = game.blackUsername() == null ? "<Available>" : "[" + game.blackUsername() + "]";
+        rightSide.append(black);
+        return rightSide.toString();
+    }
+
+    private static String padString(String left, int maxPadLength) {
+        int padLength = maxPadLength - left.length();
+        padLength = Math.max(padLength, 0);
+        String pad = " ".repeat(padLength);
+        return left + pad;
+    }
+
+    public static String getAuthorization() {
+        return authData != null ? authData.authToken() : null;
     }
 }

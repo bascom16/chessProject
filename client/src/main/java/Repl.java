@@ -19,7 +19,7 @@ public class Repl {
                             EscapeSequences.BLACK_KING +
                             EscapeSequences.RESET_TEXT_ITALIC);
         resetText();
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + client.help(State.PRE_LOGIN));
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + ChessClient.help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
