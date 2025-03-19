@@ -13,14 +13,14 @@ import java.util.*;
 public class DrawChessBoard {
 
 //    Colors
-    private static final String SET_BORDER_COLOR = EscapeSequences.SET_BG_COLOR_MAGENTA;
-    private static final String SET_BORDER_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_WHITE;
+    private static final String SET_BORDER_COLOR = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+    private static final String SET_BORDER_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
     private static final String SET_LIGHT_TILE_COLOR = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
     private static final String SET_LIGHT_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
-    private static final String SET_DARK_TILE_COLOR = EscapeSequences.SET_BG_COLOR_DARK_GREY;
-    private static final String SET_DARK_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_DARK_GREY;
-    private static final String SET_WHITE_PIECE_COLOR = EscapeSequences.SET_TEXT_COLOR_YELLOW;
-    private static final String SET_BLACK_PIECE_COLOR = EscapeSequences.SET_TEXT_COLOR_BLUE;
+    private static final String SET_DARK_TILE_COLOR = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+    private static final String SET_DARK_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_DARK_GREEN;
+    private static final String SET_WHITE_PIECE_COLOR = EscapeSequences.SET_TEXT_COLOR_WHITE;
+    private static final String SET_BLACK_PIECE_COLOR = EscapeSequences.SET_TEXT_COLOR_BLACK;
 
     private static final int A = 1;
     private static final int H = 8;

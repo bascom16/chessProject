@@ -62,6 +62,6 @@ class RegisterServiceTest extends BaseServiceTest {
         RegisterRequest request = new RegisterRequest("username", "password", "email");
         assertDoesNotThrow( () -> service.register(request));
         ResponseException ex = assertThrows(ResponseException.class, () -> service.register(request));
-        assertEquals("already taken", ex.getMessage());
+        assertEquals("Username already taken", ex.getMessage());
     }
 }

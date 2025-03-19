@@ -14,15 +14,8 @@ public class Repl {
 
     public void run() {
         resetText();
-        System.out.println( EscapeSequences.SET_BG_COLOR_WHITE +
-                            EscapeSequences.SET_TEXT_COLOR_BLACK +
-                            "\n\t" +
-                            EscapeSequences.BLACK_KING +
-                            EscapeSequences.SET_TEXT_ITALIC +
-                            " Welcome to Chess! Sign in to start. " +
-                            EscapeSequences.RESET_TEXT_ITALIC +
-                            EscapeSequences.BLACK_KING +
-                            "\n");
+        StringBuilder entryMessage = getEntryString();
+        System.out.println(entryMessage);
         resetText();
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "\n" + ChessClient.help());
 
@@ -40,14 +33,34 @@ public class Repl {
             }
         }
         resetText();
-        System.out.println( "\n" +
-                            EscapeSequences.SET_BG_COLOR_MAGENTA +
-                            EscapeSequences.SET_TEXT_COLOR_BLACK +
-                            "\n\t" +
-                            EscapeSequences.BLACK_KING +
-                            "Goodbye!" +
-                            EscapeSequences.BLACK_KING +
-                            "\n");
+        System.out.println(getExitString());
+    }
+
+    private static StringBuilder getEntryString() {
+        StringBuilder entryMessage = new StringBuilder();
+        entryMessage.append(EscapeSequences.SET_BG_COLOR_WHITE);
+        entryMessage.append(EscapeSequences.SET_TEXT_COLOR_BLACK);
+        entryMessage.append("\n\t");
+        entryMessage.append(EscapeSequences.BLACK_KING);
+        entryMessage.append(EscapeSequences.SET_TEXT_ITALIC);
+        entryMessage.append("Welcome to Chess! Sign in to start.");
+        entryMessage.append(EscapeSequences.RESET_TEXT_ITALIC);
+        entryMessage.append(EscapeSequences.BLACK_KING);
+        entryMessage.append("\n");
+        return entryMessage;
+    }
+
+    private static StringBuilder getExitString() {
+        StringBuilder exitMessage = new StringBuilder();
+
+        exitMessage.append(EscapeSequences.SET_BG_COLOR_MAGENTA);
+        exitMessage.append(EscapeSequences.SET_TEXT_COLOR_BLACK);
+        exitMessage.append("\n\t");
+        exitMessage.append(EscapeSequences.BLACK_KING);
+        exitMessage.append("Goodbye!");
+        exitMessage.append(EscapeSequences.BLACK_KING);
+        exitMessage.append("\n");
+        return exitMessage;
     }
 
     private void resetText() {
