@@ -13,7 +13,7 @@ import com.google.gson.Gson;
 public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     public MySQLGameDAO() throws DataAccessException {
         super();
-        gameID = 0;
+        updateGameID();
     }
 
     @Override
@@ -132,12 +132,16 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
         executeBasicStatement(statement, "Unable to delete user data");
     }
 
-    static int gameID;
+    static int gameID = 0;
 
     @Override
     public int getGameID() {
         gameID += 1;
         return gameID;
+    }
+
+    private void updateGameID() throws DataAccessException {
+        gameID = readAll().size();
     }
 
     @Override
