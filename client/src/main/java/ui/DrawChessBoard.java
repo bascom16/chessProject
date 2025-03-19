@@ -51,16 +51,16 @@ public class DrawChessBoard {
         gameplayState = state;
         drawBoard = board;
         out = stream;
-        if (gameplayState == GameplayState.WHITE || gameplayState == GameplayState.OBSERVE) {
-            startRow = 8;
-            endRow = 1;
-            startCol = A;
-            endCol = H;
-        } else if (gameplayState == GameplayState.BLACK) {
+        if (gameplayState == GameplayState.BLACK) {
             startRow = 1;
             endRow = 8;
             startCol = H;
             endCol = A;
+        } else {
+            startRow = 8;
+            endRow = 1;
+            startCol = A;
+            endCol = H;
         }
         drawBorder();
         drawMiddle();

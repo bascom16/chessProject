@@ -108,7 +108,9 @@ public class PostLogin implements ClientStateInterface {
             // User already in game as opposite color
             String otherColor = color.equals("white") ? "black" : "white";
             if (ChessClient.userIsInGameAsColor(gameID, otherColor)) {
-                throw new ClientException(400, String.format("User already in game [%s] as %s", gameID, otherColor));
+                ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
+                joinUpdate(gameID, "both");
+                return String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID);
             }
             // Successful new join
             ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
@@ -122,12 +124,12 @@ public class PostLogin implements ClientStateInterface {
         updateGameDataMap();
         ChessClient.state = ClientState.GAMEPLAY;
         ChessClient.setCurrentGameID(gameID);
-        GameplayState joinState;
-        if (color.equals("white")) {
-            joinState = GameplayState.WHITE;
-        } else {
-            joinState = GameplayState.BLACK;
-        }
+        GameplayState joinState = switch (color) {
+            case "both" -> GameplayState.BOTH;
+            case "black" -> GameplayState.BLACK;
+            case "white" -> GameplayState.WHITE;
+            default -> throw new ClientException(400, "Invalid color");
+        };
         Gameplay.setState(joinState);
         ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
         DrawChessBoard.drawBoard(board, System.out, joinState);
@@ -149,6 +151,7 @@ public class PostLogin implements ClientStateInterface {
     }
 
     private String observe(String... params) throws ClientException {
+        updateGameDataMap();
         String error = "Expected <ID>";
         if (params.length == 1) {
             if (incompatibleConvertToInt(params[0])) {
