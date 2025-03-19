@@ -1,6 +1,6 @@
 package client;
 
-import exception.ResponseException;
+import exception.ClientException;
 import state.ClientState;
 import state.GameplayState;
 
@@ -16,7 +16,7 @@ public class Gameplay implements ClientStateInterface {
                """;
     }
 
-    public String eval(String cmd, String... params) throws ResponseException {
+    public String eval(String cmd, String... params) throws ClientException {
         return switch (cmd) {
             case "h", "help" -> help();
             case "q", "quit" -> quit();
@@ -26,12 +26,12 @@ public class Gameplay implements ClientStateInterface {
         };
     }
 
-    private String quit() throws ResponseException {
+    private String quit() throws ClientException {
         logout();
         return "quit";
     }
 
-    private String logout() throws ResponseException {
+    private String logout() throws ClientException {
         ChessClient.clearGameDataMap();
         ChessClient.server.logout(ChessClient.getAuthorization());
         ChessClient.state = ClientState.PRE_LOGIN;

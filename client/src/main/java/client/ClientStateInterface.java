@@ -1,10 +1,10 @@
 package client;
 
-import exception.ResponseException;
+import exception.ClientException;
 
 public interface ClientStateInterface {
 
     String help();
 
-    String eval(String cmd, String... params) throws ResponseException;
+    String eval(String cmd, String... params) throws ClientException;
 }

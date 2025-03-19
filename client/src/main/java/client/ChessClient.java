@@ -1,5 +1,6 @@
 package client;
 
+import exception.ClientException;
 import model.GameData;
 import server.ServerFacade;
 import model.AuthData;
@@ -42,7 +43,7 @@ public class ChessClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return getStateObject(state).eval(cmd.toLowerCase(), params);
-        } catch (Exception ex) {
+        } catch (ClientException ex) {
             return ex.getMessage();
         }
     }

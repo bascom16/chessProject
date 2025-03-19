@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import exception.ResponseException;
+import exception.ClientException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
 import handler.request.LoginRequest;
@@ -22,27 +22,27 @@ public class ServerFacade {
 
 //    Passes username, password, email in body
 //    Returns username and authToken
-    public AuthData register(RegisterRequest request) throws ResponseException {
+    public AuthData register(RegisterRequest request) throws ClientException {
         String path = "/user";
         return this.makeRequest("POST", path, request, null, AuthData.class);
     }
 
 //    passes username and password in body
 //    Returns username and authToken
-    public AuthData login(LoginRequest request) throws ResponseException {
+    public AuthData login(LoginRequest request) throws ClientException {
         String path = "/session";
         return this.makeRequest("POST", path, request, null, AuthData.class);
     }
 
 //    passes authToken in header
-    public void logout(String authToken) throws ResponseException {
+    public void logout(String authToken) throws ClientException {
         String path = "/session";
         this.makeRequest("DELETE", path, null, authToken, null);
     }
 
 //    passes authToken in header
 //    Returns list of gameData
-    public GameData[] list(String authToken) throws ResponseException {
+    public GameData[] list(String authToken) throws ClientException {
         String path = "/game";
         record GameList(GameData[] games) {}
         GameList response = this.makeRequest("GET", path, null, authToken, GameList.class);
@@ -52,25 +52,25 @@ public class ServerFacade {
 //    passes authToken in header
 //    passes gameName in body
 //    Returns gameID
-    public Integer create(CreateRequest request, String authToken) throws ResponseException {
+    public Integer create(CreateRequest request, String authToken) throws ClientException {
         String path = "/game";
         return this.makeRequest("POST", path, request, authToken, CreateResult.class).gameID();
     }
 
 //    passes authToken in header
 //    passes playerColor, gameID in body
-    public void join(JoinRequest request, String authToken) throws ResponseException {
+    public void join(JoinRequest request, String authToken) throws ClientException {
         String path = "/game";
         this.makeRequest("PUT", path, request, authToken, null);
     }
 
-    public void clear() throws ResponseException {
+    public void clear() throws ClientException {
         String path = "/db";
         this.makeRequest("DELETE", path, null, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass)
-            throws ResponseException {
+            throws ClientException {
         try {
             URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -81,14 +81,8 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
-        } catch (IOException | URISyntaxException ex) {
-            throw new ResponseException(500, ex.getMessage());
         } catch (Exception ex) {
-            if (ex instanceof ResponseException) {
-                throw ex;
-            } else {
-                throw new ResponseException(500, ex.getMessage());
-            }
+            throw new ClientException(500, ex.getMessage());
         }
     }
 
@@ -102,22 +96,22 @@ public class ServerFacade {
         }
     }
 
-    private static void writeHeader(String authToken, HttpURLConnection http) throws IOException {
+    private static void writeHeader(String authToken, HttpURLConnection http) {
         if (authToken != null) {
             http.setRequestProperty("Authorization", authToken);
             http.setRequestProperty("Accept", "application/json");
         }
     }
 
-    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
+    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ClientException {
         int status = http.getResponseCode();
         if (!isSuccessful(status)) {
             try (InputStream responseError = http.getErrorStream()) {
                 if (responseError != null) {
-                    throw ResponseException.fromJson(responseError);
+                    throw ClientException.fromJson(responseError);
                 }
             }
-            throw new ResponseException(status, "other failure: " + status);
+            throw new ClientException(status, "other failure: " + status);
         }
     }
 

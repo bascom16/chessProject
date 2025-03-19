@@ -1,6 +1,6 @@
 package client;
 
-import exception.ResponseException;
+import exception.ClientException;
 import handler.request.LoginRequest;
 import handler.request.RegisterRequest;
 import state.ClientState;
@@ -17,7 +17,7 @@ public class PreLogin implements ClientStateInterface {
                """;
     }
 
-    public String eval(String cmd, String... params) throws ResponseException {
+    public String eval(String cmd, String... params) throws ClientException {
         return switch (cmd) {
             case "h", "help" -> help();
             case "q", "quit" -> quit();
@@ -32,7 +32,7 @@ public class PreLogin implements ClientStateInterface {
         return "quit";
     }
 
-    private String login(String... params) throws ResponseException {
+    private String login(String... params) throws ClientException {
         if (params.length == 2) {
             String username = params[0];
             String password = params[1];
@@ -40,10 +40,10 @@ public class PreLogin implements ClientStateInterface {
             ChessClient.state = ClientState.POST_LOGIN;
             return String.format("You signed in as user [%s]\n", username) + ChessClient.help();
         }
-        throw new ResponseException(400, "Expected <username> <password>");
+        throw new ClientException(400, "Expected <username> <password>");
     }
 
-    private String register(String... params) throws ResponseException {
+    private String register(String... params) throws ClientException {
         if (params.length == 3) {
             String username = params[0];
             String password = params[1];
@@ -52,10 +52,10 @@ public class PreLogin implements ClientStateInterface {
             ChessClient.state = ClientState.POST_LOGIN;
             return String.format("You registered as new user [%s]\n", username) + ChessClient.help();
         }
-        throw new ResponseException(400, "Expected <username> <password> <email>");
+        throw new ClientException(400, "Expected <username> <password> <email>");
     }
 
-    private String clear() throws ResponseException {
+    private String clear() throws ClientException {
         ChessClient.server.clear();
         ChessClient.clearGameDataMap();
         return "Cleared database";
