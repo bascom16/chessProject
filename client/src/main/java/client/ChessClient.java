@@ -7,6 +7,7 @@ import state.ClientState;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ChessClient {
     protected static ServerFacade server;
@@ -46,7 +47,7 @@ public class ChessClient {
         }
     }
 
-    private static int currentGameID;
+    private static int currentGameID = 0;
 
     public static int getCurrentGameID() {
         return currentGameID;
@@ -57,6 +58,10 @@ public class ChessClient {
     }
 
     private static final HashMap<Integer, GameData> gameDataMap = new HashMap<>();
+
+    public static int getNumGames() {
+        return gameDataMap.size();
+    }
 
     public static GameData getGameData(int gameID) {
         return gameDataMap.get(gameID);
@@ -127,5 +132,19 @@ public class ChessClient {
 
     public static String getUsername() {
         return authData != null ? authData.username() : null;
+    }
+
+    public static boolean userIsInGameAsColor(int gameID, String color) {
+        GameData game = getGameData(gameID);
+        if (game == null) {
+            return false;
+        }
+        String username = authData.username();
+        if (Objects.equals(color, "white")) {
+            return Objects.equals(username, game.whiteUsername());
+        } else if (Objects.equals(color, "black")) {
+            return Objects.equals(username, game.blackUsername());
+        }
+        else return false;
     }
 }

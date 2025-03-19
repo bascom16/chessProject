@@ -25,8 +25,8 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to create user");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to create user");
         }
     }
 
@@ -43,8 +43,8 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read user");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: User not found");
         }
         return null;
     }
@@ -72,8 +72,8 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read users");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to read users");
         }
         return userData;
     }
@@ -100,20 +100,20 @@ public class MySQLUserDAO extends MySQLDAO implements UserDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to delete user");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to delete user");
         }
     }
 
     @Override
     public void deleteAll() throws DataAccessException {
         String statement = "TRUNCATE TABLE user;";
-        executeBasicStatement(statement, "Unable to delete user data");
+        executeBasicStatement(statement, "Error: Unable to delete user data");
     }
 
     public void reset() throws DataAccessException {
         String statement = "DROP TABLE user;";
-        executeBasicStatement(statement, "Unable to reset user table");
+        executeBasicStatement(statement, "Error: Unable to reset user table");
         configureDatabase();
     }
 

@@ -24,8 +24,8 @@ public class MySQLAuthDAO extends MySQLDAO implements AuthDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to create authorization");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to create authorization");
         }
     }
 
@@ -42,8 +42,8 @@ public class MySQLAuthDAO extends MySQLDAO implements AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read authorization");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable authorization not found");
         }
         return null;
     }
@@ -67,8 +67,8 @@ public class MySQLAuthDAO extends MySQLDAO implements AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read authorizations");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to read authorizations");
         }
         return authData;
     }
@@ -95,21 +95,21 @@ public class MySQLAuthDAO extends MySQLDAO implements AuthDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to delete authorization");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to delete authorization");
         }
     }
 
     @Override
     public void deleteAll() throws DataAccessException {
         String statement = "TRUNCATE TABLE auth;";
-        executeBasicStatement(statement, "Unable to delete auth data");
+        executeBasicStatement(statement, "Error: Unable to delete auth data");
     }
 
     @Override
     public void reset() throws DataAccessException {
         String statement = "DROP TABLE auth;";
-        executeBasicStatement(statement, "Unable to reset authorization table");
+        executeBasicStatement(statement, "Error: Unable to reset authorization table");
         configureDatabase();
     }
 

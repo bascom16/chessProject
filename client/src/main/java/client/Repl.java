@@ -24,7 +24,7 @@ public class Repl {
                             EscapeSequences.BLACK_KING +
                             "\n");
         resetText();
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + ChessClient.help());
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "\n" + ChessClient.help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";

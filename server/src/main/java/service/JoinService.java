@@ -23,7 +23,7 @@ public class JoinService extends BaseService {
             throw new ResponseException(400, "bad request");
         }
         if (!isPlayerColorAvailable(playerColor, gameData)) {
-            throw new ResponseException(403, "already taken");
+            throw new ResponseException(403, "Color already taken");
         }
         GameData newGameData = getGameData(playerColor, authData, gameData);
         gameDataAccess.update(newGameData);

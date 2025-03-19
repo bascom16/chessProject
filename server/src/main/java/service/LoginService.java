@@ -17,10 +17,10 @@ public class LoginService extends BaseService {
     public AuthData login(String username, String password) throws ResponseException, DataAccessException {
         UserData userData = getUser(username);
         if (userData == null) {
-            throw new ResponseException(401, "unauthorized");
+            throw new ResponseException(401, "User not found.");
         }
         if (!matchPassword(password, userData)) {
-            throw new ResponseException(401, "unauthorized");
+            throw new ResponseException(401, "Incorrect password.");
         }
         return createAuth(username);
     }

@@ -52,7 +52,7 @@ public class Server {
             authDataAccess = new MySQLAuthDAO();
             gameDataAccess = new MySQLGameDAO();
         } catch (Exception ex) {
-            System.out.println("MySQL database uninitialized");
+            System.out.println("MySQL database not initialized");
         }
 
         // Register your endpoints and handle exceptions here.

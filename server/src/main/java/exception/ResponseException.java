@@ -22,7 +22,7 @@ public class ResponseException extends Exception {
 
     public static ResponseException fromJson(InputStream stream) throws IOException {
         String json = new Scanner(stream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
-        System.out.println("JSON Input: " + json);
+        //System.out.println("JSON Input: " + json);
 
         JsonResponse response = new Gson().fromJson(json, JsonResponse.class);
 

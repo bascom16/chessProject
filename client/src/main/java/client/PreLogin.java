@@ -9,10 +9,9 @@ public class PreLogin implements ClientStateInterface {
 
     public String help() {
         return """
-               
-               - help (h) | displays this help menu
+               - help (h) | display this help menu
                - quit (q) | exit the Chess program
-               - login (l): <username> <password> | login existing user
+               - login (li): <username> <password> | login existing user
                - register (r): <username> <password> <email> | register new user
                - [DEBUG] clear | clear database
                """;
@@ -20,11 +19,12 @@ public class PreLogin implements ClientStateInterface {
 
     public String eval(String cmd, String... params) throws ResponseException {
         return switch (cmd) {
+            case "h", "help" -> help();
             case "q", "quit" -> quit();
-            case "l", "login" -> login(params);
+            case "li", "login" -> login(params);
             case "r", "register" -> register(params);
             case "clear" -> clear();
-            default -> help();
+            default -> "Command not recognized.\n" + help();
         };
     }
 
@@ -38,7 +38,7 @@ public class PreLogin implements ClientStateInterface {
             String password = params[1];
             ChessClient.setAuthData(ChessClient.server.login(new LoginRequest(username, password)));
             ChessClient.state = ClientState.POST_LOGIN;
-            return String.format("You signed in as user [%s]", username) + ChessClient.help();
+            return String.format("You signed in as user [%s]\n", username) + ChessClient.help();
         }
         throw new ResponseException(400, "Expected <username> <password>");
     }
@@ -50,7 +50,7 @@ public class PreLogin implements ClientStateInterface {
             String email = params[2];
             ChessClient.setAuthData(ChessClient.server.register(new RegisterRequest(username, password, email)));
             ChessClient.state = ClientState.POST_LOGIN;
-            return String.format("You registered as new user [%s]", username) + ChessClient.help();
+            return String.format("You registered as new user [%s]\n", username) + ChessClient.help();
         }
         throw new ResponseException(400, "Expected <username> <password> <email>");
     }

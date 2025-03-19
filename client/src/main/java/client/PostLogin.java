@@ -17,26 +17,26 @@ public class PostLogin implements ClientStateInterface {
 
     public String help() {
         return """
-               
-               - help (h) | displays this help menu
+               - help (h) | display this help menu
                - quit (q) | logout and exit the Chess program
-               - logout (l) | logout current user
-               - create (c): <name> | create a new Chess game under the given name
-               - list (li) | lists all existing games
-               - join (j): <ID> [WHITE|BLACK] | join game as specified color
+               - logout (lo) | logout current user
+               - create (c): <name> | create a new Chess game
+               - list (l) | lists all existing games
+               - play (p): <ID> [WHITE|BLACK] | join game as color
                - observe (o): <ID> | observe game
                """;
     }
 
     public String eval(String cmd, String... params) throws ResponseException {
         return switch (cmd) {
+            case "h", "help" -> help();
             case "q", "quit" -> quit();
-            case "l", "logout" -> logout();
+            case "lo", "logout" -> logout();
             case "c", "create" -> create(params);
-            case "li", "list" -> list();
-            case "j", "join" -> join(params);
+            case "l", "list" -> list();
+            case "p", "play" -> join(params);
             case "o", "observe" -> observe(params);
-            default -> help();
+            default -> "Command not recognized.\n" + help();
         };
     }
 
@@ -47,9 +47,10 @@ public class PostLogin implements ClientStateInterface {
 
     private String logout() throws ResponseException {
         ChessClient.clearGameDataMap();
+        ChessClient.setCurrentGameID(0);
         ChessClient.server.logout(ChessClient.getAuthorization());
         ChessClient.state = ClientState.PRE_LOGIN;
-        return "Successfully logged out" + ChessClient.help();
+        return "Successfully logged out\n" + ChessClient.help();
     }
 
     private String create(String... params) throws ResponseException {
@@ -65,7 +66,7 @@ public class PostLogin implements ClientStateInterface {
     private String list() throws ResponseException {
         updateGameDataMap();
         String message =    EscapeSequences.SET_TEXT_BOLD +
-                            "\nList of games: \n" +
+                            "List of games: \n" +
                             EscapeSequences.RESET_TEXT_BOLD_FAINT;
         String data = ChessClient.readGameDataMap();
         return message + ((data.isBlank()) ? "No current games" : data);
@@ -80,8 +81,10 @@ public class PostLogin implements ClientStateInterface {
     }
 
     private String join(String... params) throws ResponseException {
+        updateGameDataMap();
         String error = "Expected <ID> [WHITE|BLACK]";
         if (params.length == 2) {
+            // invalid gameID
             if (incompatibleConvertToInt(params[0])) {
                 String detail = EscapeSequences.SET_TEXT_ITALIC +
                                 " ID must be a valid number" +
@@ -89,6 +92,8 @@ public class PostLogin implements ClientStateInterface {
                 throw new ResponseException(400, error + detail);
             }
             int gameID = Integer.parseInt(params[0]);
+            checkGameExists(gameID);
+            // Invalid color
             String color = params[1].toLowerCase();
             if (!(Objects.equals(color, "white") || Objects.equals(color, "black"))) {
                 String detail = EscapeSequences.SET_TEXT_ITALIC +
@@ -96,22 +101,37 @@ public class PostLogin implements ClientStateInterface {
                                 EscapeSequences.RESET_TEXT_ITALIC;
                 throw new ResponseException(400, error + detail);
             }
-            ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
-            updateGameDataMap();
-            ChessClient.state = ClientState.GAMEPLAY;
-            ChessClient.setCurrentGameID(gameID);
-            GameplayState joinState;
-            if (color.equals("white")) {
-                joinState = GameplayState.WHITE;
-            } else {
-                joinState = GameplayState.BLACK;
+            // Reentry
+            if (ChessClient.userIsInGameAsColor(gameID, color)) {
+                joinUpdate(gameID, color);
+                return String.format("Reentering game [%s] as %s\n", gameID, color) + ChessClient.help();
             }
-            Gameplay.setState(joinState);
-            ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
-            DrawChessBoard.drawBoard(board, System.out, joinState);
-            return String.format("Joined game [%s] as [%s]", gameID, color.toUpperCase()) + ChessClient.help();
+            // User already in game as opposite color
+            String otherColor = color.equals("white") ? "black" : "white";
+            if (ChessClient.userIsInGameAsColor(gameID, otherColor)) {
+                throw new ResponseException(400, String.format("User already in game [%s] as %s", gameID, otherColor));
+            }
+            // Successful new join
+            ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
+            joinUpdate(gameID, color);
+            return String.format("\nJoined game [%s] as [%s]\n", gameID, color.toUpperCase()) + ChessClient.help();
         }
         throw new ResponseException(400, error);
+    }
+
+    private void joinUpdate(int gameID, String color) throws ResponseException {
+        updateGameDataMap();
+        ChessClient.state = ClientState.GAMEPLAY;
+        ChessClient.setCurrentGameID(gameID);
+        GameplayState joinState;
+        if (color.equals("white")) {
+            joinState = GameplayState.WHITE;
+        } else {
+            joinState = GameplayState.BLACK;
+        }
+        Gameplay.setState(joinState);
+        ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
+        DrawChessBoard.drawBoard(board, System.out, joinState);
     }
 
     private static boolean incompatibleConvertToInt(String s) {
@@ -120,6 +140,12 @@ public class PostLogin implements ClientStateInterface {
             return false;
         } catch (NumberFormatException e) {
             return true;
+        }
+    }
+
+    private void checkGameExists(int gameID) throws ResponseException {
+        if (gameID <= 0 || gameID > ChessClient.getNumGames()) {
+            throw new ResponseException(400, String.format("Game [%s] not found", gameID));
         }
     }
 
@@ -145,6 +171,7 @@ public class PostLogin implements ClientStateInterface {
                 throw new ResponseException(400, error + detail);
             }
             int gameID = Integer.parseInt(params[0]);
+            checkGameExists(gameID);
 
             ChessClient.state = ClientState.GAMEPLAY;
             ChessClient.setCurrentGameID(gameID);
@@ -152,7 +179,7 @@ public class PostLogin implements ClientStateInterface {
 
             ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
             DrawChessBoard.drawBoard(board, System.out, GameplayState.OBSERVE);
-            return String.format("Observing game [%s]", gameID) + ChessClient.help();
+            return String.format("\nObserving game [%s]\n", gameID) + ChessClient.help();
         }
         throw new ResponseException(400, error);
     }

@@ -8,10 +8,9 @@ public class Gameplay implements ClientStateInterface {
 
     public String help() {
         return """
-               
-               - help (h) | displays this help menu
+               - help (h) | display this help menu
                - quit (q) | logout and exit the Chess program
-               - logout (l) | logout current user
+               - logout (lo) | logout current user
                - exit (e) | exit current game
                - TBD | Have patience, young padawan
                """;
@@ -19,10 +18,11 @@ public class Gameplay implements ClientStateInterface {
 
     public String eval(String cmd, String... params) throws ResponseException {
         return switch (cmd) {
+            case "h", "help" -> help();
             case "q", "quit" -> quit();
-            case "l", "logout" -> logout();
+            case "lo", "logout" -> logout();
             case "e", "exit" -> exit();
-            default -> help();
+            default -> "Command not recognized.\n" + help();
         };
     }
 
@@ -40,7 +40,8 @@ public class Gameplay implements ClientStateInterface {
 
     private String exit() {
         ChessClient.state = ClientState.POST_LOGIN;
-        return "Exited game" + ChessClient.help();
+        ChessClient.setCurrentGameID(0);
+        return "Exited game\n" + ChessClient.help();
     }
 
     private static GameplayState gameplayState = null;

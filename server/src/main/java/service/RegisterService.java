@@ -20,7 +20,7 @@ public class RegisterService extends BaseService {
             throw new ResponseException(400, "bad request");
         }
         if (doesUserExist(username)) {
-            throw new ResponseException(403, "already taken");
+            throw new ResponseException(403, "Username already taken");
         }
         createUser(username, hashPassword(password), email);
         return createAuth(username);

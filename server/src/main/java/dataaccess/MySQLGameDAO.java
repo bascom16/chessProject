@@ -34,8 +34,8 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to create user");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to create game");
         }
     }
 
@@ -52,8 +52,8 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read game");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to read game");
         }
         return null;
     }
@@ -81,8 +81,8 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to read games");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to read games");
         }
         return gameDataList;
     }
@@ -104,8 +104,8 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to update user");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to update user");
         }
     }
 
@@ -121,15 +121,15 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            throw new DataAccessException("Unable to delete game");
+            //System.out.println(ex.getMessage());
+            throw new DataAccessException("Error: Unable to delete game");
         }
     }
 
     @Override
     public void deleteAll() throws DataAccessException {
         String statement = "TRUNCATE TABLE game;";
-        executeBasicStatement(statement, "Unable to delete user data");
+        executeBasicStatement(statement, "Error: Unable to delete user data");
     }
 
     static int gameID = 0;
@@ -148,7 +148,7 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     @Override
     public void reset() throws DataAccessException {
         String statement = "DROP TABLE game;";
-        executeBasicStatement(statement, "Unable to reset game table");
+        executeBasicStatement(statement, "Error: Unable to reset game table");
         configureDatabase();
         gameID = 0;
     }
