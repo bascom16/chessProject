@@ -9,7 +9,7 @@ public class ChessClient {
     protected static ServerFacade server;
     private final String serverURL;
     protected static State state = State.PRE_LOGIN;
-    protected static AuthData authData;
+    private static AuthData authData;
 
     private static final PreLogin preLogin = new PreLogin();
     private static final PostLogin postLogin = new PostLogin();
@@ -45,7 +45,7 @@ public class ChessClient {
 
     private static int currentGameID;
 
-    public int getCurrentGameID() {
+    public static int getCurrentGameID() {
         return currentGameID;
     }
 
@@ -54,6 +54,10 @@ public class ChessClient {
     }
 
     private static final HashMap<Integer, GameData> gameDataMap = new HashMap<>();
+
+    public static GameData getGameData(int gameID) {
+        return gameDataMap.get(gameID);
+    }
 
     public static void fillGameDataMap(GameData... params) {
         clearGameDataMap();
@@ -110,7 +114,15 @@ public class ChessClient {
         return left + pad;
     }
 
+    public static void setAuthData(AuthData data) {
+        authData = data;
+    }
+
     public static String getAuthorization() {
         return authData != null ? authData.authToken() : null;
+    }
+
+    public static String getUsername() {
+        return authData != null ? authData.username() : null;
     }
 }

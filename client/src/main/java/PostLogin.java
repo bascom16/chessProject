@@ -1,7 +1,10 @@
+import chess.ChessBoard;
+import chess.ChessGame;
 import exception.ResponseException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
 import model.GameData;
+import ui.DrawChessBoard;
 import ui.EscapeSequences;
 
 import java.util.Objects;
@@ -40,15 +43,15 @@ public class PostLogin implements ClientState {
 
     private String logout() throws ResponseException {
         ChessClient.clearGameDataMap();
-        ChessClient.server.logout(ChessClient.authData.authToken());
+        ChessClient.server.logout(ChessClient.getAuthorization());
         ChessClient.state = State.PRE_LOGIN;
-        return "Successfully logged out";
+        return "Successfully logged out" + ChessClient.help();
     }
 
     private String create(String... params) throws ResponseException {
         if (params.length == 1) {
             String gameName = params[0];
-            int gameID = ChessClient.server.create(new CreateRequest(gameName), ChessClient.authData.authToken());
+            int gameID = ChessClient.server.create(new CreateRequest(gameName), ChessClient.getAuthorization());
             updateGameDataMap();
             return String.format("Created game [%s] as game number [%s]", gameName, gameID);
         }
@@ -89,9 +92,12 @@ public class PostLogin implements ClientState {
                 throw new ResponseException(400, error + detail);
             }
             ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
+            updateGameDataMap();
             ChessClient.state = State.GAMEPLAY;
             ChessClient.setCurrentGameID(gameID);
-            return String.format("Joined game [%s] as [%s]", gameID, color.toUpperCase());
+            ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
+            DrawChessBoard.drawBoard(board, System.out, getColor());
+            return String.format("Joined game [%s] as [%s]", gameID, color.toUpperCase()) + ChessClient.help();
         }
         throw new ResponseException(400, error);
     }
@@ -102,6 +108,18 @@ public class PostLogin implements ClientState {
             return true;
         } catch (NumberFormatException e) {
             return false;
+        }
+    }
+
+    private static ChessGame.TeamColor getColor() {
+        GameData gameData = ChessClient.getGameData(ChessClient.getCurrentGameID());
+        String username = ChessClient.getUsername();
+        if (Objects.equals(username, gameData.whiteUsername())) {
+            return ChessGame.TeamColor.WHITE;
+        } else if (Objects.equals(username, gameData.blackUsername())) {
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            return null;
         }
     }
 

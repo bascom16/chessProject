@@ -33,7 +33,7 @@ public class PreLogin implements ClientState {
         if (params.length == 2) {
             String username = params[0];
             String password = params[1];
-            ChessClient.authData = ChessClient.server.login(new LoginRequest(username, password));
+            ChessClient.setAuthData(ChessClient.server.login(new LoginRequest(username, password)));
             ChessClient.state = State.POST_LOGIN;
             return String.format("You signed in as user [%s]", username) + ChessClient.help();
         }
@@ -45,9 +45,9 @@ public class PreLogin implements ClientState {
             String username = params[0];
             String password = params[1];
             String email = params[2];
-            ChessClient.authData = ChessClient.server.register(new RegisterRequest(username, password, email));
+            ChessClient.setAuthData(ChessClient.server.register(new RegisterRequest(username, password, email)));
             ChessClient.state = State.POST_LOGIN;
-            return String.format("You registered as new user [%s]", username) + help();
+            return String.format("You registered as new user [%s]", username) + ChessClient.help();
         }
         throw new ResponseException(400, "Expected <username> <password> <email>");
     }

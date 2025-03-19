@@ -1,4 +1,7 @@
+import exception.ResponseException;
+
 public class Gameplay implements ClientState {
+
     public String help() {
         return """
                
@@ -10,7 +13,29 @@ public class Gameplay implements ClientState {
                """;
     }
 
-    public String eval(String cmd, String... params) {
-        throw new RuntimeException("Not implemented");
+    public String eval(String cmd, String... params) throws ResponseException {
+        return switch (cmd) {
+            case "q", "quit" -> quit();
+            case "l", "logout" -> logout();
+            case "e", "exit" -> exit();
+            default -> help();
+        };
+    }
+
+    private String quit() throws ResponseException {
+        logout();
+        return "quit";
+    }
+
+    private String logout() throws ResponseException {
+        ChessClient.clearGameDataMap();
+        ChessClient.server.logout(ChessClient.getAuthorization());
+        ChessClient.state = State.PRE_LOGIN;
+        return "Successfully logged out" + ChessClient.help();
+    }
+
+    private String exit() {
+        ChessClient.state = State.POST_LOGIN;
+        return "Exited game" + ChessClient.help();
     }
 }

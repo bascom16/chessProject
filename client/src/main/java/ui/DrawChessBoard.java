@@ -9,7 +9,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-
 public class DrawChessBoard {
 
 //    Colors
@@ -25,19 +24,14 @@ public class DrawChessBoard {
     private static final int A = 1;
     private static final int H = 8;
 
-    private static ChessGame.TeamColor teamColor;
     private static int startRow;
     private static int endRow;
     private static int startCol;
     private static int endCol;
 
-    private final ChessBoard board;
-    private final PrintStream out;
-
-    DrawChessBoard(ChessBoard board, PrintStream stream) {
-        this.board = board;
-        this.out = stream;
-    }
+    private static ChessBoard drawBoard;
+    private static ChessGame.TeamColor teamColor;
+    private static PrintStream out;
 
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -45,15 +39,17 @@ public class DrawChessBoard {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         out.println();
-        new DrawChessBoard(board, out).drawBoard(ChessGame.TeamColor.WHITE);
+        drawBoard(board, out, ChessGame.TeamColor.WHITE);
         out.println();
-        new DrawChessBoard(board, out).drawBoard(ChessGame.TeamColor.BLACK);
+        drawBoard(board, out, ChessGame.TeamColor.BLACK);
         out.println();
-        new DrawChessBoard(board, out).drawBoard(null);
+        drawBoard(board, out, null);
     }
 
-    public void drawBoard(ChessGame.TeamColor color) {
+    public static void drawBoard(ChessBoard board, PrintStream stream, ChessGame.TeamColor color) {
+        drawBoard = board;
         teamColor = color;
+        out = stream;
         if (color == ChessGame.TeamColor.WHITE || color == null) {
             startRow = 8;
             endRow = 1;
@@ -71,7 +67,7 @@ public class DrawChessBoard {
     }
 
 //    border function
-    private void drawBorder() {
+    private static void drawBorder() {
         out.print("   ");
         out.print(SET_BORDER_COLOR);
         out.print(SET_BORDER_TEXT_COLOR);
@@ -92,7 +88,7 @@ public class DrawChessBoard {
     }
 
 //    middle function
-    private void drawMiddle() {
+    private static void drawMiddle() {
         int shift = startRow > endRow ? -1 : 1;
         // iterate through each row
         for (int i = startRow; i != endRow + shift; i+= shift) {
@@ -102,7 +98,7 @@ public class DrawChessBoard {
     }
 
 //    row function
-    private void drawRow(int row) {
+    private static void drawRow(int row) {
         out.print(SET_BORDER_COLOR);
         out.print(SET_BORDER_TEXT_COLOR);
         out.print(" ");
@@ -124,13 +120,13 @@ public class DrawChessBoard {
         out.println();
     }
 
-    private String getTileColor(int row, int col) {
+    private static String getTileColor(int row, int col) {
         return ((row + col) % 2) == 0 ? SET_DARK_TILE_COLOR : SET_LIGHT_TILE_COLOR;
     }
 
 //    draw piece & blank
-    private void drawPiece(int row, int col) {
-        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+    private static void drawPiece(int row, int col) {
+        ChessPiece piece = drawBoard.getPiece(new ChessPosition(row, col));
 
         if (piece == null) {
             drawBlankSpace(row, col);
@@ -158,7 +154,7 @@ public class DrawChessBoard {
         }
     }
 
-    private void drawBlankSpace(int row, int col) {
+    private static void drawBlankSpace(int row, int col) {
         String backgroundColor = getTileColor(row, col);
         String textColor = Objects.equals(backgroundColor, SET_LIGHT_TILE_COLOR)
                 ? SET_LIGHT_TEXT_COLOR : SET_DARK_TEXT_COLOR;
