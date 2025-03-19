@@ -1,7 +1,6 @@
 package client;
 
 import chess.ChessBoard;
-import chess.ChessGame;
 import exception.ClientException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
@@ -146,18 +145,6 @@ public class PostLogin implements ClientStateInterface {
     private void checkGameExists(int gameID) throws ClientException {
         if (gameID <= 0 || gameID > ChessClient.getNumGames()) {
             throw new ClientException(400, String.format("Game [%s] not found", gameID));
-        }
-    }
-
-    private static ChessGame.TeamColor getColor() {
-        GameData gameData = ChessClient.getGameData(ChessClient.getCurrentGameID());
-        String username = ChessClient.getUsername();
-        if (Objects.equals(username, gameData.whiteUsername())) {
-            return ChessGame.TeamColor.WHITE;
-        } else if (Objects.equals(username, gameData.blackUsername())) {
-            return ChessGame.TeamColor.BLACK;
-        } else {
-            return null;
         }
     }
 

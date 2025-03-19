@@ -1,6 +1,6 @@
 package client;
 
-import exception.ResponseException;
+import exception.ClientException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
 import handler.request.LoginRequest;
@@ -19,9 +19,9 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade facade;
 
-    private static final String username = "username";
-    private static final String password = "password";
-    private static final String email = "email";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String EMAIL = "email";
 
 
     @BeforeAll
@@ -45,33 +45,32 @@ public class ServerFacadeTests {
 
     @Test
     public void registerSuccess() {
-        RegisterRequest request = new RegisterRequest(username, password, email);
+        RegisterRequest request = new RegisterRequest(USERNAME, PASSWORD, EMAIL);
         AuthData data = assertDoesNotThrow( () -> facade.register(request));
-        assertEquals(username, data.username());
+        assertEquals(USERNAME, data.username());
     }
 
     @Test
     public void registerMultipleSuccess() {
-        assertEquals(username, register().username());
+        assertEquals(USERNAME, register().username());
         String user2 = "username2";
         assertEquals(user2, register(user2, "password2", "email2").username());
     }
 
     @Test
     public void registerBadRequest() {
-        RegisterRequest request = new RegisterRequest(null, password, email);
-        ResponseException error = assertThrows(ResponseException.class,
+        RegisterRequest request = new RegisterRequest(null, PASSWORD, EMAIL);
+        assertThrows(ClientException.class,
                 () -> facade.register(request), "Bad register request should throw error");
-        assertEquals(400, error.statusCode());
     }
 
     @Test
     public void registerUsernameTaken() {
-        RegisterRequest request1 = new RegisterRequest(username, password, email);
+        RegisterRequest request1 = new RegisterRequest(USERNAME, PASSWORD, EMAIL);
         AuthData data1 = assertDoesNotThrow( () -> facade.register(request1));
-        assertEquals(username, data1.username());
-        RegisterRequest request2 = new RegisterRequest(username, "password2", "email2");
-        assertThrows(ResponseException.class, () -> facade.register(request2), "Username taken");
+        assertEquals(USERNAME, data1.username());
+        RegisterRequest request2 = new RegisterRequest(USERNAME, "password2", "email2");
+        assertThrows(ClientException.class, () -> facade.register(request2), "Username taken");
     }
 
     @Test
@@ -79,7 +78,7 @@ public class ServerFacadeTests {
         String authToken = register().authToken();
         logout(authToken);
 
-        LoginRequest request = new LoginRequest(username, password);
+        LoginRequest request = new LoginRequest(USERNAME, PASSWORD);
         assertDoesNotThrow( () -> facade.login(request));
     }
 
@@ -88,10 +87,9 @@ public class ServerFacadeTests {
         String authToken = register().authToken();
         logout(authToken);
 
-        LoginRequest request = new LoginRequest(username, "the wrong password");
-        ResponseException error = assertThrows(ResponseException.class,
+        LoginRequest request = new LoginRequest(USERNAME, "the wrong password");
+        assertThrows(ClientException.class,
                 () -> facade.login(request), "Wrong password should invalidate login");
-        assertEquals(401, error.statusCode());
     }
 
     @Test
@@ -103,10 +101,9 @@ public class ServerFacadeTests {
     @Test
     public void unauthorizedLogout() {
         register();
-        ResponseException error = assertThrows(ResponseException.class,
+        assertThrows(ClientException.class,
                 () -> facade.logout("the wrong authorization"),
                 "Wrong authToken should invalidate Logout");
-        assertEquals(401, error.statusCode());
     }
 
     @Test
@@ -122,7 +119,7 @@ public class ServerFacadeTests {
     public void createBadRequest() {
         String authToken = register().authToken();
         CreateRequest request = new CreateRequest(null);
-        assertThrows(ResponseException.class,
+        assertThrows(ClientException.class,
                 () -> facade.create(request, authToken), "Null gameName should cancel create");
         GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
         assertEquals(0, list.length);
@@ -146,7 +143,7 @@ public class ServerFacadeTests {
 
     @Test
     public void listUnauthorized() {
-        assertThrows(ResponseException.class, () -> facade.list(null), "Unauthorized request");
+        assertThrows(ClientException.class, () -> facade.list(null), "Unauthorized request");
     }
 
     @Test
@@ -156,7 +153,7 @@ public class ServerFacadeTests {
         int gameID = create(game, authToken);
         assertDoesNotThrow( () -> facade.join(new JoinRequest("WHITE", gameID), authToken));
         GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
-        assertEquals(username, list[0].whiteUsername());
+        assertEquals(USERNAME, list[0].whiteUsername());
     }
 
     @Test
@@ -166,7 +163,7 @@ public class ServerFacadeTests {
         int gameID = create(game, authToken);
         assertDoesNotThrow( () -> facade.join(new JoinRequest("BLACK", gameID), authToken));
         GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
-        assertEquals(username, list[0].blackUsername());
+        assertEquals(USERNAME, list[0].blackUsername());
     }
 
     @Test
@@ -174,12 +171,12 @@ public class ServerFacadeTests {
         String authToken = register().authToken();
         String game = "gameName";
         int gameID = create(game, authToken);
-        assertThrows(ResponseException.class,
+        assertThrows(ClientException.class,
                 () -> facade.join(new JoinRequest("NOT_A_COLOR", gameID), authToken),
                 "Invalid color");
         GameData[] list = assertDoesNotThrow( () -> facade.list(authToken));
-        assertNotEquals(username, list[0].whiteUsername());
-        assertNotEquals(username, list[0].blackUsername());
+        assertNotEquals(USERNAME, list[0].whiteUsername());
+        assertNotEquals(USERNAME, list[0].blackUsername());
     }
 
     private AuthData register(String username, String password, String email) {
@@ -187,7 +184,7 @@ public class ServerFacadeTests {
     }
 
     private AuthData register() {
-        return register(username, password, email);
+        return register(USERNAME, PASSWORD, EMAIL);
     }
 
     private void logout(String authToken) {

@@ -12,17 +12,15 @@ import java.util.Objects;
 
 public class ChessClient {
     protected static ServerFacade server;
-    private final String serverURL;
     protected static ClientState state = ClientState.PRE_LOGIN;
     private static AuthData authData;
 
-    private static final PreLogin preLogin = new PreLogin();
-    private static final PostLogin postLogin = new PostLogin();
-    private static final Gameplay gameplay = new Gameplay();
+    private static final PreLogin PRE_LOGIN = new PreLogin();
+    private static final PostLogin POST_LOGIN = new PostLogin();
+    private static final Gameplay GAMEPLAY = new Gameplay();
 
     ChessClient(String serverURL) {
         server = new ServerFacade(serverURL);
-        this.serverURL = serverURL;
     }
 
     public static String help() {
@@ -31,9 +29,9 @@ public class ChessClient {
 
     private static ClientStateInterface getStateObject(ClientState state) {
         return switch (state) {
-            case ClientState.PRE_LOGIN -> preLogin;
-            case ClientState.POST_LOGIN -> postLogin;
-            case ClientState.GAMEPLAY -> gameplay;
+            case ClientState.PRE_LOGIN -> PRE_LOGIN;
+            case ClientState.POST_LOGIN -> POST_LOGIN;
+            case ClientState.GAMEPLAY -> GAMEPLAY;
         };
     }
 
@@ -50,39 +48,35 @@ public class ChessClient {
 
     private static int currentGameID = 0;
 
-    public static int getCurrentGameID() {
-        return currentGameID;
-    }
-
     public static void setCurrentGameID(int currentGameID) {
         ChessClient.currentGameID = currentGameID;
     }
 
-    private static final HashMap<Integer, GameData> gameDataMap = new HashMap<>();
+    private static final HashMap<Integer, GameData> GAME_DATA_MAP = new HashMap<>();
 
     public static int getNumGames() {
-        return gameDataMap.size();
+        return GAME_DATA_MAP.size();
     }
 
     public static GameData getGameData(int gameID) {
-        return gameDataMap.get(gameID);
+        return GAME_DATA_MAP.get(gameID);
     }
 
     public static void fillGameDataMap(GameData... params) {
         clearGameDataMap();
         for (GameData game : params) {
-            gameDataMap.put(game.gameID(), game);
+            GAME_DATA_MAP.put(game.gameID(), game);
         }
     }
 
     public static void clearGameDataMap() {
-        gameDataMap.clear();
+        GAME_DATA_MAP.clear();
     }
 
     public static String readGameDataMap() {
         StringBuilder listGames = new StringBuilder();
-        for (int i = 1; i < gameDataMap.size() + 1; i++) {
-            GameData game = gameDataMap.get(i);
+        for (int i = 1; i < GAME_DATA_MAP.size() + 1; i++) {
+            GameData game = GAME_DATA_MAP.get(i);
             listGames.append(readGame(game));
             listGames.append("\n");
         }
@@ -90,14 +84,12 @@ public class ChessClient {
     }
 
     private static String readGame(GameData game) {
-        StringBuilder leftSide = new StringBuilder();
-        leftSide.append(" - #");
-        leftSide.append(game.gameID());
-        leftSide.append(" [");
-        leftSide.append(game.gameName());
-        leftSide.append("] ");
-        String left = leftSide.toString();
-        left = padString(left, 20);
+        String leftSide = " - #" +
+                game.gameID() +
+                " [" +
+                game.gameName() +
+                "] ";
+        String left = padString(leftSide, 20);
 
         StringBuilder middleSide = new StringBuilder();
         middleSide.append(left);
@@ -105,8 +97,7 @@ public class ChessClient {
         middleSide.append("White - ");
         String white = game.whiteUsername() == null ? "<Available>" : "[" + game.whiteUsername() + "]";
         middleSide.append(white);
-        String middle = middleSide.toString();
-        middle = padString(middle, 20 + 30);
+        String middle = padString(middleSide.toString(), 20 + 30);
 
         StringBuilder rightSide = new StringBuilder();
         rightSide.append(middle);
@@ -131,10 +122,6 @@ public class ChessClient {
         return authData != null ? authData.authToken() : null;
     }
 
-    public static String getUsername() {
-        return authData != null ? authData.username() : null;
-    }
-
     public static boolean userIsInGameAsColor(int gameID, String color) {
         GameData game = getGameData(gameID);
         if (game == null) {
@@ -146,6 +133,8 @@ public class ChessClient {
         } else if (Objects.equals(color, "black")) {
             return Objects.equals(username, game.blackUsername());
         }
-        else return false;
+        else {
+            return false;
+        }
     }
 }
