@@ -4,6 +4,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import state.GameplayState;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -30,8 +31,8 @@ public class DrawChessBoard {
     private static int endCol;
 
     private static ChessBoard drawBoard;
-    private static ChessGame.TeamColor teamColor;
     private static PrintStream out;
+    private static GameplayState gameplayState;
 
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -39,23 +40,23 @@ public class DrawChessBoard {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         out.println();
-        drawBoard(board, out, ChessGame.TeamColor.WHITE);
+        drawBoard(board, out, GameplayState.WHITE);
         out.println();
-        drawBoard(board, out, ChessGame.TeamColor.BLACK);
+        drawBoard(board, out, GameplayState.BLACK);
         out.println();
-        drawBoard(board, out, null);
+        drawBoard(board, out, GameplayState.OBSERVE);
     }
 
-    public static void drawBoard(ChessBoard board, PrintStream stream, ChessGame.TeamColor color) {
+    public static void drawBoard(ChessBoard board, PrintStream stream, GameplayState state) {
+        gameplayState = state;
         drawBoard = board;
-        teamColor = color;
         out = stream;
-        if (color == ChessGame.TeamColor.WHITE || color == null) {
+        if (gameplayState == GameplayState.WHITE || gameplayState == GameplayState.OBSERVE) {
             startRow = 8;
             endRow = 1;
             startCol = A;
             endCol = H;
-        } else {
+        } else if (gameplayState == GameplayState.BLACK) {
             startRow = 1;
             endRow = 8;
             startCol = H;
@@ -74,7 +75,7 @@ public class DrawChessBoard {
         out.print("  ");
 
         List<String> letters = new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H"));
-        if (teamColor == ChessGame.TeamColor.BLACK) {
+        if (gameplayState == GameplayState.BLACK) {
             Collections.reverse(letters);
         }
 

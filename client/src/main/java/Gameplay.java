@@ -1,4 +1,5 @@
 import exception.ResponseException;
+import state.GameplayState;
 
 public class Gameplay implements ClientState {
 
@@ -37,5 +38,15 @@ public class Gameplay implements ClientState {
     private String exit() {
         ChessClient.state = State.POST_LOGIN;
         return "Exited game" + ChessClient.help();
+    }
+
+    private static GameplayState gameplayState = null;
+
+    public static void setState(GameplayState state) {
+        gameplayState = state;
+    }
+
+    public static GameplayState getGameplayState() {
+        return gameplayState;
     }
 }

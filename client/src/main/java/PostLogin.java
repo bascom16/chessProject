@@ -4,6 +4,7 @@ import exception.ResponseException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
 import model.GameData;
+import state.GameplayState;
 import ui.DrawChessBoard;
 import ui.EscapeSequences;
 
@@ -60,10 +61,11 @@ public class PostLogin implements ClientState {
 
     private String list() throws ResponseException {
         updateGameDataMap();
-        return EscapeSequences.SET_TEXT_BOLD +
-                "\nList of games: \n" +
-                EscapeSequences.RESET_TEXT_BOLD_FAINT +
-                ChessClient.readGameDataMap();
+        String message =    EscapeSequences.SET_TEXT_BOLD +
+                            "\nList of games: \n" +
+                            EscapeSequences.RESET_TEXT_BOLD_FAINT;
+        String data = ChessClient.readGameDataMap();
+        return message + ((data.isBlank()) ? "No current games" : data);
     }
 
     private GameData[] getGameData() throws ResponseException {
@@ -77,9 +79,9 @@ public class PostLogin implements ClientState {
     private String join(String... params) throws ResponseException {
         String error = "Expected <ID> [WHITE|BLACK]";
         if (params.length == 2) {
-            if (!canConvertToInt(params[0])) {
+            if (incompatibleConvertToInt(params[0])) {
                 String detail = EscapeSequences.SET_TEXT_ITALIC +
-                                "ID must be a valid number" +
+                                " ID must be a valid number" +
                                 EscapeSequences.RESET_TEXT_ITALIC;
                 throw new ResponseException(400, error + detail);
             }
@@ -87,7 +89,7 @@ public class PostLogin implements ClientState {
             String color = params[1].toLowerCase();
             if (!(Objects.equals(color, "white") || Objects.equals(color, "black"))) {
                 String detail = EscapeSequences.SET_TEXT_ITALIC +
-                                "Color must be \"white\" or \"black\"" +
+                                " Color must be \"white\" or \"black\"" +
                                 EscapeSequences.RESET_TEXT_ITALIC;
                 throw new ResponseException(400, error + detail);
             }
@@ -95,19 +97,26 @@ public class PostLogin implements ClientState {
             updateGameDataMap();
             ChessClient.state = State.GAMEPLAY;
             ChessClient.setCurrentGameID(gameID);
+            GameplayState joinState;
+            if (color.equals("white")) {
+                joinState = GameplayState.WHITE;
+            } else {
+                joinState = GameplayState.BLACK;
+            }
+            Gameplay.setState(joinState);
             ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
-            DrawChessBoard.drawBoard(board, System.out, getColor());
+            DrawChessBoard.drawBoard(board, System.out, joinState);
             return String.format("Joined game [%s] as [%s]", gameID, color.toUpperCase()) + ChessClient.help();
         }
         throw new ResponseException(400, error);
     }
 
-    private static boolean canConvertToInt(String s) {
+    private static boolean incompatibleConvertToInt(String s) {
         try {
             Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e) {
             return false;
+        } catch (NumberFormatException e) {
+            return true;
         }
     }
 
@@ -123,7 +132,25 @@ public class PostLogin implements ClientState {
         }
     }
 
-    private String observe(String... params) {
-        throw new RuntimeException("Not implemented");
+    private String observe(String... params) throws ResponseException {
+        String error = "Expected <ID>";
+        if (params.length == 1) {
+            if (incompatibleConvertToInt(params[0])) {
+                String detail = EscapeSequences.SET_TEXT_ITALIC +
+                        " ID must be a valid number" +
+                        EscapeSequences.RESET_TEXT_ITALIC;
+                throw new ResponseException(400, error + detail);
+            }
+            int gameID = Integer.parseInt(params[0]);
+
+            ChessClient.state = State.GAMEPLAY;
+            ChessClient.setCurrentGameID(gameID);
+            Gameplay.setState(GameplayState.OBSERVE);
+
+            ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
+            DrawChessBoard.drawBoard(board, System.out, GameplayState.OBSERVE);
+            return String.format("Observing game [%s]", gameID) + ChessClient.help();
+        }
+        throw new ResponseException(400, error);
     }
 }

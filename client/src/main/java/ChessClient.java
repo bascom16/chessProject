@@ -82,7 +82,7 @@ public class ChessClient {
 
     private static String readGame(GameData game) {
         StringBuilder leftSide = new StringBuilder();
-        leftSide.append(" -");
+        leftSide.append(" - #");
         leftSide.append(game.gameID());
         leftSide.append(" [");
         leftSide.append(game.gameName());

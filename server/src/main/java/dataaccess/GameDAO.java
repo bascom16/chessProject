@@ -26,5 +26,5 @@ public interface GameDAO extends DAO<GameData, Integer>{
     @Override
     void reset() throws DataAccessException;
 
-    int getGameID();
+    int getGameID() throws DataAccessException;
 }

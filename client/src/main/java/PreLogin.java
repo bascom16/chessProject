@@ -54,6 +54,7 @@ public class PreLogin implements ClientState {
 
     private String clear() throws ResponseException {
         ChessClient.server.clear();
+        ChessClient.clearGameDataMap();
         return "Cleared database";
     }
 }

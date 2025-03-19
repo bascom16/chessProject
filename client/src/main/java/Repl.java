@@ -13,11 +13,14 @@ public class Repl {
     public void run() {
         resetText();
         System.out.println( EscapeSequences.SET_BG_COLOR_WHITE +
-                            EscapeSequences.SET_TEXT_COLOR_BLUE +
-                            EscapeSequences.SET_TEXT_ITALIC +
-                            "\tWelcome to Chess! Sign in to start." +
+                            EscapeSequences.SET_TEXT_COLOR_BLACK +
+                            "\n\t" +
                             EscapeSequences.BLACK_KING +
-                            EscapeSequences.RESET_TEXT_ITALIC);
+                            EscapeSequences.SET_TEXT_ITALIC +
+                            " Welcome to Chess! Sign in to start. " +
+                            EscapeSequences.RESET_TEXT_ITALIC +
+                            EscapeSequences.BLACK_KING +
+                            "\n");
         resetText();
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + ChessClient.help());
 
@@ -35,7 +38,14 @@ public class Repl {
             }
         }
         resetText();
-        System.out.println("\n" + EscapeSequences.SET_BG_COLOR_MAGENTA + "Goodbye!");
+        System.out.println( "\n" +
+                            EscapeSequences.SET_BG_COLOR_MAGENTA +
+                            EscapeSequences.SET_TEXT_COLOR_BLACK +
+                            "\n\t" +
+                            EscapeSequences.BLACK_KING +
+                            "Goodbye!" +
+                            EscapeSequences.BLACK_KING +
+                            "\n");
     }
 
     private void resetText() {

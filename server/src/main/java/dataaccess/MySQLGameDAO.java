@@ -135,7 +135,8 @@ public class MySQLGameDAO extends MySQLDAO implements GameDAO {
     static int gameID = 0;
 
     @Override
-    public int getGameID() {
+    public int getGameID() throws DataAccessException {
+        updateGameID();
         gameID += 1;
         return gameID;
     }
