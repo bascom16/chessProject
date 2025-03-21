@@ -109,7 +109,10 @@ public class PostLogin implements ClientStateInterface {
             String otherColor = color.equals("white") ? "black" : "white";
             if (ChessClient.userIsInGameAsColor(gameID, otherColor)) {
                 ChessClient.server.join(new JoinRequest(color.toUpperCase(), gameID), ChessClient.getAuthorization());
-                joinUpdate(gameID, "both");
+                joinUpdate(gameID, color);
+                if (color.equals("white")) {
+                    Gameplay.switchDrawState();
+                }
                 return String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID);
             }
             // Successful new join
@@ -131,8 +134,11 @@ public class PostLogin implements ClientStateInterface {
             default -> throw new ClientException(400, "Invalid color");
         };
         Gameplay.setState(joinState);
+        if (color.equals("black")) {
+            Gameplay.switchDrawState();
+        }
         ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
-        DrawChessBoard.drawBoard(board, System.out, joinState);
+        DrawChessBoard.drawBoard(board, System.out, Gameplay.getDrawState());
     }
 
     private static boolean incompatibleConvertToInt(String s) {

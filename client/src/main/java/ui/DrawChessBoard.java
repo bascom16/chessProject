@@ -51,7 +51,7 @@ public class DrawChessBoard {
         gameplayState = state;
         drawBoard = board;
         out = stream;
-        if (gameplayState == GameplayState.BLACK) {
+        if (gameplayState == GameplayState.BLACK || gameplayState == GameplayState.BOTH) {
             startRow = 1;
             endRow = 8;
             startCol = H;
@@ -75,7 +75,7 @@ public class DrawChessBoard {
         out.print("  ");
 
         List<String> letters = new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H"));
-        if (gameplayState == GameplayState.BLACK) {
+        if (gameplayState == GameplayState.BLACK || gameplayState == GameplayState.BOTH) {
             Collections.reverse(letters);
         }
 

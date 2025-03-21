@@ -32,6 +32,7 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String logout() throws ClientException {
+        drawState = GameplayState.WHITE;
         ChessClient.clearGameDataMap();
         ChessClient.server.logout(ChessClient.getAuthorization());
         ChessClient.state = ClientState.PRE_LOGIN;
@@ -39,12 +40,22 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String exit() {
+        drawState = GameplayState.WHITE;
         ChessClient.state = ClientState.POST_LOGIN;
         ChessClient.setCurrentGameID(0);
         return "Exited game\n" + ChessClient.help();
     }
 
     private static GameplayState gameplayState = null;
+    private static GameplayState drawState = GameplayState.WHITE;
+
+    public static GameplayState getDrawState() {
+        return drawState;
+    }
+
+    public static void switchDrawState() {
+        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
+    }
 
     public static void setState(GameplayState state) {
         gameplayState = state;
