@@ -53,8 +53,14 @@ public class PostLogin implements ClientStateInterface {
     }
 
     private String create(String... params) throws ClientException {
-        if (params.length == 1) {
-            String gameName = params[0];
+        if (params.length >= 1) {
+            StringBuilder builder = new StringBuilder();
+            for (String word: params) {
+                builder.append(word);
+                builder.append(" ");
+            }
+            builder.append("\b");
+            String gameName = builder.toString();
             int gameID = ChessClient.server.create(new CreateRequest(gameName), ChessClient.getAuthorization());
             updateGameDataMap();
             return String.format("Created game [%s] as game number [%s]", gameName, gameID);
