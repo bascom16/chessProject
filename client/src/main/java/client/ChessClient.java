@@ -48,6 +48,10 @@ public class ChessClient {
 
     private static int currentGameID = 0;
 
+    public static int getCurrentGameID() {
+        return currentGameID;
+    }
+
     public static void setCurrentGameID(int currentGameID) {
         ChessClient.currentGameID = currentGameID;
     }

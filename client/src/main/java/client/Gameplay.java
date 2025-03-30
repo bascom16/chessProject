@@ -1,8 +1,10 @@
 package client;
 
+import chess.ChessBoard;
 import exception.ClientException;
 import state.ClientState;
 import state.GameplayState;
+import ui.DrawChessBoard;
 
 public class Gameplay implements ClientStateInterface {
 
@@ -38,15 +40,7 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private static GameplayState gameplayState = null;
-    private static GameplayState drawState = GameplayState.WHITE;
 
-    public static GameplayState getDrawState() {
-        return drawState;
-    }
-
-    public static void switchDrawState() {
-        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
-    }
 
     public static void setState(GameplayState state) {
         gameplayState = state;
@@ -57,11 +51,25 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String leave() {
-        throw new RuntimeException("not implemented");
+        ChessClient.state = ClientState.POST_LOGIN;
+        gameplayState = null;
+        return String.format("\nLeaving game [%s]\n", ChessClient.getCurrentGameID()) + ChessClient.help();
     }
 
-    public String draw() {
-        throw new RuntimeException("not implemented");
+    public static String draw() {
+        ChessBoard board = ChessClient.getGameData(ChessClient.getCurrentGameID()).game().getBoard();
+        DrawChessBoard.drawBoard(board, System.out, drawState);
+        return "";
+    }
+
+    private static GameplayState drawState = GameplayState.WHITE;
+
+    public static GameplayState getDrawState() {
+        return drawState;
+    }
+
+    public static void switchDrawState() {
+        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
     }
 
     private String makeMove(String... params) throws ClientException {

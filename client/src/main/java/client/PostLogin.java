@@ -7,7 +7,6 @@ import handler.request.JoinRequest;
 import model.GameData;
 import state.ClientState;
 import state.GameplayState;
-import ui.DrawChessBoard;
 import ui.EscapeSequences;
 
 import java.util.Objects;
@@ -143,8 +142,7 @@ public class PostLogin implements ClientStateInterface {
         if (color.equals("black")) {
             Gameplay.switchDrawState();
         }
-        ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
-        DrawChessBoard.drawBoard(board, System.out, Gameplay.getDrawState());
+        Gameplay.draw();
     }
 
     private static boolean incompatibleConvertToInt(String s) {
@@ -179,8 +177,7 @@ public class PostLogin implements ClientStateInterface {
             ChessClient.setCurrentGameID(gameID);
             Gameplay.setState(GameplayState.OBSERVE);
 
-            ChessBoard board = ChessClient.getGameData(gameID).game().getBoard();
-            DrawChessBoard.drawBoard(board, System.out, GameplayState.OBSERVE);
+            Gameplay.draw();
             return String.format("\nObserving game [%s]\n", gameID) + ChessClient.help();
         }
         throw new ClientException(400, error);
