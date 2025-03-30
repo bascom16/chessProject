@@ -1,6 +1,5 @@
 package client;
 
-import chess.ChessBoard;
 import exception.ClientException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
