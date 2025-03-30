@@ -69,11 +69,22 @@ public class PostLogin implements ClientStateInterface {
 
     private String list() throws ClientException {
         updateGameDataMap();
-        String message =    EscapeSequences.SET_TEXT_BOLD +
-                            "List of games: \n" +
-                            EscapeSequences.RESET_TEXT_BOLD_FAINT;
+        int widthWhite = 25;
+        int widthBlack = 20;
+        StringBuilder builder = new StringBuilder();
+        builder.append(EscapeSequences.SET_TEXT_BOLD);
+        builder.append("List of games:");
+        builder.append(" ".repeat(widthWhite));
+        builder.append(EscapeSequences.SET_TEXT_UNDERLINE);
+        builder.append("White");
+        builder.append(EscapeSequences.RESET_TEXT_UNDERLINE);
+        builder.append(" ".repeat(widthBlack));
+        builder.append(EscapeSequences.SET_TEXT_UNDERLINE);
+        builder.append("Black\n");
+        builder.append(EscapeSequences.RESET_TEXT_UNDERLINE);
+        builder.append(EscapeSequences.RESET_TEXT_BOLD_FAINT);
         String data = ChessClient.readGameDataMap();
-        return message + ((data.isBlank()) ? "No current games" : data);
+        return builder + ((data.isBlank()) ? "No current games" : data);
     }
 
     private GameData[] getGameData() throws ClientException {

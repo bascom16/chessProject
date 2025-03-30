@@ -88,24 +88,26 @@ public class ChessClient {
     }
 
     private static String readGame(GameData game) {
+        int padWhite = 35;
+        int padBlack = padWhite + 25;
+
         String leftSide = " - #" +
                 game.gameID() +
                 " [" +
                 game.gameName() +
                 "] ";
-        String left = padString(leftSide, 20);
+        String left = padString(leftSide, padWhite);
 
         StringBuilder middleSide = new StringBuilder();
         middleSide.append(left);
-        middleSide.append("| ");
-        middleSide.append("White - ");
+        middleSide.append(" | ");
         String white = game.whiteUsername() == null ? "<Available>" : "[" + game.whiteUsername() + "]";
         middleSide.append(white);
-        String middle = padString(middleSide.toString(), 20 + 30);
+        String middle = padString(middleSide.toString(), padBlack);
 
         StringBuilder rightSide = new StringBuilder();
         rightSide.append(middle);
-        rightSide.append(" | Black - ");
+        rightSide.append(" | ");
         String black = game.blackUsername() == null ? "<Available>" : "[" + game.blackUsername() + "]";
         rightSide.append(black);
         return rightSide.toString();
