@@ -36,8 +36,7 @@ public class Server {
         }
 
         // Websocket
-        webSocketHandler = new WebSocketHandler();
-
+        webSocketHandler = new WebSocketHandler(userDataAccess, authDataAccess, gameDataAccess);
         // Service Manager
         ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
 

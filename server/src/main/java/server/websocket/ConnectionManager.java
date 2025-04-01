@@ -33,4 +33,12 @@ public class ConnectionManager {
             remove(connection.username);
         }
     }
+
+    public void sendToUser(String username, ServerMessage message) throws IOException {
+        Connection connection = connections.get(username);
+        if (connection == null) {
+            throw new IOException("User not found");
+        }
+        connection.send(message.toString());
+    }
  }

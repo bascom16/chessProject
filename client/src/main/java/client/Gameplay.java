@@ -74,17 +74,20 @@ public class Gameplay implements ClientStateInterface {
 
     private String makeMove(String... params) throws ClientException {
         if (params.length == 2) {
+//            TODO: IMPLEMENT MAKE MOVE
             throw new RuntimeException("not implemented");
         }
         throw new ClientException(400, "Expected <start position [A1-H8]> <end position [A1-H8]>");
     }
 
     private String resign() {
+//        TODO: IMPLEMENT RESIGN
         throw new RuntimeException("not implemented");
     }
 
     private String highlight(String... params) throws ClientException {
         if (params.length == 1) {
+//            TODO: IMPLEMENT HIGHLIGHT
             throw new RuntimeException("not implemented");
         }
         throw new ClientException(400, "Expected piece position [A1-H8]");
