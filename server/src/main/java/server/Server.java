@@ -3,10 +3,14 @@ package server;
 import dataaccess.*;
 import exception.ResponseException;
 import handler.*;
+import server.websocket.WebSocketHandler;
 import service.ServiceManager;
 import spark.*;
 
 public class Server {
+    // WebSocket
+    private final WebSocketHandler webSocketHandler;
+
     // Memory data structures
     private UserDAO userDataAccess;
     private AuthDAO authDataAccess;
@@ -22,6 +26,7 @@ public class Server {
     private final JoinHandler joinHandler;
 
     public Server() {
+        // Memory data structures
         try {
             userDataAccess = new MySQLUserDAO();
             authDataAccess = new MySQLAuthDAO();
@@ -30,9 +35,13 @@ public class Server {
             System.out.println(ex.getMessage());
         }
 
+        // Websocket
+        webSocketHandler = new WebSocketHandler();
+
         // Service Manager
         ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
 
+        // Handlers
         registerHandler = new RegisterHandler(service);
         clearHandler = new ClearHandler(service);
         loginHandler = new LoginHandler(service);
@@ -46,6 +55,8 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         try {
             userDataAccess = new MySQLUserDAO();
