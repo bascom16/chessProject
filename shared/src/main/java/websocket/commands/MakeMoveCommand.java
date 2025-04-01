@@ -22,10 +22,9 @@ public class MakeMoveCommand extends UserGameCommand {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MakeMoveCommand)) {
+        if (!(o instanceof MakeMoveCommand that)) {
             return false;
         }
-        MakeMoveCommand that = (MakeMoveCommand) o;
         return getCommandType() == that.getCommandType() &&
                 Objects.equals(getAuthToken(), that.getAuthToken()) &&
                 Objects.equals(getGameID(), that.getGameID()) &&
