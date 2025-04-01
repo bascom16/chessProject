@@ -1,5 +1,6 @@
 package client;
 
+import client.websocket.NotificationHandler;
 import exception.ClientException;
 import model.GameData;
 import server.ServerFacade;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class ChessClient {
+    private final NotificationHandler notificationHandler;
     protected static ServerFacade server;
     protected static ClientState state = ClientState.PRE_LOGIN;
     private static AuthData authData;
@@ -19,8 +21,9 @@ public class ChessClient {
     private static final PostLogin POST_LOGIN = new PostLogin();
     private static final Gameplay GAMEPLAY = new Gameplay();
 
-    ChessClient(String serverURL) {
+    public ChessClient(String serverURL, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverURL);
+        this.notificationHandler = notificationHandler;
     }
 
     public static String help() {
