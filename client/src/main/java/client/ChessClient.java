@@ -1,11 +1,15 @@
 package client;
 
+import chess.ChessBoard;
 import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import exception.ClientException;
 import model.GameData;
 import server.ServerFacade;
 import model.AuthData;
 import state.ClientState;
+import state.GameplayState;
+import ui.DrawChessBoard;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,24 +17,27 @@ import java.util.Objects;
 
 public class ChessClient {
     private final NotificationHandler notificationHandler;
-    protected static ServerFacade server;
-    protected static ClientState state = ClientState.PRE_LOGIN;
-    private static AuthData authData;
+    private WebSocketFacade ws;
+    private final String serverURL;
+    protected ServerFacade server;
+    protected ClientState state = ClientState.PRE_LOGIN;
+    private AuthData authData;
 
-    private static final PreLogin PRE_LOGIN = new PreLogin();
-    private static final PostLogin POST_LOGIN = new PostLogin();
-    private static final Gameplay GAMEPLAY = new Gameplay();
+    private final PreLogin PRE_LOGIN = new PreLogin(this);
+    private final PostLogin POST_LOGIN = new PostLogin(this);
+    private final Gameplay GAMEPLAY = new Gameplay(this);
 
     public ChessClient(String serverURL, NotificationHandler notificationHandler) {
+        this.serverURL = serverURL;
         server = new ServerFacade(serverURL);
         this.notificationHandler = notificationHandler;
     }
 
-    public static String help() {
+    public String help() {
         return getStateObject(state).help();
     }
 
-    private static ClientStateInterface getStateObject(ClientState state) {
+    private ClientStateInterface getStateObject(ClientState state) {
         return switch (state) {
             case ClientState.PRE_LOGIN -> PRE_LOGIN;
             case ClientState.POST_LOGIN -> POST_LOGIN;
@@ -49,38 +56,38 @@ public class ChessClient {
         }
     }
 
-    private static int currentGameID = 0;
+    private int currentGameID = 0;
 
-    public static int getCurrentGameID() {
+    public int getCurrentGameID() {
         return currentGameID;
     }
 
-    public static void setCurrentGameID(int currentGameID) {
-        ChessClient.currentGameID = currentGameID;
+    public void setCurrentGameID(int currentGameID) {
+        this.currentGameID = currentGameID;
     }
 
-    private static final HashMap<Integer, GameData> GAME_DATA_MAP = new HashMap<>();
+    private final HashMap<Integer, GameData> GAME_DATA_MAP = new HashMap<>();
 
-    public static int getNumGames() {
+    public int getNumGames() {
         return GAME_DATA_MAP.size();
     }
 
-    public static GameData getGameData(int gameID) {
+    public GameData getGameData(int gameID) {
         return GAME_DATA_MAP.get(gameID);
     }
 
-    public static void fillGameDataMap(GameData... params) {
+    public void fillGameDataMap(GameData... params) {
         clearGameDataMap();
         for (GameData game : params) {
             GAME_DATA_MAP.put(game.gameID(), game);
         }
     }
 
-    public static void clearGameDataMap() {
+    public void clearGameDataMap() {
         GAME_DATA_MAP.clear();
     }
 
-    public static String readGameDataMap() {
+    public String readGameDataMap() {
         StringBuilder listGames = new StringBuilder();
         for (int i = 1; i < GAME_DATA_MAP.size() + 1; i++) {
             GameData game = GAME_DATA_MAP.get(i);
@@ -123,15 +130,15 @@ public class ChessClient {
         return left + pad;
     }
 
-    public static void setAuthData(AuthData data) {
+    public void setAuthData(AuthData data) {
         authData = data;
     }
 
-    public static String getAuthorization() {
+    public String getAuthorization() {
         return authData != null ? authData.authToken() : null;
     }
 
-    public static boolean userIsInGameAsColor(int gameID, String color) {
+    public boolean userIsInGameAsColor(int gameID, String color) {
         GameData game = getGameData(gameID);
         if (game == null) {
             return false;
@@ -144,6 +151,28 @@ public class ChessClient {
         }
         else {
             return false;
+        }
+    }
+
+    public String draw() {
+        ChessBoard board = getGameData(getCurrentGameID()).game().getBoard();
+        DrawChessBoard.drawBoard(board, System.out, drawState);
+        return "";
+    }
+
+    private static GameplayState drawState = GameplayState.WHITE;
+
+    public static GameplayState getDrawState() {
+        return drawState;
+    }
+
+    public static void switchDrawState() {
+        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
+    }
+
+    public void initializeWebSocket() throws ClientException {
+        if (ws == null) {
+            ws = new WebSocketFacade(serverURL, notificationHandler);
         }
     }
 }

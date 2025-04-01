@@ -1,12 +1,15 @@
 package client;
 
-import chess.ChessBoard;
 import exception.ClientException;
 import state.ClientState;
 import state.GameplayState;
-import ui.DrawChessBoard;
 
 public class Gameplay implements ClientStateInterface {
+    private final ChessClient client;
+
+    public Gameplay(ChessClient client) {
+        this.client = client;
+    }
 
     public String help() {
         if (gameplayState == GameplayState.OBSERVE) {
@@ -31,7 +34,7 @@ public class Gameplay implements ClientStateInterface {
         return switch (cmd) {
             case "h", "help" -> help();
             case "l", "leave" -> leave();
-            case "r", "redraw" -> draw();
+            case "r", "redraw" -> client.draw();
             case "m", "move" -> makeMove(params);
             case "re", "resign" -> resign();
             case "hi", "highlight" -> highlight(params);
@@ -51,25 +54,9 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String leave() {
-        ChessClient.state = ClientState.POST_LOGIN;
+        client.state = ClientState.POST_LOGIN;
         gameplayState = null;
-        return String.format("\nLeaving game [%s]\n", ChessClient.getCurrentGameID()) + ChessClient.help();
-    }
-
-    public static String draw() {
-        ChessBoard board = ChessClient.getGameData(ChessClient.getCurrentGameID()).game().getBoard();
-        DrawChessBoard.drawBoard(board, System.out, drawState);
-        return "";
-    }
-
-    private static GameplayState drawState = GameplayState.WHITE;
-
-    public static GameplayState getDrawState() {
-        return drawState;
-    }
-
-    public static void switchDrawState() {
-        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
+        return String.format("\nLeaving game [%s]\n", client.getCurrentGameID()) + client.help();
     }
 
     private String makeMove(String... params) throws ClientException {

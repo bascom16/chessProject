@@ -6,6 +6,11 @@ import handler.request.RegisterRequest;
 import state.ClientState;
 
 public class PreLogin implements ClientStateInterface {
+    private final ChessClient client;
+
+    public PreLogin(ChessClient client) {
+        this.client = client;
+    }
 
     public String help() {
         return """
@@ -36,9 +41,10 @@ public class PreLogin implements ClientStateInterface {
         if (params.length == 2) {
             String username = params[0];
             String password = params[1];
-            ChessClient.setAuthData(ChessClient.server.login(new LoginRequest(username, password)));
-            ChessClient.state = ClientState.POST_LOGIN;
-            return String.format("You signed in as user [%s]\n", username) + ChessClient.help();
+            client.setAuthData(client.server.login(new LoginRequest(username, password)));
+            client.state = ClientState.POST_LOGIN;
+            client.initializeWebSocket();
+            return String.format("You signed in as user [%s]\n", username) + client.help();
         }
         throw new ClientException(400, "Expected <username> <password>");
     }
@@ -48,16 +54,17 @@ public class PreLogin implements ClientStateInterface {
             String username = params[0];
             String password = params[1];
             String email = params[2];
-            ChessClient.setAuthData(ChessClient.server.register(new RegisterRequest(username, password, email)));
-            ChessClient.state = ClientState.POST_LOGIN;
-            return String.format("You registered as new user [%s]\n", username) + ChessClient.help();
+            client.setAuthData(client.server.register(new RegisterRequest(username, password, email)));
+            client.state = ClientState.POST_LOGIN;
+            client.initializeWebSocket();
+            return String.format("You registered as new user [%s]\n", username) + client.help();
         }
         throw new ClientException(400, "Expected <username> <password> <email>");
     }
 
     private String clear() throws ClientException {
-        ChessClient.server.clear();
-        ChessClient.clearGameDataMap();
+        client.server.clear();
+        client.clearGameDataMap();
         return "Cleared database";
     }
 }

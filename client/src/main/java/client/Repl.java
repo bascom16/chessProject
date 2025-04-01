@@ -19,7 +19,7 @@ public class Repl implements NotificationHandler {
         StringBuilder entryMessage = getEntryString();
         System.out.println(entryMessage);
         resetText();
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "\n" + ChessClient.help());
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "\n" + client.help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
