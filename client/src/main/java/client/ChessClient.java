@@ -175,4 +175,8 @@ public class ChessClient {
             ws = new WebSocketFacade(serverURL, notificationHandler);
         }
     }
+
+    public WebSocketFacade getWs() {
+        return ws;
+    }
 }

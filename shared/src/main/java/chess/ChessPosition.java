@@ -55,4 +55,17 @@ public class ChessPosition {
                 ", col=" + col +
                 '}';
     }
+
+    public String toSimpleString() {
+        char[] colVals = {'A', 'B','C', 'D', 'E', 'F', 'G', 'H'};
+        int[] rowVals = {1, 2, 3, 4, 5, 6, 7, 8};
+        char newCol = ' ';
+        for (int i = 0; i < rowVals.length; i++) {
+            if (col == rowVals[i]) {
+                newCol = colVals[i];
+            }
+        }
+        String newRow = String.valueOf(this.row);
+        return newCol + newRow;
+    }
 }

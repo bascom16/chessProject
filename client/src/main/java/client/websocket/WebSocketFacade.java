@@ -1,10 +1,9 @@
 package client.websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ClientException;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.NotificationMessage;
 
 import javax.websocket.*;
@@ -56,12 +55,12 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove() {
-//        TODO: MAKE MOVE
+    public void makeMove(String authToken, int gameID, ChessMove move) throws ClientException {
+        sendCommand(new MakeMoveCommand(authToken, gameID, move));
     }
 
-    public void resign() {
-//        TODO: RESIGN
+    public void resign(String authToken, int gameID) throws ClientException {
+        sendCommand(new ResignCommand(authToken, gameID));
     }
 
     private void sendCommand(UserGameCommand command) throws ClientException {
