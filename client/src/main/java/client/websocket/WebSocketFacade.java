@@ -2,6 +2,9 @@ package client.websocket;
 
 import com.google.gson.Gson;
 import exception.ClientException;
+import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.NotificationMessage;
 
 import javax.websocket.*;
@@ -40,12 +43,17 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connect() {
-//        TODO: CONNECT
+    public void connect(String authToken, int gameID) throws ClientException {
+        sendCommand(new ConnectCommand(authToken, gameID));
     }
 
-    public void leave() {
-//        TODO: LEAVE
+    public void leave(String authToken, int gameID) throws ClientException {
+        sendCommand(new LeaveCommand(authToken, gameID));
+        try {
+            this.session.close();
+        } catch (IOException ex) {
+            throw new ClientException(500, ex.getMessage());
+        }
     }
 
     public void makeMove() {
@@ -54,5 +62,13 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign() {
 //        TODO: RESIGN
+    }
+
+    private void sendCommand(UserGameCommand command) throws ClientException {
+        try {
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ClientException(500, ex.getMessage());
+        }
     }
 }
