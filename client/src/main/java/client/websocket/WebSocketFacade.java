@@ -17,12 +17,15 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Logger;
 
 @ClientEndpoint
 public class WebSocketFacade extends Endpoint {
     private final Session session;
     private final NotificationHandler notificationHandler;
     private final ChessClient client;
+
+    Logger log = Logger.getLogger("clientLogger");
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler, ChessClient client)
             throws ClientException {
@@ -36,6 +39,7 @@ public class WebSocketFacade extends Endpoint {
 
             this.client = client;
         } catch (DeploymentException | IOException | URISyntaxException ex) {
+            log.warning("WebSocketFacade creation failed. " + ex.getMessage());
             throw new ClientException(500, ex.getMessage());
         }
     }
@@ -66,6 +70,7 @@ public class WebSocketFacade extends Endpoint {
         try {
             this.session.close();
         } catch (IOException ex) {
+            log.warning("Session could not be closed. " + ex.getMessage());
             throw new ClientException(500, ex.getMessage());
         }
     }
@@ -82,6 +87,7 @@ public class WebSocketFacade extends Endpoint {
         try {
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
+            log.warning("Bad WebSocketFacade command." + ex.getMessage());
             throw new ClientException(500, ex.getMessage());
         }
     }

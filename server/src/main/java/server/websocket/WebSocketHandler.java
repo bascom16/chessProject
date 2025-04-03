@@ -15,6 +15,7 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 @WebSocket
 public class WebSocketHandler {
@@ -22,6 +23,8 @@ public class WebSocketHandler {
     private final UserDAO userDataAccess;
     private final AuthDAO authDataAccess;
     private final GameDAO gameDataAccess;
+
+    Logger log = Logger.getLogger("serverLogger");
 
     public WebSocketHandler(UserDAO userDataAccess, AuthDAO authDataAccess, GameDAO gameDataAccess) {
         this.userDataAccess = userDataAccess;
@@ -34,6 +37,7 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand command = readCommand(message);
+        log.info("WebSocketHandler received command " + command.getCommandType());
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, (ConnectCommand) command);
             case MAKE_MOVE -> makeMove(session, (MakeMoveCommand) command);
@@ -58,6 +62,7 @@ public class WebSocketHandler {
         String color = getUserColor(username, command.getGameID());
         GameData game = getGame(command.getGameID());
         connectionManager.add(username, session);
+        log.info("WebSocketHandler connected " + username);
         NotificationMessage broadcastMessage = new NotificationMessage(
                 String.format("[%s] has joined the game as %s. Welcome!", username, color));
         connectionManager.broadcast(username, broadcastMessage);
@@ -101,6 +106,7 @@ public class WebSocketHandler {
     private void leave(LeaveCommand command) throws IOException {
         String username = authenticate(command.getAuthToken()).username();
         connectionManager.remove(username);
+        log.info("WebSocketHandler removed connection for " + username);
         NotificationMessage message = new NotificationMessage(
                 String.format("[%s] has left the game. Goodbye!", username));
         connectionManager.broadcast(username, message);
@@ -118,6 +124,7 @@ public class WebSocketHandler {
         try {
             gameDataAccess.update(updatedGameData);
         } catch (DataAccessException ex) {
+            log.warning("WebSocketHandler could not update game after player left." + ex.getMessage());
             throw new IOException("Unable to update game");
         }
 //        TODO: CHECK IF THIS ACTUALLY WORKS

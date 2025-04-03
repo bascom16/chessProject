@@ -7,10 +7,14 @@ import state.ClientState;
 import state.GameplayState;
 import ui.EscapeSequences;
 
+import javax.print.MultiDocPrintService;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class PostLogin implements ClientStateInterface {
     private final ChessClient client;
+
+    Logger log = Logger.getLogger("clientLogger");
 
     public PostLogin(ChessClient client) {
         this.client = client;
@@ -42,6 +46,7 @@ public class PostLogin implements ClientStateInterface {
     }
 
     private String quit() throws ClientException {
+        log.info("User quit client from postLogin");
         logout();
         return "quit";
     }
@@ -51,6 +56,7 @@ public class PostLogin implements ClientStateInterface {
         client.setCurrentGameID(0);
         client.server.logout(client.getAuthorization());
         client.state = ClientState.PRE_LOGIN;
+        log.info("Logged out user");
         return "Successfully logged out\n" + client.help();
     }
 
@@ -65,6 +71,7 @@ public class PostLogin implements ClientStateInterface {
             String gameName = builder.toString();
             int gameID = client.server.create(new CreateRequest(gameName), client.getAuthorization());
             client.updateGameDataMap();
+            log.info(String.format("Created game [%s] as game number [%s]", gameName, gameID));
             return String.format("Created game [%s] as game number [%s]", gameName, gameID);
         }
         throw new ClientException(400, "Expected <name>");
@@ -87,6 +94,7 @@ public class PostLogin implements ClientStateInterface {
         builder.append(EscapeSequences.RESET_TEXT_UNDERLINE);
         builder.append(EscapeSequences.RESET_TEXT_BOLD_FAINT);
         String data = client.readGameDataMap();
+        log.info("Listed games");
         return builder + ((data.isBlank()) ? "No current games" : data);
     }
 
@@ -115,6 +123,7 @@ public class PostLogin implements ClientStateInterface {
             if (client.userIsInGameAsColor(gameID, color)) {
                 joinUpdate(gameID, color);
                 client.connect();
+                log.info(String.format("Reentering game [%s] as %s\n", gameID, color));
                 return String.format("Reentering game [%s] as %s\n", gameID, color) + client.help();
             }
             // User already in game as opposite color
@@ -126,12 +135,14 @@ public class PostLogin implements ClientStateInterface {
                     client.switchDrawState();
                 }
                 client.connect();
+                log.info(String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID));
                 return String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID);
             }
             // Successful new join
             client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
             joinUpdate(gameID, color);
             client.connect();
+            log.info(String.format("\nJoined game [%s] as [%s]\n", gameID, color.toUpperCase()));
             return String.format("\nJoined game [%s] as [%s]\n", gameID, color.toUpperCase()) + client.help();
         }
         throw new ClientException(400, error);
@@ -151,6 +162,7 @@ public class PostLogin implements ClientStateInterface {
         if (color.equals("black")) {
             client.switchDrawState();
         }
+        client.draw();
     }
 
     private static boolean incompatibleConvertToInt(String s) {
@@ -186,6 +198,7 @@ public class PostLogin implements ClientStateInterface {
             client.setGameplayState(GameplayState.OBSERVE);
 
             client.draw();
+            log.info(String.format("\nObserving game [%s]\n", gameID));
             return String.format("\nObserving game [%s]\n", gameID) + client.help();
         }
         throw new ClientException(400, error);

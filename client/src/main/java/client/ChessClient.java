@@ -14,6 +14,7 @@ import ui.DrawChessBoard;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class ChessClient {
     protected ServerFacade server;
@@ -25,6 +26,8 @@ public class ChessClient {
     private final PostLogin postLogin;
     private final Gameplay gameplay;
 
+    Logger log = Logger.getLogger("clientLogger");
+
     public ChessClient(String serverURL, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverURL);
 
@@ -32,6 +35,7 @@ public class ChessClient {
             ws = new WebSocketFacade(serverURL, notificationHandler, this);
         } catch (ClientException ex) {
             System.out.println("Error! Unable to initialize client");
+            log.warning("Unable to initialize client websocket in construction.");
         }
 
         preLogin = new PreLogin(this);
@@ -89,6 +93,7 @@ public class ChessClient {
         for (GameData game : params) {
             GAME_DATA_MAP.put(game.gameID(), game);
         }
+        log.info("Updated Client gameData hashMap");
     }
 
     public void clearGameDataMap() {
@@ -181,6 +186,7 @@ public class ChessClient {
     }
 
     public String draw() {
+        log.info("Draw board request");
         ChessBoard board = getGameData(getCurrentGameID()).game().getBoard();
         DrawChessBoard.drawBoard(board, System.out, drawState);
         return "";
@@ -200,6 +206,7 @@ public class ChessClient {
     // Web socket methods
 
     public void loadGame(GameData gameData) {
+        log.info("Added game to Client gameData hashMap");
         GAME_DATA_MAP.put(currentGameID, gameData);
         draw();
     }

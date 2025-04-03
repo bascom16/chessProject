@@ -5,8 +5,12 @@ import handler.request.LoginRequest;
 import handler.request.RegisterRequest;
 import state.ClientState;
 
+import java.util.logging.Logger;
+
 public class PreLogin implements ClientStateInterface {
     private final ChessClient client;
+
+    Logger log = Logger.getLogger("clientLogger");
 
     public PreLogin(ChessClient client) {
         this.client = client;
@@ -34,6 +38,7 @@ public class PreLogin implements ClientStateInterface {
     }
 
     private String quit() {
+        log.info("User quit client");
         return "quit";
     }
 
@@ -43,6 +48,7 @@ public class PreLogin implements ClientStateInterface {
             String password = params[1];
             client.setAuthData(client.server.login(new LoginRequest(username, password)));
             client.state = ClientState.POST_LOGIN;
+            log.info("Logged in user " + username);
             return String.format("You signed in as user [%s]\n", username) + client.help();
         }
         throw new ClientException(400, "Expected <username> <password>");
@@ -55,6 +61,7 @@ public class PreLogin implements ClientStateInterface {
             String email = params[2];
             client.setAuthData(client.server.register(new RegisterRequest(username, password, email)));
             client.state = ClientState.POST_LOGIN;
+            log.info("Registered user " + username);
             return String.format("You registered as new user [%s]\n", username) + client.help();
         }
         throw new ClientException(400, "Expected <username> <password> <email>");
@@ -63,6 +70,7 @@ public class PreLogin implements ClientStateInterface {
     private String clear() throws ClientException {
         client.server.clear();
         client.clearGameDataMap();
+        log.info("Cleared database");
         return "Cleared database";
     }
 }

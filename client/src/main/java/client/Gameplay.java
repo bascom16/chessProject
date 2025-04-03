@@ -11,10 +11,13 @@ import state.GameplayState;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Gameplay implements ClientStateInterface {
     private final ChessClient client;
     private final WebSocketFacade ws;
+
+    Logger log = Logger.getLogger("clientLogger");
 
     public Gameplay(ChessClient client, WebSocketFacade ws) {
         this.client = client;
@@ -57,6 +60,7 @@ public class Gameplay implements ClientStateInterface {
         client.setGameplayState(null);
         client.fillGameDataMap();
         ws.leave(client.getAuthorization(), client.getCurrentGameID());
+        log.info(String.format("\nLeaving game [%s]\n", client.getCurrentGameID()));
         return String.format("\nLeaving game [%s]\n", client.getCurrentGameID()) + client.help();
     }
 
@@ -68,6 +72,7 @@ public class Gameplay implements ClientStateInterface {
         //TODO: PROMOTION PIECE
         ChessMove move = new ChessMove(startPosition, endPosition, null);
         ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
+        log.info("User made move " + move);
         return String.format("Moving %s to %s", startPosition.toSimpleString(), endPosition.toSimpleString());
     }
 
@@ -142,17 +147,21 @@ public class Gameplay implements ClientStateInterface {
                 EscapeSequences.SET_TEXT_COLOR_RED +
                 "Would you like to resign? Doing so will forfeit the game. Confirm with <y> or <yes>.";
         System.out.println(resignPrompt);
+        log.info("Resign prompt");
         System.out.print(">>>\t" + EscapeSequences.RESET_TEXT_BOLD_FAINT + EscapeSequences.RESET_TEXT_COLOR);
         String response = scanner.nextLine().toLowerCase();
         if (response.equals("y") || response.equals("yes")) {
             ws.resign(client.getAuthorization(), client.getCurrentGameID());
             client.updateGameDataMap();
+            log.info("User resigned");
             return "Very well. You have chosen to accept defeat.";
         }
+        log.info("User did not resign");
         return "The game continues.";
     }
 
     private String highlight(String... params) throws ClientException {
+        log.info("Highlight request");
         if (params.length == 1) {
 //            TODO: IMPLEMENT HIGHLIGHT
             throw new RuntimeException("not implemented");
@@ -168,6 +177,7 @@ public class Gameplay implements ClientStateInterface {
         } else if ( teamTurn == ChessGame.TeamColor.BLACK && client.getGameplayState() == GameplayState.BLACK) {
             return;
         }
+        log.info("User acted out of turn");
         throw new ClientException(400, "It's not your turn! Please be patient.");
     }
 }
