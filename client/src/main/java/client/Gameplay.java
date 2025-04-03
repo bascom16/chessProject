@@ -1,9 +1,10 @@
 package client;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
-import client.websocket.WebSocketFacade;
 import exception.ClientException;
+import model.GameData;
 import state.ClientState;
 import state.GameplayState;
 
@@ -15,7 +16,7 @@ public class Gameplay implements ClientStateInterface {
     }
 
     public String help() {
-        if (gameplayState == GameplayState.OBSERVE) {
+        if (client.getGameplayState() == GameplayState.OBSERVE) {
             return """
                - help (h) | display this help menu
                - leave (l) | leave the current game
@@ -39,30 +40,21 @@ public class Gameplay implements ClientStateInterface {
             case "l", "leave" -> leave();
             case "r", "redraw" -> client.draw();
             case "m", "move" -> makeMove(params);
-            case "re", "resign" -> resign();
+            case "re", "resign" -> promptResign();
             case "hi", "highlight" -> highlight(params);
+            case "y", "yes" -> confirmResign();
             default -> "Command not recognized.\n" + help();
         };
     }
 
-    private static GameplayState gameplayState = null;
-
-
-    public static void setState(GameplayState state) {
-        gameplayState = state;
-    }
-
-    public static GameplayState getGameplayState() {
-        return gameplayState;
-    }
-
     private String leave() {
         client.state = ClientState.POST_LOGIN;
-        gameplayState = null;
+        client.setGameplayState(null);
         return String.format("\nLeaving game [%s]\n", client.getCurrentGameID()) + client.help();
     }
 
     private String makeMove(String... params) throws ClientException {
+        validateMyTurn();
         String moveChars = validateMoveInput(params);
         ChessPosition startPosition = new ChessPosition(moveChars.charAt(0), colToNumber(moveChars.charAt(2)));
         ChessPosition endPosition = new ChessPosition(moveChars.charAt(2), colToNumber(moveChars.charAt(3)));
@@ -138,9 +130,20 @@ public class Gameplay implements ClientStateInterface {
         throw new ClientException(400, "Expected <[A1-H8]> <[A1-H8]> or <[A1-H8][A1-H8]> (Start tile, end tile)");
     }
 
-    private String resign() {
-//        TODO: IMPLEMENT RESIGN
-        throw new RuntimeException("not implemented");
+    boolean isResigning = false;
+    private String promptResign() {
+        isResigning = true;
+        return "Would you like to resign? Doing so will forfeit the game. Confirm with <y> or <yes>. Input any other key to cancel";
+    }
+
+    private String confirmResign() throws ClientException {
+        if (isResigning) {
+            //TODO: IMPLEMENT RESIGN
+        } else {
+            return eval("");
+        }
+        isResigning = false;
+        return "You have chosen to accept defeat.";
     }
 
     private String highlight(String... params) throws ClientException {
@@ -149,5 +152,16 @@ public class Gameplay implements ClientStateInterface {
             throw new RuntimeException("not implemented");
         }
         throw new ClientException(400, "Expected piece position [A1-H8]");
+    }
+
+    private void validateMyTurn() throws ClientException {
+        GameData gameData = client.getGameData(client.getCurrentGameID());
+        ChessGame.TeamColor teamTurn = gameData.game().getTeamTurn();
+        if ( teamTurn == ChessGame.TeamColor.WHITE && client.getGameplayState() == GameplayState.WHITE) {
+            return;
+        } else if ( teamTurn == ChessGame.TeamColor.BLACK && client.getGameplayState() == GameplayState.BLACK) {
+            return;
+        }
+        throw new ClientException(400, "It's not your turn! Please be patient.");
     }
 }

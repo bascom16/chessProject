@@ -17,11 +17,9 @@ import java.util.Objects;
 
 public class ChessClient {
     private final NotificationHandler notificationHandler;
-    private WebSocketFacade ws;
     private final String serverURL;
     protected ServerFacade server;
     protected ClientState state = ClientState.PRE_LOGIN;
-    private AuthData authData;
 
     private final PreLogin PRE_LOGIN = new PreLogin(this);
     private final PostLogin POST_LOGIN = new PostLogin(this);
@@ -56,6 +54,7 @@ public class ChessClient {
         }
     }
 
+    // GameID functions
     private int currentGameID = 0;
 
     public int getCurrentGameID() {
@@ -66,6 +65,7 @@ public class ChessClient {
         this.currentGameID = currentGameID;
     }
 
+    // Game data functions
     private final HashMap<Integer, GameData> GAME_DATA_MAP = new HashMap<>();
 
     public int getNumGames() {
@@ -91,13 +91,13 @@ public class ChessClient {
         StringBuilder listGames = new StringBuilder();
         for (int i = 1; i < GAME_DATA_MAP.size() + 1; i++) {
             GameData game = GAME_DATA_MAP.get(i);
-            listGames.append(readGame(game));
+            listGames.append(displayGame(game));
             listGames.append("\n");
         }
         return listGames.toString();
     }
 
-    private static String readGame(GameData game) {
+    private static String displayGame(GameData game) {
         int padWhite = 35;
         int padBlack = padWhite + 25;
 
@@ -130,6 +130,9 @@ public class ChessClient {
         return left + pad;
     }
 
+    // Authorization data and functions
+    private AuthData authData;
+
     public void setAuthData(AuthData data) {
         authData = data;
     }
@@ -154,21 +157,36 @@ public class ChessClient {
         }
     }
 
+    // Draw state and functions
+    private GameplayState drawState = GameplayState.WHITE;
+
+    public GameplayState getDrawState() {
+        return drawState;
+    }
+
+    public void switchDrawState() {
+        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
+    }
+
     public String draw() {
         ChessBoard board = getGameData(getCurrentGameID()).game().getBoard();
         DrawChessBoard.drawBoard(board, System.out, drawState);
         return "";
     }
 
-    private static GameplayState drawState = GameplayState.WHITE;
+    // Gameplay State: White, Black, Observe, Both
+    private GameplayState gameplayState = null;
 
-    public static GameplayState getDrawState() {
-        return drawState;
+    public void setGameplayState(GameplayState state) {
+        gameplayState = state;
     }
 
-    public static void switchDrawState() {
-        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
+    public GameplayState getGameplayState() {
+        return gameplayState;
     }
+
+    // Web socket methods
+    private WebSocketFacade ws;
 
     public void initializeWebSocket() throws ClientException {
         if (ws == null) {

@@ -153,7 +153,7 @@ public class PostLogin implements ClientStateInterface {
             case "white" -> GameplayState.WHITE;
             default -> throw new ClientException(400, "Invalid color");
         };
-        Gameplay.setState(joinState);
+        client.setGameplayState(joinState);
         if (color.equals("black")) {
             client.switchDrawState();
         }
@@ -190,7 +190,7 @@ public class PostLogin implements ClientStateInterface {
 
             client.state = ClientState.GAMEPLAY;
             client.setCurrentGameID(gameID);
-            Gameplay.setState(GameplayState.OBSERVE);
+            client.setGameplayState(GameplayState.OBSERVE);
 
             client.draw();
             return String.format("\nObserving game [%s]\n", gameID) + client.help();
