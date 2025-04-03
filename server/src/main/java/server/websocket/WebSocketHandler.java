@@ -1,6 +1,5 @@
 package server.websocket;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
@@ -89,7 +88,13 @@ public class WebSocketHandler {
     }
 
     private void makeMove(Session session, MakeMoveCommand command) {
-//        TODO: IMPLEMENT MOVE
+//        TODO: VERIFY MOVE VALIDITY
+
+//        TODO: UPDATE GAME IN DATABASE
+
+//        TODO: SEND LOAD AND NOTIFICATION
+
+//        TODO: CHECK FOR CHECK/CHECKMATE AND NOTIFY
         throw new RuntimeException("not implemented");
     }
 
@@ -115,10 +120,13 @@ public class WebSocketHandler {
         } catch (DataAccessException ex) {
             throw new IOException("Unable to update game");
         }
+//        TODO: CHECK IF THIS ACTUALLY WORKS
     }
 
     private void resign(Session session, ResignCommand command) {
 //        TODO: IMPLEMENT RESIGN
+//        TODO: MARK GAME AS OVER
+//        TODO: NOTIFY OF RESIGN
         throw new RuntimeException("not implemented");
     }
 

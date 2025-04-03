@@ -1,7 +1,6 @@
 package client;
 
 import chess.ChessBoard;
-import chess.ChessGame;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import exception.ClientException;
@@ -17,19 +16,27 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class ChessClient {
-    private final NotificationHandler notificationHandler;
-    private final String serverURL;
     protected ServerFacade server;
     protected ClientState state = ClientState.PRE_LOGIN;
 
-    private final PreLogin PRE_LOGIN = new PreLogin(this);
-    private final PostLogin POST_LOGIN = new PostLogin(this);
-    private final Gameplay GAMEPLAY = new Gameplay(this);
+    private WebSocketFacade ws = null;
+
+    private final PreLogin preLogin;
+    private final PostLogin postLogin;
+    private final Gameplay gameplay;
 
     public ChessClient(String serverURL, NotificationHandler notificationHandler) {
-        this.serverURL = serverURL;
         server = new ServerFacade(serverURL);
-        this.notificationHandler = notificationHandler;
+
+        try {
+            ws = new WebSocketFacade(serverURL, notificationHandler, this);
+        } catch (ClientException ex) {
+            System.out.println("Error! Unable to initialize client");
+        }
+
+        preLogin = new PreLogin(this);
+        postLogin = new PostLogin(this);
+        gameplay = new Gameplay(this, ws);
     }
 
     public String help() {
@@ -38,9 +45,9 @@ public class ChessClient {
 
     private ClientStateInterface getStateObject(ClientState state) {
         return switch (state) {
-            case ClientState.PRE_LOGIN -> PRE_LOGIN;
-            case ClientState.POST_LOGIN -> POST_LOGIN;
-            case ClientState.GAMEPLAY -> GAMEPLAY;
+            case ClientState.PRE_LOGIN -> preLogin;
+            case ClientState.POST_LOGIN -> postLogin;
+            case ClientState.GAMEPLAY -> gameplay;
         };
     }
 
@@ -96,6 +103,14 @@ public class ChessClient {
             listGames.append("\n");
         }
         return listGames.toString();
+    }
+
+    private GameData[] getGameDataFromServer() throws ClientException {
+        return server.list(getAuthorization());
+    }
+
+    public void updateGameDataMap() throws ClientException {
+        fillGameDataMap(getGameDataFromServer());
     }
 
     private static String displayGame(GameData game) {
@@ -161,10 +176,6 @@ public class ChessClient {
     // Draw state and functions
     private GameplayState drawState = GameplayState.WHITE;
 
-    public GameplayState getDrawState() {
-        return drawState;
-    }
-
     public void switchDrawState() {
         drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
     }
@@ -187,20 +198,13 @@ public class ChessClient {
     }
 
     // Web socket methods
-    private WebSocketFacade ws;
-
-    public void initializeWebSocket() throws ClientException {
-        if (ws == null) {
-            ws = new WebSocketFacade(serverURL, notificationHandler, this);
-        }
-    }
-
-    public WebSocketFacade getWs() {
-        return ws;
-    }
 
     public void loadGame(GameData gameData) {
-        GAME_DATA_MAP.put(getCurrentGameID(), gameData);
+        GAME_DATA_MAP.put(currentGameID, gameData);
         draw();
+    }
+
+    public void connect() throws ClientException {
+        ws.connect(getAuthorization(), getCurrentGameID());
     }
 }

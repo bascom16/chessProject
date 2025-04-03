@@ -5,8 +5,7 @@ import com.google.gson.Gson;
 import java.util.Objects;
 
 /**
- * Represents a Message the server can send through a WebSocket
- * 
+ * Represents a Message the server can send through a WebSocket*
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */

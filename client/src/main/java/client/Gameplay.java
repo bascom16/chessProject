@@ -3,16 +3,22 @@ package client;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
+import client.websocket.WebSocketFacade;
 import exception.ClientException;
 import model.GameData;
 import state.ClientState;
 import state.GameplayState;
+import ui.EscapeSequences;
+
+import java.util.Scanner;
 
 public class Gameplay implements ClientStateInterface {
     private final ChessClient client;
+    private final WebSocketFacade ws;
 
-    public Gameplay(ChessClient client) {
+    public Gameplay(ChessClient client, WebSocketFacade ws) {
         this.client = client;
+        this.ws = ws;
     }
 
     public String help() {
@@ -40,16 +46,17 @@ public class Gameplay implements ClientStateInterface {
             case "l", "leave" -> leave();
             case "r", "redraw" -> client.draw();
             case "m", "move" -> makeMove(params);
-            case "re", "resign" -> promptResign();
+            case "re", "resign" -> resign();
             case "hi", "highlight" -> highlight(params);
-            case "y", "yes" -> confirmResign();
             default -> "Command not recognized.\n" + help();
         };
     }
 
-    private String leave() {
+    private String leave() throws ClientException {
         client.state = ClientState.POST_LOGIN;
         client.setGameplayState(null);
+        client.fillGameDataMap();
+        ws.leave(client.getAuthorization(), client.getCurrentGameID());
         return String.format("\nLeaving game [%s]\n", client.getCurrentGameID()) + client.help();
     }
 
@@ -60,8 +67,7 @@ public class Gameplay implements ClientStateInterface {
         ChessPosition endPosition = new ChessPosition(moveChars.charAt(2), colToNumber(moveChars.charAt(3)));
         //TODO: PROMOTION PIECE
         ChessMove move = new ChessMove(startPosition, endPosition, null);
-        client.getWs().makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
-        //TODO: CHECK VALID MOVE
+        ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
         return String.format("Moving %s to %s", startPosition.toSimpleString(), endPosition.toSimpleString());
     }
 
@@ -130,20 +136,20 @@ public class Gameplay implements ClientStateInterface {
         throw new ClientException(400, "Expected <[A1-H8]> <[A1-H8]> or <[A1-H8][A1-H8]> (Start tile, end tile)");
     }
 
-    boolean isResigning = false;
-    private String promptResign() {
-        isResigning = true;
-        return "Would you like to resign? Doing so will forfeit the game. Confirm with <y> or <yes>. Input any other key to cancel";
-    }
-
-    private String confirmResign() throws ClientException {
-        if (isResigning) {
-            //TODO: IMPLEMENT RESIGN
-        } else {
-            return eval("");
+    private String resign() throws ClientException {
+        Scanner scanner = new Scanner(System.in);
+        String resignPrompt = EscapeSequences.SET_TEXT_BOLD +
+                EscapeSequences.SET_TEXT_COLOR_RED +
+                "Would you like to resign? Doing so will forfeit the game. Confirm with <y> or <yes>.";
+        System.out.println(resignPrompt);
+        System.out.print(">>>\t" + EscapeSequences.RESET_TEXT_BOLD_FAINT + EscapeSequences.RESET_TEXT_COLOR);
+        String response = scanner.nextLine().toLowerCase();
+        if (response.equals("y") || response.equals("yes")) {
+            ws.resign(client.getAuthorization(), client.getCurrentGameID());
+            client.updateGameDataMap();
+            return "Very well. You have chosen to accept defeat.";
         }
-        isResigning = false;
-        return "You have chosen to accept defeat.";
+        return "The game continues.";
     }
 
     private String highlight(String... params) throws ClientException {

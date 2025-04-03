@@ -43,7 +43,6 @@ public class PreLogin implements ClientStateInterface {
             String password = params[1];
             client.setAuthData(client.server.login(new LoginRequest(username, password)));
             client.state = ClientState.POST_LOGIN;
-            client.initializeWebSocket();
             return String.format("You signed in as user [%s]\n", username) + client.help();
         }
         throw new ClientException(400, "Expected <username> <password>");
@@ -56,7 +55,6 @@ public class PreLogin implements ClientStateInterface {
             String email = params[2];
             client.setAuthData(client.server.register(new RegisterRequest(username, password, email)));
             client.state = ClientState.POST_LOGIN;
-            client.initializeWebSocket();
             return String.format("You registered as new user [%s]\n", username) + client.help();
         }
         throw new ClientException(400, "Expected <username> <password> <email>");

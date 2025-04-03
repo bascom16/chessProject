@@ -3,7 +3,6 @@ package client;
 import exception.ClientException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
-import model.GameData;
 import state.ClientState;
 import state.GameplayState;
 import ui.EscapeSequences;
@@ -65,14 +64,14 @@ public class PostLogin implements ClientStateInterface {
             builder.append("\b");
             String gameName = builder.toString();
             int gameID = client.server.create(new CreateRequest(gameName), client.getAuthorization());
-            updateGameDataMap();
+            client.updateGameDataMap();
             return String.format("Created game [%s] as game number [%s]", gameName, gameID);
         }
         throw new ClientException(400, "Expected <name>");
     }
 
     private String list() throws ClientException {
-        updateGameDataMap();
+        client.updateGameDataMap();
         int widthWhite = 25;
         int widthBlack = 20;
         StringBuilder builder = new StringBuilder();
@@ -91,16 +90,8 @@ public class PostLogin implements ClientStateInterface {
         return builder + ((data.isBlank()) ? "No current games" : data);
     }
 
-    private GameData[] getGameData() throws ClientException {
-        return client.server.list(client.getAuthorization());
-    }
-
-    private void updateGameDataMap() throws ClientException {
-        client.fillGameDataMap(getGameData());
-    }
-
     private String join(String... params) throws ClientException {
-        updateGameDataMap();
+        client.updateGameDataMap();
         String error = "Expected <ID> [WHITE|BLACK]";
         if (params.length == 2) {
             // invalid gameID
@@ -123,6 +114,7 @@ public class PostLogin implements ClientStateInterface {
             // Reentry
             if (client.userIsInGameAsColor(gameID, color)) {
                 joinUpdate(gameID, color);
+                client.connect();
                 return String.format("Reentering game [%s] as %s\n", gameID, color) + client.help();
             }
             // User already in game as opposite color
@@ -133,18 +125,20 @@ public class PostLogin implements ClientStateInterface {
                 if (color.equals("white")) {
                     client.switchDrawState();
                 }
+                client.connect();
                 return String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID);
             }
             // Successful new join
             client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
             joinUpdate(gameID, color);
+            client.connect();
             return String.format("\nJoined game [%s] as [%s]\n", gameID, color.toUpperCase()) + client.help();
         }
         throw new ClientException(400, error);
     }
 
     private void joinUpdate(int gameID, String color) throws ClientException {
-        updateGameDataMap();
+        client.updateGameDataMap();
         client.state = ClientState.GAMEPLAY;
         client.setCurrentGameID(gameID);
         GameplayState joinState = switch (color) {
@@ -157,7 +151,6 @@ public class PostLogin implements ClientStateInterface {
         if (color.equals("black")) {
             client.switchDrawState();
         }
-        client.draw();
     }
 
     private static boolean incompatibleConvertToInt(String s) {
@@ -176,7 +169,7 @@ public class PostLogin implements ClientStateInterface {
     }
 
     private String observe(String... params) throws ClientException {
-        updateGameDataMap();
+        client.updateGameDataMap();
         String error = "Expected <ID>";
         if (params.length == 1) {
             if (incompatibleConvertToInt(params[0])) {
