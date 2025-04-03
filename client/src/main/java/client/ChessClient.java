@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import exception.ClientException;
@@ -190,11 +191,16 @@ public class ChessClient {
 
     public void initializeWebSocket() throws ClientException {
         if (ws == null) {
-            ws = new WebSocketFacade(serverURL, notificationHandler);
+            ws = new WebSocketFacade(serverURL, notificationHandler, this);
         }
     }
 
     public WebSocketFacade getWs() {
         return ws;
+    }
+
+    public void loadGame(GameData gameData) {
+        GAME_DATA_MAP.put(getCurrentGameID(), gameData);
+        draw();
     }
 }

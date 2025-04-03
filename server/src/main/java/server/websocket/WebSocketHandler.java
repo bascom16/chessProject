@@ -57,7 +57,7 @@ public class WebSocketHandler {
     private void connect(Session session, ConnectCommand command) throws IOException {
         String username = authenticate(command.getAuthToken()).username();
         String color = getUserColor(username, command.getGameID());
-        ChessGame game = getGame(command.getGameID()).game();
+        GameData game = getGame(command.getGameID());
         connectionManager.add(username, session);
         NotificationMessage broadcastMessage = new NotificationMessage(
                 String.format("[%s] has joined the game as %s. Welcome!", username, color));
