@@ -2,8 +2,11 @@ import server.Server;
 
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Main {
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
         try {
             int port = 8080;
@@ -13,6 +16,7 @@ public class Main {
             Server server = new Server();
             server.run(port);
             System.out.printf("Server started on port %d%n\n", port);
+            logger.info("Server started");
 
             Scanner scanner = new Scanner(System.in);
             String result = "";
