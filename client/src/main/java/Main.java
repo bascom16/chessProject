@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
-
     public static void main(String[] args) {
+        Logger log = Logger.getLogger("clientLogger");
         try {
-            LoggerConfig.setup();
+            LoggerManager.setup(log, "client.log");
         } catch (IOException ex) {
             System.out.println("Logger uninitialized: " + ex.getMessage());
         }
-        logger.info("Client Logger initialized");
+        log.info("Client Logger initialized");
 
         int port = 8080;
         String url = "http://localhost:" + port;

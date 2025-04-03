@@ -14,3 +14,4 @@ server/**/db.properties
 
 ### log files ###
 *.log
+*.lck

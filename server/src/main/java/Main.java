@@ -6,15 +6,14 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
-
     public static void main(String[] args) {
+        Logger log = Logger.getLogger("serverLogger");
         try {
-            LoggerConfig.setup();
+            LoggerManager.setup(log, "server.log");
         } catch (IOException ex) {
             System.out.println("Logger uninitialized: " + ex.getMessage());
         }
-        logger.info("Server Logger initialized");
+        log.info("Server Logger initialized");
 
         try {
             int port = 8080;
@@ -23,8 +22,7 @@ public class Main {
             }
             Server server = new Server();
             server.run(port);
-            System.out.printf("Server started on port %d%n\n", port);
-            logger.info("Server started");
+            log.info(String.format("Server started on port %d", port));
 
             Scanner scanner = new Scanner(System.in);
             String result = "";
@@ -33,10 +31,9 @@ public class Main {
                 result = scanner.nextLine();
             }
             server.stop();
-            System.out.println("Stopped Server.");
+            log.info("Server stopped.");
         } catch (Throwable ex) {
-            System.out.printf("Unable to start server: %s%n", ex.getMessage());
+            System.out.printf("Unable to start server: %s", ex.getMessage());
         }
-
     }
 }

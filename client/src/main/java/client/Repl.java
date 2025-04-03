@@ -6,6 +6,7 @@ import websocket.messages.NotificationMessage;
 
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Repl implements NotificationHandler {
     private final ChessClient client;
