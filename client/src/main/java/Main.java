@@ -12,7 +12,7 @@ public class Main {
         } catch (IOException ex) {
             System.out.println("Logger uninitialized: " + ex.getMessage());
         }
-        logger.info("Logger initialized");
+        logger.info("Client Logger initialized");
 
         int port = 8080;
         String url = "http://localhost:" + port;
