@@ -1,6 +1,8 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPosition;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import exception.ClientException;
@@ -190,6 +192,12 @@ public class ChessClient {
         ChessBoard board = getGameData(getCurrentGameID()).game().getBoard();
         DrawChessBoard.drawBoard(board, System.out, drawState);
         return "";
+    }
+
+    public void drawHighlighted(ChessPosition position) {
+        log.info(String.format("Draw highlighted board request for %s", position));
+        ChessGame game = getGameData(getCurrentGameID()).game();
+        DrawChessBoard.drawHighlightedBoard(game, System.out, drawState, position);
     }
 
     // Gameplay State: White, Black, Observe, Both

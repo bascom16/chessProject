@@ -8,6 +8,7 @@ import exception.ClientException;
 import model.GameData;
 import state.ClientState;
 import state.GameplayState;
+import ui.DrawChessBoard;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
@@ -162,9 +163,15 @@ public class Gameplay implements ClientStateInterface {
 
     private String highlight(String... params) throws ClientException {
         log.info("Highlight request");
-        if (params.length == 1) {
-//            TODO: IMPLEMENT HIGHLIGHT
-            throw new RuntimeException("not implemented");
+        if (params.length == 1 && params[0].length() == 2) {
+            String tile = params[0].toUpperCase();
+            if (isValidColumn(tile.charAt(0)) && isValidRow(tile.charAt(1))) {
+                int row = tile.charAt(1);
+                int col = colToNumber(tile.charAt(0));
+                ChessPosition position = new ChessPosition(row, col);
+                client.drawHighlighted(position);
+                return String.format("Available moves for %s", position.toSimpleString());
+            }
         }
         throw new ClientException(400, "Expected piece position [A1-H8]");
     }
