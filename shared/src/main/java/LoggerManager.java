@@ -10,7 +10,7 @@ public class LoggerManager {
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
 
-            logger.setLevel(Level.INFO);
+            logger.setLevel(Level.FINE);
         }
     }
 }

@@ -80,21 +80,29 @@ public class Gameplay implements ClientStateInterface {
     private String validateMoveInput(String... params) throws ClientException{
         String error = "Expected <[A1-H8]> <[A1-H8]> or <[A1-H8][A1-H8]> (Start tile, end tile)";
         if (params.length == 1) { // 4 char move input
-            String move = params[0];
+            String move = params[0].toUpperCase();
+            log.fine(String.format("4 char move input %s", move));
+            log.fine(String.format("Char 1: %s", move.charAt(0)));
+            log.fine(String.format("Char 2: %s", move.charAt(1)));
+            log.fine(String.format("Char 3: %s", move.charAt(2)));
+            log.fine(String.format("Char 4: %s", move.charAt(3)));
             // Validates alpha/number/alpha/number
             if (    !isValidColumn(move.charAt(0)) ||
                     !isValidRow(move.charAt(1)) ||
                     !isValidColumn(move.charAt(2)) ||
                     !isValidRow(move.charAt(3))
             ) {
+                log.fine("Incorrect move A/#/A/# pattern");
                 throw new ClientException(400, error);
             }
             return move;
         } else if (params.length == 2) { // 2 x 2 char move input
             String startTile = params[0].toUpperCase();
             String endTile = params[1].toUpperCase();
+            log.fine(String.format("2 x 2 char move input %s %s", startTile, endTile));
             // validates each tile has 2 chars
             if (startTile.length() != 2 || endTile.length() != 2) {
+                log.fine("Move tiles did not have 2 chars");
                 throw new ClientException(400, error);
             }
             // validates Alpha/Number Alpha/Number
@@ -103,10 +111,12 @@ public class Gameplay implements ClientStateInterface {
                     !isValidColumn(endTile.charAt(0)) ||
                     !isValidRow(endTile.charAt(1))
             ) {
+                log.fine("Incorrect move A/#  A/# pattern");
                 throw new ClientException(400, error);
             }
             return startTile + endTile;
         } else {
+            log.fine("0 or >3 params incorrect move");
             throw new ClientException(400, error);
         }
     }
@@ -118,16 +128,20 @@ public class Gameplay implements ClientStateInterface {
                 return true;
             }
         }
+        log.fine(String.format("Incorrect char %s", c));
         return false;
     }
 
-    private Boolean isValidRow(int i) {
+    private Boolean isValidRow(char c) {
+        int i = c - '0';
+        log.fine(String.format("Int input i=%s", i));
         int[] validRows = {1, 2, 3, 4, 5, 6, 7, 8};
         for (int row : validRows) {
             if (i == row) {
                 return true;
             }
         }
+        log.fine(String.format("Incorrect number %s", i));
         return false;
     }
 
@@ -166,13 +180,14 @@ public class Gameplay implements ClientStateInterface {
         if (params.length == 1 && params[0].length() == 2) {
             String tile = params[0].toUpperCase();
             if (isValidColumn(tile.charAt(0)) && isValidRow(tile.charAt(1))) {
-                int row = tile.charAt(1);
+                int row = tile.charAt(1) - '0';
                 int col = colToNumber(tile.charAt(0));
                 ChessPosition position = new ChessPosition(row, col);
                 client.drawHighlighted(position);
                 return String.format("Available moves for %s", position.toSimpleString());
             }
         }
+        log.fine("Invalid highlight input");
         throw new ClientException(400, "Expected piece position [A1-H8]");
     }
 
