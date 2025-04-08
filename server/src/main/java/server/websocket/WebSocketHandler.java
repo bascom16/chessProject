@@ -94,13 +94,14 @@ public class WebSocketHandler {
     }
 
     private void makeMove(Session session, MakeMoveCommand command) {
-//        TODO: VERIFY MOVE VALIDITY
+//        TODO: IMPLEMENT MAKE MOVE
+//        VERIFY MOVE VALIDITY
 
-//        TODO: UPDATE GAME IN DATABASE
+//        UPDATE GAME IN DATABASE
 
-//        TODO: SEND LOAD AND NOTIFICATION
+//        SEND LOAD AND NOTIFICATION
 
-//        TODO: CHECK FOR CHECK/CHECKMATE AND NOTIFY
+//        CHECK FOR CHECK/CHECKMATE AND NOTIFY
         throw new RuntimeException("not implemented");
     }
 

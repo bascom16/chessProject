@@ -148,7 +148,6 @@ public class PostLogin implements ClientStateInterface {
         };
         client.setGameplayState(joinState);
         client.setDrawState(joinState);
-        client.draw();
     }
 
     private static boolean incompatibleConvertToInt(String s) {
@@ -185,7 +184,6 @@ public class PostLogin implements ClientStateInterface {
             GameplayState drawState = (client.getGameData(gameID).game().getTeamTurn() == ChessGame.TeamColor.WHITE)
                     ? GameplayState.WHITE : GameplayState.BLACK;
             client.setDrawState(drawState);
-            client.draw();
 
             client.connect();
 

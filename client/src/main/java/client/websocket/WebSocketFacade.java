@@ -20,7 +20,7 @@ import java.net.URISyntaxException;
 import java.util.logging.Logger;
 
 @ClientEndpoint
-public class WebSocketFacade extends Endpoint {
+public class WebSocketFacade {
     private Session session;
     private final NotificationHandler notificationHandler;
     private final ChessClient client;
@@ -51,15 +51,12 @@ public class WebSocketFacade extends Endpoint {
         log.info("Created session and connected to server");
     }
 
-    @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
-    }
-
     @OnMessage
     public void onMessage(String message) {
         JsonObject messageObject = JsonParser.parseString(message).getAsJsonObject();
         ServerMessage.ServerMessageType serverMessageType
                 = ServerMessage.ServerMessageType.valueOf(messageObject.get("serverMessageType").getAsString());
+        log.info(String.format("WebSocketFacade received %s message", serverMessageType));
 
         switch (serverMessageType) {
             case NOTIFICATION -> handleNotification(new Gson().fromJson(messageObject, NotificationMessage.class));
@@ -112,6 +109,7 @@ public class WebSocketFacade extends Endpoint {
     }
 
     private void handleError(ErrorMessage message) {
+        log.warning(String.format("Notifying %s", message.getMessage()));
         String notifyMessage =  EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Error: " +
                                 message.getMessage() +
