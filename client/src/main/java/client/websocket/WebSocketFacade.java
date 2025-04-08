@@ -21,27 +21,34 @@ import java.util.logging.Logger;
 
 @ClientEndpoint
 public class WebSocketFacade extends Endpoint {
-    private final Session session;
+    private Session session;
     private final NotificationHandler notificationHandler;
     private final ChessClient client;
+    private final URI socketURI;
 
     Logger log = Logger.getLogger("clientLogger");
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler, ChessClient client)
             throws ClientException {
         try {
-            url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
             this.notificationHandler = notificationHandler;
 
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            this.session = container.connectToServer(this, socketURI);
+            url = url.replace("http", "ws");
+            this.socketURI = new URI(url + "/ws");
+
+            connectToServer();
 
             this.client = client;
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             log.warning("WebSocketFacade creation failed. " + ex.getMessage());
             throw new ClientException(500, ex.getMessage());
         }
+    }
+
+    private void connectToServer() throws DeploymentException, IOException {
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        session = container.connectToServer(this, socketURI);
+        log.info("Created session and connected to server");
     }
 
     @Override
@@ -62,6 +69,14 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void connect(String authToken, int gameID) throws ClientException {
+        if (!session.isOpen()) {
+            try {
+                connectToServer();
+            } catch (Exception ex) {
+                log.info(String.format("Unable to create new session: %s", ex.getMessage()));
+                throw new ClientException(500, "Unable to create new session");
+            }
+        }
         sendCommand(new ConnectCommand(authToken, gameID));
     }
 

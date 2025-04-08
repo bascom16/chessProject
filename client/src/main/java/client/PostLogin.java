@@ -7,7 +7,6 @@ import state.ClientState;
 import state.GameplayState;
 import ui.EscapeSequences;
 
-import javax.print.MultiDocPrintService;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -119,25 +118,6 @@ public class PostLogin implements ClientStateInterface {
                                 EscapeSequences.RESET_TEXT_ITALIC;
                 throw new ClientException(400, error + detail);
             }
-            // Reentry
-            if (client.userIsInGameAsColor(gameID, color)) {
-                joinUpdate(gameID, color);
-                client.connect();
-                log.info(String.format("Reentering game [%s] as %s\n", gameID, color));
-                return String.format("Reentering game [%s] as %s\n", gameID, color) + client.help();
-            }
-            // User already in game as opposite color
-            String otherColor = color.equals("white") ? "black" : "white";
-            if (client.userIsInGameAsColor(gameID, otherColor)) {
-                client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
-                joinUpdate(gameID, color);
-                if (color.equals("white")) {
-                    client.switchDrawState();
-                }
-                client.connect();
-                log.info(String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID));
-                return String.format("Joining game [%s] as [WHITE] and [BLACK]", gameID);
-            }
             // Successful new join
             client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
             joinUpdate(gameID, color);
@@ -159,9 +139,7 @@ public class PostLogin implements ClientStateInterface {
             default -> throw new ClientException(400, "Invalid color");
         };
         client.setGameplayState(joinState);
-        if (color.equals("black")) {
-            client.switchDrawState();
-        }
+        client.setDrawState(joinState);
         client.draw();
     }
 

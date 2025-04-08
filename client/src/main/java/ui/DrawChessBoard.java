@@ -78,7 +78,7 @@ public class DrawChessBoard {
         gameplayState = state;
         drawBoard = board;
         out = stream;
-        if (gameplayState == GameplayState.BLACK || gameplayState == GameplayState.BOTH) {
+        if (gameplayState == GameplayState.BLACK) {
             startRow = 1;
             endRow = 8;
             startCol = H;

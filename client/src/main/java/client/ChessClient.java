@@ -187,6 +187,10 @@ public class ChessClient {
         drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
     }
 
+    public void setDrawState(GameplayState state) {
+        drawState = state;
+    }
+
     public String draw() {
         log.info("Draw board request");
         ChessBoard board = getGameData(getCurrentGameID()).game().getBoard();
@@ -220,6 +224,7 @@ public class ChessClient {
     }
 
     public void connect() throws ClientException {
+        log.info("Requesting connection");
         ws.connect(getAuthorization(), getCurrentGameID());
     }
 }

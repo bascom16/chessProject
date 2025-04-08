@@ -105,11 +105,11 @@ public class WebSocketHandler {
 
     private void leave(LeaveCommand command) throws IOException {
         String username = authenticate(command.getAuthToken()).username();
-        connectionManager.remove(username);
-        log.info("WebSocketHandler removed connection for " + username);
         NotificationMessage message = new NotificationMessage(
                 String.format("[%s] has left the game. Goodbye!", username));
         connectionManager.broadcast(username, message);
+        connectionManager.remove(username);
+        log.info("WebSocketHandler removed connection for " + username);
         GameData gameData = getGame(command.getGameID());
         String whiteUsername = gameData.whiteUsername();
         String blackUsername = gameData.blackUsername();
