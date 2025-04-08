@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import exception.ClientException;
 import handler.request.CreateRequest;
 import handler.request.JoinRequest;
@@ -118,6 +119,13 @@ public class PostLogin implements ClientStateInterface {
                                 EscapeSequences.RESET_TEXT_ITALIC;
                 throw new ClientException(400, error + detail);
             }
+            // Make sure game is not over
+            try {
+                client.validateGameNotOver(gameID);
+            } catch (ClientException ex) {
+                log.info("Attempted to join a finished game.");
+                throw new ClientException(400, "This game is already over. You may observe to see the result.");
+            }
             // Successful new join
             client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
             joinUpdate(gameID, color);
@@ -174,8 +182,13 @@ public class PostLogin implements ClientStateInterface {
             client.state = ClientState.GAMEPLAY;
             client.setCurrentGameID(gameID);
             client.setGameplayState(GameplayState.OBSERVE);
-
+            GameplayState drawState = (client.getGameData(gameID).game().getTeamTurn() == ChessGame.TeamColor.WHITE)
+                    ? GameplayState.WHITE : GameplayState.BLACK;
+            client.setDrawState(drawState);
             client.draw();
+
+            client.connect();
+
             log.info(String.format("\nObserving game [%s]\n", gameID));
             return String.format("\nObserving game [%s]\n", gameID) + client.help();
         }

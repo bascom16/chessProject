@@ -90,14 +90,6 @@ public class ChessClient {
         return GAME_DATA_MAP.get(gameID);
     }
 
-    public void fillGameDataMap(GameData... params) {
-        clearGameDataMap();
-        for (GameData game : params) {
-            GAME_DATA_MAP.put(game.gameID(), game);
-        }
-        log.info("Updated Client gameData hashMap");
-    }
-
     public void clearGameDataMap() {
         GAME_DATA_MAP.clear();
     }
@@ -112,15 +104,15 @@ public class ChessClient {
         return listGames.toString();
     }
 
-    private GameData[] getGameDataFromServer() throws ClientException {
-        return server.list(getAuthorization());
-    }
-
     public void updateGameDataMap() throws ClientException {
-        fillGameDataMap(getGameDataFromServer());
+        clearGameDataMap();
+        for (GameData game : server.list(getAuthorization())) {
+            GAME_DATA_MAP.put(game.gameID(), game);
+        }
+        log.info("Updated Client gameData hashMap");
     }
 
-    private static String displayGame(GameData game) {
+    private String displayGame(GameData game) {
         int padWhite = 35;
         int padBlack = padWhite + 25;
 
@@ -129,6 +121,9 @@ public class ChessClient {
                 " [" +
                 game.gameName() +
                 "] ";
+        if (getGameData(game.gameID()).game().isGameOver()) {
+            leftSide += "(Game Over)";
+        }
         String left = padString(leftSide, padWhite);
 
         StringBuilder middleSide = new StringBuilder();
@@ -226,5 +221,17 @@ public class ChessClient {
     public void connect() throws ClientException {
         log.info("Requesting connection");
         ws.connect(getAuthorization(), getCurrentGameID());
+    }
+
+    public void validateGameNotOver(int gameID) throws ClientException {
+        GameData gameData = getGameData(gameID);
+        if (gameData == null) {
+            log.warning("Game over validation could not find game");
+            throw new ClientException(500, "Game not found");
+        }
+        if (gameData.game().isGameOver()) {
+            log.info("Game over error");
+            throw new ClientException(400, "The game is over.");
+        }
     }
 }

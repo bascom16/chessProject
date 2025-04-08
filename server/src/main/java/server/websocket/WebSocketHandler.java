@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
@@ -42,7 +43,7 @@ public class WebSocketHandler {
             case CONNECT -> connect(session, (ConnectCommand) command);
             case MAKE_MOVE -> makeMove(session, (MakeMoveCommand) command);
             case LEAVE -> leave((LeaveCommand) command);
-            case RESIGN -> resign(session, (ResignCommand) command);
+            case RESIGN -> resign((ResignCommand) command);
         }
     }
 
@@ -127,14 +128,31 @@ public class WebSocketHandler {
             log.warning("WebSocketHandler could not update game after player left." + ex.getMessage());
             throw new IOException("Unable to update game");
         }
-//        TODO: CHECK IF THIS ACTUALLY WORKS
+
     }
 
-    private void resign(Session session, ResignCommand command) {
-//        TODO: IMPLEMENT RESIGN
-//        TODO: MARK GAME AS OVER
-//        TODO: NOTIFY OF RESIGN
-        throw new RuntimeException("not implemented");
+    private void resign(ResignCommand command) throws IOException {
+        String username = authenticate(command.getAuthToken()).username();
+        GameData gameData = getGame(command.getGameID());
+        String otherUser = (Objects.equals(username, gameData.whiteUsername()))
+                ? gameData.blackUsername() : gameData.whiteUsername();
+        ChessGame finishedGame = new ChessGame(gameData.game().getBoard());
+        finishedGame.setGameOver();
+        GameData updatedGameData = new GameData(gameData.gameID(),
+                                                gameData.whiteUsername(),
+                                                gameData.blackUsername(),
+                                                gameData.gameName(),
+                                                finishedGame);
+        try {
+            gameDataAccess.update(updatedGameData);
+        } catch (DataAccessException ex) {
+            log.warning("WebSocketHandler could not update game after resign." + ex.getMessage());
+            throw new IOException("Unable to update game");
+        }
+        log.info(String.format("User %s has resigned. Game over.", username));
+        NotificationMessage message = new NotificationMessage(
+                String.format("[%s] has resigned. [%s] wins!", username, otherUser));
+        connectionManager.broadcast(null, message);
     }
 
     // returns username

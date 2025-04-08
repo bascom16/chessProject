@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 public class Repl implements NotificationHandler {
     private final ChessClient client;
 
+    Logger log = Logger.getLogger("clientLogger");
+
     public Repl(String serverURL) {
         client = new ChessClient(serverURL, this);
     }
@@ -32,6 +34,7 @@ public class Repl implements NotificationHandler {
                 result = client.eval(line);
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable ex) {
+                log.warning(ex.getMessage());
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + ex);
             }
         }

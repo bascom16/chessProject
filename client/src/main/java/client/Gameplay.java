@@ -59,7 +59,6 @@ public class Gameplay implements ClientStateInterface {
     private String leave() throws ClientException {
         client.state = ClientState.POST_LOGIN;
         client.setGameplayState(null);
-        client.fillGameDataMap();
         ws.leave(client.getAuthorization(), client.getCurrentGameID());
         log.info(String.format("\nLeaving game [%s]\n", client.getCurrentGameID()));
         return String.format("\nLeaving game [%s]\n", client.getCurrentGameID()) + client.help();
@@ -157,6 +156,7 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String resign() throws ClientException {
+        client.validateGameNotOver(client.getCurrentGameID());
         Scanner scanner = new Scanner(System.in);
         String resignPrompt = EscapeSequences.SET_TEXT_BOLD +
                 EscapeSequences.SET_TEXT_COLOR_RED +
@@ -192,6 +192,7 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private void validateMyTurn() throws ClientException {
+        client.validateGameNotOver(client.getCurrentGameID());
         GameData gameData = client.getGameData(client.getCurrentGameID());
         ChessGame.TeamColor teamTurn = gameData.game().getTeamTurn();
         if ( teamTurn == ChessGame.TeamColor.WHITE && client.getGameplayState() == GameplayState.WHITE) {
@@ -202,4 +203,6 @@ public class Gameplay implements ClientStateInterface {
         log.info("User acted out of turn");
         throw new ClientException(400, "It's not your turn! Please be patient.");
     }
+
+
 }
