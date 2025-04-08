@@ -113,6 +113,9 @@ public class ChessClient {
     }
 
     private String displayGame(GameData game) {
+        if (getGameData(game.gameID()).game().isGameOver()) {
+            return displayGameOver(game);
+        }
         int padWhite = 35;
         int padBlack = padWhite + 25;
 
@@ -121,9 +124,6 @@ public class ChessClient {
                 " [" +
                 game.gameName() +
                 "] ";
-        if (getGameData(game.gameID()).game().isGameOver()) {
-            leftSide += "(Game Over)";
-        }
         String left = padString(leftSide, padWhite);
 
         StringBuilder middleSide = new StringBuilder();
@@ -146,6 +146,15 @@ public class ChessClient {
         padLength = Math.max(padLength, 0);
         String pad = " ".repeat(padLength);
         return left + pad;
+    }
+
+    private String displayGameOver(GameData game) {
+        return  " - #" +
+                game.gameID() +
+                " [" +
+                game.gameName() +
+                "] " +
+                "(Game Over)";
     }
 
     // Authorization data and functions
