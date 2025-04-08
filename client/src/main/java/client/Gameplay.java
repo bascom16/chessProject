@@ -8,7 +8,6 @@ import exception.ClientException;
 import model.GameData;
 import state.ClientState;
 import state.GameplayState;
-import ui.DrawChessBoard;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
@@ -67,13 +66,24 @@ public class Gameplay implements ClientStateInterface {
     private String makeMove(String... params) throws ClientException {
         validateMyTurn();
         String moveChars = validateMoveInput(params);
-        ChessPosition startPosition = new ChessPosition(moveChars.charAt(0), colToNumber(moveChars.charAt(2)));
-        ChessPosition endPosition = new ChessPosition(moveChars.charAt(2), colToNumber(moveChars.charAt(3)));
+        log.fine(moveChars);
+        log.fine(String.valueOf(moveChars.charAt(0)));
+        log.fine(String.valueOf(moveChars.charAt(1)));
+        log.fine(String.valueOf(moveChars.charAt(2)));
+        log.fine(String.valueOf(moveChars.charAt(3)));
+        ChessPosition startPosition = new ChessPosition(moveChars.charAt(1) - '0', colToNumber(moveChars.charAt(0)));
+        log.fine(String.format("Starting: row %s, col %s", startPosition.getRow(), startPosition.getColumn()));
+        ChessPosition endPosition = new ChessPosition(moveChars.charAt(3) - '0', colToNumber(moveChars.charAt(2)));
+        log.fine(String.format("Ending: row %s, col %s", endPosition.getRow(), endPosition.getColumn()));
         //TODO: PROMOTION PIECE
         ChessMove move = new ChessMove(startPosition, endPosition, null);
         ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
         log.info("User made move " + move);
-        return String.format("Moving %s to %s", startPosition.toSimpleString(), endPosition.toSimpleString());
+        String pieceType = client.getGameData
+                (client.getCurrentGameID()).game().getBoard().getPiece(startPosition).getPieceType().toString();
+        return String.format("Moving %s %s to %s",  pieceType.toLowerCase(),
+                                                    startPosition.toSimpleString(),
+                                                    endPosition.toSimpleString());
     }
 
     private String validateMoveInput(String... params) throws ClientException{
@@ -94,6 +104,7 @@ public class Gameplay implements ClientStateInterface {
                 log.fine("Incorrect move A/#/A/# pattern");
                 throw new ClientException(400, error);
             }
+            log.fine(String.format("Validated input %s", move));
             return move;
         } else if (params.length == 2) { // 2 x 2 char move input
             String startTile = params[0].toUpperCase();
@@ -113,6 +124,7 @@ public class Gameplay implements ClientStateInterface {
                 log.fine("Incorrect move A/#  A/# pattern");
                 throw new ClientException(400, error);
             }
+            log.fine(String.format("Validated input %s", startTile + endTile));
             return startTile + endTile;
         } else {
             log.fine("0 or >3 params incorrect move");
@@ -152,6 +164,7 @@ public class Gameplay implements ClientStateInterface {
                 return rowVals[i];
             }
         }
+        log.fine("Col to number failed");
         throw new ClientException(400, "Expected <[A1-H8]> <[A1-H8]> or <[A1-H8][A1-H8]> (Start tile, end tile)");
     }
 

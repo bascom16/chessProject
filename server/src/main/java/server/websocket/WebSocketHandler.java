@@ -151,6 +151,8 @@ public class WebSocketHandler {
             throw new IOException("Unable to update game");
         }
         log.info(String.format("User %s has resigned. Game over.", username));
+        LoadGameMessage loadMessage = new LoadGameMessage(updatedGameData);
+        connectionManager.broadcast(null, loadMessage);
         NotificationMessage message = new NotificationMessage(
                 String.format("[%s] has resigned. [%s] wins!", username, otherUser));
         connectionManager.broadcast(null, message);
