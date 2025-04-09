@@ -96,6 +96,10 @@ public class WebSocketFacade {
     }
 
     private void sendCommand(UserGameCommand command) throws ClientException {
+        if (!session.isOpen()) {
+            log.warning("Session closed.");
+            throw new ClientException(500, "Connection has been lost.");
+        }
         try {
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {

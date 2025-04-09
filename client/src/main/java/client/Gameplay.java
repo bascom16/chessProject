@@ -64,26 +64,21 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String makeMove(String... params) throws ClientException {
-        validateMyTurn();
         String moveChars = validateMoveInput(params);
-        log.fine(moveChars);
-        log.fine(String.valueOf(moveChars.charAt(0)));
-        log.fine(String.valueOf(moveChars.charAt(1)));
-        log.fine(String.valueOf(moveChars.charAt(2)));
-        log.fine(String.valueOf(moveChars.charAt(3)));
         ChessPosition startPosition = new ChessPosition(moveChars.charAt(1) - '0', colToNumber(moveChars.charAt(0)));
         log.fine(String.format("Starting: row %s, col %s", startPosition.getRow(), startPosition.getColumn()));
         ChessPosition endPosition = new ChessPosition(moveChars.charAt(3) - '0', colToNumber(moveChars.charAt(2)));
         log.fine(String.format("Ending: row %s, col %s", endPosition.getRow(), endPosition.getColumn()));
         //TODO: PROMOTION PIECE
         ChessMove move = new ChessMove(startPosition, endPosition, null);
-        ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
+        try {
+            ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
+        } catch (Exception ex) {
+            log.info("makeMove exception: " + ex.getMessage());
+            throw new ClientException(400, ex.getMessage());
+        }
         log.info("User made move " + move);
-        String pieceType = client.getGameData
-                (client.getCurrentGameID()).game().getBoard().getPiece(startPosition).getPieceType().toString();
-        return String.format("Moving %s %s to %s",  pieceType.toLowerCase(),
-                                                    startPosition.toSimpleString(),
-                                                    endPosition.toSimpleString());
+        return "";
     }
 
     private String validateMoveInput(String... params) throws ClientException{
@@ -145,7 +140,6 @@ public class Gameplay implements ClientStateInterface {
 
     private Boolean isValidRow(char c) {
         int i = c - '0';
-        log.fine(String.format("Int input i=%s", i));
         int[] validRows = {1, 2, 3, 4, 5, 6, 7, 8};
         for (int row : validRows) {
             if (i == row) {
@@ -196,6 +190,9 @@ public class Gameplay implements ClientStateInterface {
                 int row = tile.charAt(1) - '0';
                 int col = colToNumber(tile.charAt(0));
                 ChessPosition position = new ChessPosition(row, col);
+                if (client.getGameData(client.getCurrentGameID()).game().getBoard().getPiece(position) == null) {
+                    return "There is not a piece at that position.";
+                }
                 client.drawHighlighted(position);
                 return String.format("Available moves for %s", position.toSimpleString());
             }

@@ -24,13 +24,18 @@ public class ConnectionManager {
         log.info(String.format("Removed connection for user %s", username));
     }
 
-    public void broadcast(String excludeName, ServerMessage message) throws IOException {
+    public void broadcast(String excludeName, ServerMessage message) {
         log.info(String.format("Broadcasting message [%s]", message));
         ArrayList<Connection> removeList = new ArrayList<>();
         for (Connection connection : connections.values()) {
             if (connection.session.isOpen()) {
                 if (!connection.username.equals(excludeName)) {
-                    connection.send(message.toString());
+                    try {
+                        connection.send(message.toString());
+                    } catch (Exception ex) {
+                        log.warning(String.format
+                                ("Message not sent to user %s", connection.username) + ex.getMessage());
+                    }
                 }
             } else {
                 log.info(String.format("Connection for user %s is not open", connection.username));

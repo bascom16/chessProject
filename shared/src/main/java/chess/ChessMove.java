@@ -71,6 +71,6 @@ public class ChessMove {
     }
 
     public String toSimpleString() {
-        return startPosition.toSimpleString() + " to" + endPosition.toSimpleString();
+        return startPosition.toSimpleString() + " to " + endPosition.toSimpleString();
     }
 }

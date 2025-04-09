@@ -3,7 +3,6 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -12,8 +11,6 @@ import java.util.logging.Logger;
  * signature of the existing methods.
  */
 public class ChessGame {
-
-    Logger log = Logger.getLogger("serverLogger");
 
     private ChessBoard board;
     private TeamColor teamTurn;
@@ -102,23 +99,28 @@ public class ChessGame {
             ChessPosition startPosition = move.getStartPosition();
             ChessPiece piece = board.getPiece(startPosition);
             if (piece == null) {
-                throw new InvalidMoveException("Invalid move: There is no piece at that location.");
+                throw new InvalidMoveException("Invalid move. There is no piece at that location.");
             }
             if (piece.getTeamColor() != teamTurn) {
-                throw new InvalidMoveException("Invalid move: It's not your turn!");
+                throw new InvalidMoveException("Invalid move. It's not your turn!");
             }
             if (!isValidMove(move)) {
-                throw new InvalidMoveException("Invalid move: The move you entered is not possible.");
+                throw new InvalidMoveException("Invalid move. The move you entered is not possible.");
             }
-            ChessGame copyGame = new ChessGame(board, teamTurn);
-            copyGame.makeMove(move);
+            ChessBoard copyBoard = board.clone();
+            copyBoard.makeMove(move);
+            ChessGame copyGame = new ChessGame(copyBoard);
             if (copyGame.isInCheck(teamTurn)) {
-                throw new InvalidMoveException("Invalid move: This move would put your king in check.");
+                throw new InvalidMoveException("Invalid move. This move would put your king in check.");
             }
             board.makeMove(move);
             switchTeamTurn();
         } catch (Exception ex) {
-            log.warning("Something is very very wrong" + ex.getMessage());
+            if (ex.getClass() == InvalidMoveException.class) {
+                throw new InvalidMoveException(ex.getMessage());
+            } else {
+                System.out.println("Something is very wrong!" + ex.getMessage());
+            }
         }
     }
 

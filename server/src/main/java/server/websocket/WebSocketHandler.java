@@ -2,13 +2,11 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -19,19 +17,18 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @WebSocket
 public class WebSocketHandler {
 
-    private final UserDAO userDataAccess;
     private final AuthDAO authDataAccess;
     private final GameDAO gameDataAccess;
 
     Logger log = Logger.getLogger("serverLogger");
 
-    public WebSocketHandler(UserDAO userDataAccess, AuthDAO authDataAccess, GameDAO gameDataAccess) {
-        this.userDataAccess = userDataAccess;
+    public WebSocketHandler(AuthDAO authDataAccess, GameDAO gameDataAccess) {
         this.authDataAccess = authDataAccess;
         this.gameDataAccess = gameDataAccess;
     }
@@ -44,7 +41,7 @@ public class WebSocketHandler {
         log.info("WebSocketHandler received command " + command.getCommandType());
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, (ConnectCommand) command);
-            case MAKE_MOVE -> makeMove(session, (MakeMoveCommand) command);
+            case MAKE_MOVE -> makeMove((MakeMoveCommand) command);
             case LEAVE -> leave((LeaveCommand) command);
             case RESIGN -> resign((ResignCommand) command);
         }
@@ -98,30 +95,36 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(Session session, MakeMoveCommand command) throws IOException {
+    private void makeMove(MakeMoveCommand command) throws IOException {
         log.info("Websocket received move command " + command.getMove());
         String username = authenticate(command.getAuthToken()).username();
         ChessMove move = command.getMove();
         ChessGame game = getGame(command.getGameID()).game();
-        ChessPiece.PieceType pieceType = game.getBoard().getPiece(move.getStartPosition()).getPieceType();
         try {
-            log.fine("Made it to makeMove try block");
-            //game.makeMove(move);
-        } catch (Exception ex) {
-            try {
-                log.warning("Server received invalid move. invalid move. " + ex.getMessage());
-                log.info("Server received invalid move. invalid move. " + ex.getMessage());
-                //connectionManager.sendToUser(username, new ErrorMessage(ex.getMessage()));
-            } catch (Exception e) {
-                log.warning("A second exception" + e.getMessage());
-            }
+            game.makeMove(move);
+        } catch (InvalidMoveException ex) {
+            log.info("Server received invalid move. " + ex.getMessage());
+            connectionManager.sendToUser(username, new ErrorMessage(ex.getMessage()));
+            log.info("Sent invalid move message");
+            return;
+        } catch (NullPointerException ex) {
+            log.log(Level.WARNING, "Null pointer exception in makeMove", ex);
+            connectionManager.sendToUser(username, new ErrorMessage("Hmmm, something went wrong. Try again."));
+            log.info("Send null pointer error message");
+            return;
         }
-        log.fine("Make move complete for game");
         GameData updatedGameData = updateGameData(command.getGameID(), game);
-        log.info("Updated game data in database for move " + move);
+        log.fine("Updated game data in database for move " + move);
+
+        log.fine("Broadcasting load message");
         connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
-        connectionManager.broadcast(username, new NotificationMessage
-                (String.format("[%s] moving %s %s.", username, pieceType.toString(), move.toSimpleString())));
+        log.fine("Sent load message");
+
+        log.fine("Broadcasting move notification");
+        connectionManager.broadcast(null, new NotificationMessage
+                (String.format("[%s] made move %s.", username, move.toSimpleString())));
+        log.fine("Sent move notification");
+
         ChessGame.TeamColor otherUserColor = getUserColor(username, command.getGameID()).equals("White")
                 ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
         String otherUser = Objects.equals(username, updatedGameData.whiteUsername())
@@ -216,9 +219,5 @@ public class WebSocketHandler {
             log.warning("Authenticate Data Access error" + ex.getMessage());
             throw new IOException("User is not authorized: Data Access Error");
         }
-    }
-
-    private void handleException(Exception ex) throws IOException {
-        throw new IOException(ex.getMessage());
     }
 }

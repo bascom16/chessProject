@@ -10,6 +10,8 @@ import Logger.LoggerManager;
 import java.util.logging.Logger;
 
 public class Server {
+    Logger log = Logger.getLogger("serverLogger");
+
     // WebSocket
     private final WebSocketHandler webSocketHandler;
 
@@ -28,7 +30,6 @@ public class Server {
     private final JoinHandler joinHandler;
 
     public Server() {
-        Logger log = Logger.getLogger("serverLogger");
         LoggerManager.setup(log, "server.log");
 
         // Memory data structures
@@ -41,7 +42,7 @@ public class Server {
         }
 
         // Websocket
-        webSocketHandler = new WebSocketHandler(userDataAccess, authDataAccess, gameDataAccess);
+        webSocketHandler = new WebSocketHandler(authDataAccess, gameDataAccess);
         // Service Manager
         ServiceManager service = new ServiceManager(userDataAccess, authDataAccess, gameDataAccess);
 
@@ -67,7 +68,7 @@ public class Server {
             authDataAccess = new MySQLAuthDAO();
             gameDataAccess = new MySQLGameDAO();
         } catch (Exception ex) {
-            System.out.println("MySQL database not initialized");
+            log.severe("MySQL database not initialized");
         }
 
         // Register your endpoints and handle exceptions here.
