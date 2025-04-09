@@ -1,6 +1,6 @@
 import server.Server;
+import Logger.LoggerManager;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -8,12 +8,7 @@ import java.util.logging.Logger;
 public class Main {
     public static void main(String[] args) {
         Logger log = Logger.getLogger("serverLogger");
-        try {
-            LoggerManager.setup(log, "server.log");
-        } catch (IOException ex) {
-            System.out.println("Logger uninitialized: " + ex.getMessage());
-        }
-        log.info("Server Logger initialized");
+        LoggerManager.setup(log, "server.log");
 
         try {
             int port = 8080;

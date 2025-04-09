@@ -1,6 +1,9 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
@@ -74,6 +77,7 @@ public class WebSocketHandler {
     private String getUserColor(String username, Integer gameID) throws IOException {
         GameData gameData = getGame(gameID);
         if (gameData == null) {
+            log.warning("Game not found");
             throw new IOException("Game not found");
         }
         if (Objects.equals(gameData.whiteUsername(), username)) {
@@ -89,20 +93,70 @@ public class WebSocketHandler {
         try {
             return gameDataAccess.read(gameID);
         } catch (DataAccessException ex) {
+            log.warning("Data access error: Game not found" + ex.getMessage());
             throw new IOException(ex.getMessage());
         }
     }
 
-    private void makeMove(Session session, MakeMoveCommand command) {
-//        TODO: IMPLEMENT MAKE MOVE
-//        VERIFY MOVE VALIDITY
+    private void makeMove(Session session, MakeMoveCommand command) throws IOException {
+        log.info("Websocket received move command " + command.getMove());
+        String username = authenticate(command.getAuthToken()).username();
+        ChessMove move = command.getMove();
+        ChessGame game = getGame(command.getGameID()).game();
+        ChessPiece.PieceType pieceType = game.getBoard().getPiece(move.getStartPosition()).getPieceType();
+        try {
+            log.fine("Made it to makeMove try block");
+            //game.makeMove(move);
+        } catch (Exception ex) {
+            try {
+                log.warning("Server received invalid move. invalid move. " + ex.getMessage());
+                log.info("Server received invalid move. invalid move. " + ex.getMessage());
+                //connectionManager.sendToUser(username, new ErrorMessage(ex.getMessage()));
+            } catch (Exception e) {
+                log.warning("A second exception" + e.getMessage());
+            }
+        }
+        log.fine("Make move complete for game");
+        GameData updatedGameData = updateGameData(command.getGameID(), game);
+        log.info("Updated game data in database for move " + move);
+        connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
+        connectionManager.broadcast(username, new NotificationMessage
+                (String.format("[%s] moving %s %s.", username, pieceType.toString(), move.toSimpleString())));
+        ChessGame.TeamColor otherUserColor = getUserColor(username, command.getGameID()).equals("White")
+                ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        String otherUser = Objects.equals(username, updatedGameData.whiteUsername())
+                ? updatedGameData.blackUsername() : updatedGameData.whiteUsername();
+        if (game.isInCheckmate(otherUserColor)) {
+            log.info("Game is in checkmate");
+            game.setGameOver();
+            updatedGameData = updateGameData(command.getGameID(), game);
+            connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
+            connectionManager.broadcast(null, new NotificationMessage
+                    (String.format("Checkmate! [%s] wins.", username)));
+        } else if (game.isInStalemate(otherUserColor)) {
+            log.info("Game is in stalemate");
+            game.setGameOver();
+            updatedGameData = updateGameData(command.getGameID(), game);
+            connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
+            connectionManager.broadcast(null, new NotificationMessage
+                    (String.format("[%s] cannot move. The game ends in a stalemate.", otherUser)));
+        } else if (game.isInCheck(otherUserColor)) {
+            log.info("Game is in check");
+            connectionManager.broadcast(null, new NotificationMessage
+                    (String.format("[%s] is in Check!", otherUser)));
+        }
+    }
 
-//        UPDATE GAME IN DATABASE
-
-//        SEND LOAD AND NOTIFICATION
-
-//        CHECK FOR CHECK/CHECKMATE AND NOTIFY
-        throw new RuntimeException("not implemented");
+    private GameData updateGameData(int gameID, ChessGame game) throws IOException {
+        GameData oldData = getGame(gameID);
+        GameData newData = new GameData(gameID, oldData.whiteUsername(), oldData.blackUsername(), oldData.gameName(), game);
+        try {
+            gameDataAccess.update(newData);
+        } catch (DataAccessException ex) {
+            log.warning("WebSocketHandler could not update game." + ex.getMessage());
+            throw new IOException("Unable to update game");
+        }
+        return newData;
     }
 
     private void leave(LeaveCommand command) throws IOException {
@@ -139,17 +193,7 @@ public class WebSocketHandler {
                 ? gameData.blackUsername() : gameData.whiteUsername();
         ChessGame finishedGame = new ChessGame(gameData.game().getBoard());
         finishedGame.setGameOver();
-        GameData updatedGameData = new GameData(gameData.gameID(),
-                                                gameData.whiteUsername(),
-                                                gameData.blackUsername(),
-                                                gameData.gameName(),
-                                                finishedGame);
-        try {
-            gameDataAccess.update(updatedGameData);
-        } catch (DataAccessException ex) {
-            log.warning("WebSocketHandler could not update game after resign." + ex.getMessage());
-            throw new IOException("Unable to update game");
-        }
+        GameData updatedGameData = updateGameData(command.getGameID(), finishedGame);
         log.info(String.format("User %s has resigned. Game over.", username));
         LoadGameMessage loadMessage = new LoadGameMessage(updatedGameData);
         connectionManager.broadcast(null, loadMessage);
@@ -163,10 +207,13 @@ public class WebSocketHandler {
         try {
             AuthData authData = authDataAccess.read(authToken);
             if (authData != null) {
+                log.fine(String.format("Authenticated user %s", authData.username()));
                 return authData;
             }
+            log.warning("Unauthorized user");
             throw new IOException("User is not authorized");
         } catch (DataAccessException ex) {
+            log.warning("Authenticate Data Access error" + ex.getMessage());
             throw new IOException("User is not authorized: Data Access Error");
         }
     }

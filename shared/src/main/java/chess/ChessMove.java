@@ -69,4 +69,8 @@ public class ChessMove {
                 ", promotionPiece=" + promotionPiece +
                 '}';
     }
+
+    public String toSimpleString() {
+        return startPosition.toSimpleString() + " to" + endPosition.toSimpleString();
+    }
 }

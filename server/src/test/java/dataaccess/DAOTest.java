@@ -1,11 +1,14 @@
 package dataaccess;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-
+import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
+
+import Logger.LoggerManager;
 
 abstract class DAOTest<T, K> {
     protected DAO<T, K> dataAccessObject;
@@ -15,6 +18,13 @@ abstract class DAOTest<T, K> {
     protected T data2;
     protected K identifier3;
     protected T data3;
+
+    @BeforeAll
+    static void initLogger() {
+        Logger log = Logger.getLogger("testLogger");
+        LoggerManager.setup(log, "test.log");
+    }
+
 
     @Test
     void createSuccess() {

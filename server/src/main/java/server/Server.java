@@ -6,6 +6,8 @@ import handler.*;
 import server.websocket.WebSocketHandler;
 import service.ServiceManager;
 import spark.*;
+import Logger.LoggerManager;
+import java.util.logging.Logger;
 
 public class Server {
     // WebSocket
@@ -26,6 +28,9 @@ public class Server {
     private final JoinHandler joinHandler;
 
     public Server() {
+        Logger log = Logger.getLogger("serverLogger");
+        LoggerManager.setup(log, "server.log");
+
         // Memory data structures
         try {
             userDataAccess = new MySQLUserDAO();

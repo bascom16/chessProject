@@ -3,6 +3,7 @@ package client;
 import client.websocket.NotificationHandler;
 import ui.EscapeSequences;
 import websocket.messages.NotificationMessage;
+import Logger.LoggerManager;
 
 import java.util.Objects;
 import java.util.Scanner;
@@ -14,6 +15,8 @@ public class Repl implements NotificationHandler {
     Logger log = Logger.getLogger("clientLogger");
 
     public Repl(String serverURL) {
+        Logger log = Logger.getLogger("clientLogger");
+        LoggerManager.setup(log, "client.log");
         client = new ChessClient(serverURL, this);
     }
 

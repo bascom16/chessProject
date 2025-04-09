@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -11,6 +12,8 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
+
+    Logger log = Logger.getLogger("serverLogger");
 
     private ChessBoard board;
     private TeamColor teamTurn;
@@ -27,6 +30,11 @@ public class ChessGame {
         this.teamTurn = TeamColor.WHITE;
     }
 
+    public ChessGame(ChessBoard board, TeamColor teamTurn) {
+        this.board = board;
+        this.teamTurn = teamTurn;
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -41,6 +49,10 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         this.teamTurn = team;
+    }
+
+    public void switchTeamTurn() {
+        setTeamTurn(teamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     public void setGameOver() {
@@ -72,6 +84,12 @@ public class ChessGame {
         return new ArrayList<>(currentPiece.validPieceMoves(board, startPosition));
     }
 
+    public Boolean isValidMove(ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        Collection<ChessMove> validMoveList = validMoves(startPosition);
+        return validMoveList.contains(move);
+    }
+
 
     /**
      * Makes a move in a chess game
@@ -80,21 +98,28 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPosition startPosition = move.getStartPosition();
-        ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null) {
-            throw new InvalidMoveException("Invalid move: No piece");
-        }
-        if (piece.getTeamColor() != teamTurn) {
-            throw new InvalidMoveException("Invalid move: Not your turn");
-        }
-        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-        if (validMoves.contains(move)) {
+        try {
+            ChessPosition startPosition = move.getStartPosition();
+            ChessPiece piece = board.getPiece(startPosition);
+            if (piece == null) {
+                throw new InvalidMoveException("Invalid move: There is no piece at that location.");
+            }
+            if (piece.getTeamColor() != teamTurn) {
+                throw new InvalidMoveException("Invalid move: It's not your turn!");
+            }
+            if (!isValidMove(move)) {
+                throw new InvalidMoveException("Invalid move: The move you entered is not possible.");
+            }
+            ChessGame copyGame = new ChessGame(board, teamTurn);
+            copyGame.makeMove(move);
+            if (copyGame.isInCheck(teamTurn)) {
+                throw new InvalidMoveException("Invalid move: This move would put your king in check.");
+            }
             board.makeMove(move);
-        } else {
-            throw new InvalidMoveException("Invalid move");
+            switchTeamTurn();
+        } catch (Exception ex) {
+            log.warning("Something is very very wrong" + ex.getMessage());
         }
-        teamTurn = teamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
