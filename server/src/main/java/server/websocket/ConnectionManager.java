@@ -14,9 +14,9 @@ public class ConnectionManager {
 
     Logger log = Logger.getLogger("serverLogger");
 
-    public void add(String username, Session session) {
-        connections.put(username, new Connection(username, session));
-        log.info(String.format("Added connection for user %s", username));
+    public void add(String username, Session session, int gameID) {
+        connections.put(username, new Connection(username, session, gameID));
+        log.info(String.format("Added connection for user %s on game %s", username, gameID));
     }
 
     public void remove(String username) {
@@ -24,12 +24,12 @@ public class ConnectionManager {
         log.info(String.format("Removed connection for user %s", username));
     }
 
-    public void broadcast(String excludeName, ServerMessage message) {
+    public void broadcast(int gameID, String excludeName, ServerMessage message) {
         log.info(String.format("Broadcasting message [%s]", message));
         ArrayList<Connection> removeList = new ArrayList<>();
         for (Connection connection : connections.values()) {
             if (connection.session.isOpen()) {
-                if (!connection.username.equals(excludeName)) {
+                if (!connection.username.equals(excludeName) && connection.gameID == gameID) {
                     try {
                         connection.send(message.toString());
                     } catch (Exception ex) {

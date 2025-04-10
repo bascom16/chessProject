@@ -9,7 +9,6 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.*;
@@ -66,7 +65,6 @@ public class WebSocketHandler {
     private void handleException(Session session, Exception ex) {
         try {
             if (session.isOpen()) {
-                ErrorMessage message = new ErrorMessage(ex.getMessage());
                 session.getRemote().sendString(new ErrorMessage(ex.getMessage()).toString());
             }
         } catch (Exception e) {
@@ -78,11 +76,11 @@ public class WebSocketHandler {
         String username = authenticate(command.getAuthToken()).username();
         String color = getUserColor(username, command.getGameID());
         GameData game = getGame(command.getGameID());
-        connectionManager.add(username, session);
+        connectionManager.add(username, session, command.getGameID());
         log.info("WebSocketHandler connected " + username);
         NotificationMessage broadcastMessage = new NotificationMessage(
                 String.format("[%s] has joined the game as %s. Welcome!", username, color));
-        connectionManager.broadcast(username, broadcastMessage);
+        connectionManager.broadcast(command.getGameID(), username, broadcastMessage);
         LoadGameMessage loadMessage = new LoadGameMessage(game);
         connectionManager.sendToUser(username, loadMessage);
     }
@@ -136,11 +134,11 @@ public class WebSocketHandler {
         log.fine("Updated game data in database for move " + move);
 
         log.fine("Broadcasting load message");
-        connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
+        connectionManager.broadcast(command.getGameID(), null, new LoadGameMessage(updatedGameData));
         log.fine("Sent load message");
 
         log.fine("Broadcasting move notification");
-        connectionManager.broadcast(username, new NotificationMessage
+        connectionManager.broadcast(command.getGameID(), username, new NotificationMessage
                 (String.format("[%s] made move %s.", username, move.toSimpleString())));
         log.fine("Sent move notification");
 
@@ -159,16 +157,16 @@ private void checkEndOfTurnConditions(MakeMoveCommand command,
         if (game.isInCheckmate(otherUserColor)) {
             log.info("Game is in checkmate");
             game.setGameOver();
-            connectionManager.broadcast(null, new NotificationMessage
+            connectionManager.broadcast(command.getGameID(), null, new NotificationMessage
                     (String.format("Checkmate! [%s] wins.", username)));
         } else if (game.isInStalemate(otherUserColor)) {
             log.info("Game is in stalemate");
             game.setGameOver();
-            connectionManager.broadcast(null, new NotificationMessage
+            connectionManager.broadcast(command.getGameID(), null, new NotificationMessage
                     (String.format("[%s] cannot move. The game ends in a stalemate.", otherUser)));
         } else if (game.isInCheck(otherUserColor)) {
             log.info("Game is in check");
-            connectionManager.broadcast(null, new NotificationMessage
+            connectionManager.broadcast(command.getGameID(), null, new NotificationMessage
                     (String.format("[%s] is in Check!", otherUser)));
         }
     }
@@ -189,7 +187,7 @@ private void checkEndOfTurnConditions(MakeMoveCommand command,
         String username = authenticate(command.getAuthToken()).username();
         NotificationMessage message = new NotificationMessage(
                 String.format("[%s] has left the game. Goodbye!", username));
-        connectionManager.broadcast(username, message);
+        connectionManager.broadcast(command.getGameID(), username, message);
         connectionManager.remove(username);
         log.info("WebSocketHandler removed connection for " + username);
         GameData gameData = getGame(command.getGameID());
@@ -225,7 +223,7 @@ private void checkEndOfTurnConditions(MakeMoveCommand command,
         log.info(String.format("User %s has resigned. Game over.", username));
         NotificationMessage message = new NotificationMessage(
                 String.format("[%s] has resigned. [%s] wins!", username, otherUser));
-        connectionManager.broadcast(null, message);
+        connectionManager.broadcast(command.getGameID(), null, message);
     }
 
     private AuthData authenticate(String authToken) throws IOException {
