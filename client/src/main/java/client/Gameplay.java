@@ -71,14 +71,16 @@ public class Gameplay implements ClientStateInterface {
         log.fine(String.format("Ending: row %s, col %s", endPosition.getRow(), endPosition.getColumn()));
         //TODO: PROMOTION PIECE
         ChessMove move = new ChessMove(startPosition, endPosition, null);
+        String output = String.format("Move: %s", move.toSimpleString());
         try {
             ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
         } catch (Exception ex) {
             log.info("makeMove exception: " + ex.getMessage());
+            output = "";
             throw new ClientException(400, ex.getMessage());
         }
         log.info("User made move " + move);
-        return "";
+        return output;
     }
 
     private String validateMoveInput(String... params) throws ClientException{
@@ -163,11 +165,10 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private String resign() throws ClientException {
-        client.validateGameNotOver(client.getCurrentGameID());
         Scanner scanner = new Scanner(System.in);
-        String resignPrompt = EscapeSequences.SET_TEXT_BOLD +
-                EscapeSequences.SET_TEXT_COLOR_RED +
-                "Would you like to resign? Doing so will forfeit the game. Confirm with <y> or <yes>.";
+        String resignPrompt =   EscapeSequences.SET_TEXT_BOLD +
+                                EscapeSequences.SET_TEXT_COLOR_RED +
+                                "Would you like to resign? Doing so will forfeit the game. Confirm with <y> or <yes>.";
         System.out.println(resignPrompt);
         log.info("Resign prompt");
         System.out.print(">>>\t" + EscapeSequences.RESET_TEXT_BOLD_FAINT + EscapeSequences.RESET_TEXT_COLOR);
@@ -202,7 +203,6 @@ public class Gameplay implements ClientStateInterface {
     }
 
     private void validateMyTurn() throws ClientException {
-        client.validateGameNotOver(client.getCurrentGameID());
         GameData gameData = client.getGameData(client.getCurrentGameID());
         ChessGame.TeamColor teamTurn = gameData.game().getTeamTurn();
         if ( teamTurn == ChessGame.TeamColor.WHITE && client.getGameplayState() == GameplayState.WHITE) {

@@ -113,10 +113,10 @@ public class WebSocketFacade {
     }
 
     private void handleError(ErrorMessage message) {
-        log.warning(String.format("Notifying %s", message.getMessage()));
+        log.warning(String.format("Notifying %s", message.getErrorMessage()));
         String notifyMessage =  EscapeSequences.SET_TEXT_COLOR_RED +
                                 "Error: " +
-                                message.getMessage() +
+                                message.getErrorMessage() +
                                 EscapeSequences.RESET_TEXT_COLOR;
         notificationHandler.notify(new NotificationMessage(notifyMessage));
     }

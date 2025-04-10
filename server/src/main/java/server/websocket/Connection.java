@@ -22,6 +22,5 @@ public class Connection {
         } else {
             log.warning("Attempted to send message to closed session.");
         }
-
     }
 }

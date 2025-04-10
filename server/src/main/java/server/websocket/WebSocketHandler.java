@@ -9,6 +9,7 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
+import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.*;
@@ -36,14 +37,18 @@ public class WebSocketHandler {
     private final ConnectionManager connectionManager = new ConnectionManager();
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
-        UserGameCommand command = readCommand(message);
-        log.info("WebSocketHandler received command " + command.getCommandType());
-        switch (command.getCommandType()) {
-            case CONNECT -> connect(session, (ConnectCommand) command);
-            case MAKE_MOVE -> makeMove((MakeMoveCommand) command);
-            case LEAVE -> leave((LeaveCommand) command);
-            case RESIGN -> resign((ResignCommand) command);
+    public void onMessage(Session session, String message) {
+        try {
+            UserGameCommand command = readCommand(message);
+            log.info("WebSocketHandler received command " + command.getCommandType());
+            switch (command.getCommandType()) {
+                case CONNECT -> connect(session, (ConnectCommand) command);
+                case MAKE_MOVE -> makeMove((MakeMoveCommand) command);
+                case LEAVE -> leave((LeaveCommand) command);
+                case RESIGN -> resign((ResignCommand) command);
+            }
+        } catch (Exception ex) {
+            handleException(session, ex);
         }
     }
 
@@ -56,6 +61,17 @@ public class WebSocketHandler {
             case LEAVE -> gson.fromJson(message, LeaveCommand.class);
             case RESIGN -> gson.fromJson(message, ResignCommand.class);
         };
+    }
+
+    private void handleException(Session session, Exception ex) {
+        try {
+            if (session.isOpen()) {
+                ErrorMessage message = new ErrorMessage(ex.getMessage());
+                session.getRemote().sendString(new ErrorMessage(ex.getMessage()).toString());
+            }
+        } catch (Exception e) {
+            log.warning("Could not send error message " + ex.getMessage() + e.getMessage());
+        }
     }
 
     private void connect(Session session, ConnectCommand command) throws IOException {
@@ -96,7 +112,9 @@ public class WebSocketHandler {
     }
 
     private void makeMove(MakeMoveCommand command) throws IOException {
+//        TODO: MAKE SURE MOVE MAKER IS NOT OBSERVER
         log.info("Websocket received move command " + command.getMove());
+        validateGameNotOver(command.getGameID());
         String username = authenticate(command.getAuthToken()).username();
         ChessMove move = command.getMove();
         ChessGame game = getGame(command.getGameID()).game();
@@ -117,7 +135,7 @@ public class WebSocketHandler {
         log.fine("Updated game data in database for move " + move);
 
         log.fine("Broadcasting load message");
-        connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
+        connectionManager.broadcast(username, new LoadGameMessage(updatedGameData));
         log.fine("Sent load message");
 
         log.fine("Broadcasting move notification");
@@ -190,22 +208,21 @@ public class WebSocketHandler {
     }
 
     private void resign(ResignCommand command) throws IOException {
+//            TODO: CHECK THAT RESIGN IS NOT OBSERVER
         String username = authenticate(command.getAuthToken()).username();
+        validateGameNotOver(command.getGameID());
         GameData gameData = getGame(command.getGameID());
         String otherUser = (Objects.equals(username, gameData.whiteUsername()))
                 ? gameData.blackUsername() : gameData.whiteUsername();
         ChessGame finishedGame = new ChessGame(gameData.game().getBoard());
         finishedGame.setGameOver();
-        GameData updatedGameData = updateGameData(command.getGameID(), finishedGame);
+        updateGameData(command.getGameID(), finishedGame);
         log.info(String.format("User %s has resigned. Game over.", username));
-        LoadGameMessage loadMessage = new LoadGameMessage(updatedGameData);
-        connectionManager.broadcast(null, loadMessage);
         NotificationMessage message = new NotificationMessage(
                 String.format("[%s] has resigned. [%s] wins!", username, otherUser));
         connectionManager.broadcast(null, message);
     }
 
-    // returns username
     private AuthData authenticate(String authToken) throws IOException {
         try {
             AuthData authData = authDataAccess.read(authToken);
@@ -219,5 +236,13 @@ public class WebSocketHandler {
             log.warning("Authenticate Data Access error" + ex.getMessage());
             throw new IOException("User is not authorized: Data Access Error");
         }
+    }
+
+    private void validateGameNotOver(int gameID) throws IOException {
+        GameData gameData = getGame(gameID);
+         if (gameData.game().isGameOver()) {
+             log.info("Game over error.");
+             throw new IOException("Game is over.");
+         }
     }
 }

@@ -95,6 +95,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // TODO: MAKE SURE MOVE IS OWN TEAM'S PIECE
         try {
             ChessPosition startPosition = move.getStartPosition();
             ChessPiece piece = board.getPiece(startPosition);

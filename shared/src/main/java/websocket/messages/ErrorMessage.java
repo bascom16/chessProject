@@ -3,15 +3,15 @@ package websocket.messages;
 import java.util.Objects;
 
 public class ErrorMessage extends ServerMessage {
-    public ErrorMessage(String message) {
+    public ErrorMessage(String errorMessage) {
         super(ServerMessageType.ERROR);
-        this.message = message;
+        this.errorMessage = errorMessage;
     }
 
-    String message;
+    String errorMessage;
 
-    public String getMessage() {
-        return message;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     @Override
@@ -22,11 +22,11 @@ public class ErrorMessage extends ServerMessage {
         if (!(o instanceof ErrorMessage that)) {
             return false;
         }
-        return Objects.equals(getMessage(), that.getMessage());
+        return Objects.equals(getErrorMessage(), that.getErrorMessage());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServerMessageType(), getMessage());
+        return Objects.hash(getServerMessageType(), getErrorMessage());
     }
 }
