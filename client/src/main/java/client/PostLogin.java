@@ -101,7 +101,7 @@ public class PostLogin implements ClientStateInterface {
     private String join(String... params) throws ClientException {
 //        TODO: IMPLEMENT PLAYING BOTH SIDES
         client.updateGameDataMap();
-        String error = "Expected <ID> [WHITE|BLACK]";
+        String error = "Expected <ID> [WHITE|BLACK|BOTH]";
         if (params.length == 2) {
             // invalid gameID
             if (incompatibleConvertToInt(params[0])) {
@@ -114,7 +114,9 @@ public class PostLogin implements ClientStateInterface {
             checkGameExists(gameID);
             // Invalid color
             String color = params[1].toLowerCase();
-            if (!(Objects.equals(color, "white") || Objects.equals(color, "black"))) {
+            if (!(  Objects.equals(color, "white") ||
+                    Objects.equals(color, "black") ||
+                    Objects.equals(color, "both"))) {
                 String detail = EscapeSequences.SET_TEXT_ITALIC +
                                 " Color must be \"white\" or \"black\"" +
                                 EscapeSequences.RESET_TEXT_ITALIC;
@@ -128,7 +130,12 @@ public class PostLogin implements ClientStateInterface {
                 throw new ClientException(400, "This game is already over. You may observe to see the result.");
             }
             // Successful new join
-            client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
+            if (color.equals("both")) {
+                client.server.join(new JoinRequest("WHITE", gameID), client.getAuthorization());
+                client.server.join(new JoinRequest("BLACK", gameID), client.getAuthorization());
+            } else {
+                client.server.join(new JoinRequest(color.toUpperCase(), gameID), client.getAuthorization());
+            }
             joinUpdate(gameID, color);
             client.connect();
             log.info(String.format("\nJoined game [%s] as [%s]\n", gameID, color.toUpperCase()));
@@ -149,6 +156,9 @@ public class PostLogin implements ClientStateInterface {
         };
         client.setGameplayState(joinState);
         client.setDrawState(joinState);
+        if (color.equals("both")) {
+            client.setDrawState(GameplayState.WHITE);
+        }
     }
 
     private static boolean incompatibleConvertToInt(String s) {

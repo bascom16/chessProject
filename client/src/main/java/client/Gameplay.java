@@ -80,6 +80,9 @@ public class Gameplay implements ClientStateInterface {
             throw new ClientException(400, ex.getMessage());
         }
         log.info("User made move " + move);
+        if (client.getGameplayState() == GameplayState.BOTH) {
+            client.switchDrawState();
+        }
         return output;
     }
 

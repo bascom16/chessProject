@@ -174,6 +174,10 @@ public class ChessClient {
         drawState = state;
     }
 
+    public void switchDrawState() {
+        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
+    }
+
     public String draw() {
         log.info("Draw board request");
         ChessBoard board = getGameData(getCurrentGameID()).game().getBoard();
