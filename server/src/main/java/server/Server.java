@@ -6,7 +6,7 @@ import handler.*;
 import server.websocket.WebSocketHandler;
 import service.ServiceManager;
 import spark.*;
-import Logger.LoggerManager;
+import logger.LoggerManager;
 import java.util.logging.Logger;
 
 public class Server {

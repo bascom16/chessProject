@@ -99,6 +99,7 @@ public class PostLogin implements ClientStateInterface {
     }
 
     private String join(String... params) throws ClientException {
+//        TODO: IMPLEMENT PLAYING BOTH SIDES
         client.updateGameDataMap();
         String error = "Expected <ID> [WHITE|BLACK]";
         if (params.length == 2) {

@@ -3,7 +3,7 @@ package client;
 import client.websocket.NotificationHandler;
 import ui.EscapeSequences;
 import websocket.messages.NotificationMessage;
-import Logger.LoggerManager;
+import logger.LoggerManager;
 
 import java.util.Objects;
 import java.util.Scanner;

@@ -1,5 +1,5 @@
 import server.Server;
-import Logger.LoggerManager;
+import logger.LoggerManager;
 
 import java.util.Objects;
 import java.util.Scanner;

@@ -15,7 +15,6 @@ import ui.DrawChessBoard;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public class ChessClient {
@@ -80,24 +79,24 @@ public class ChessClient {
     }
 
     // Game data functions
-    private final HashMap<Integer, GameData> GAME_DATA_MAP = new HashMap<>();
+    private final HashMap<Integer, GameData> gameDataMap = new HashMap<>();
 
     public int getNumGames() {
-        return GAME_DATA_MAP.size();
+        return gameDataMap.size();
     }
 
     public GameData getGameData(int gameID) {
-        return GAME_DATA_MAP.get(gameID);
+        return gameDataMap.get(gameID);
     }
 
     public void clearGameDataMap() {
-        GAME_DATA_MAP.clear();
+        gameDataMap.clear();
     }
 
     public String readGameDataMap() {
         StringBuilder listGames = new StringBuilder();
-        for (int i = 1; i < GAME_DATA_MAP.size() + 1; i++) {
-            GameData game = GAME_DATA_MAP.get(i);
+        for (int i = 1; i < gameDataMap.size() + 1; i++) {
+            GameData game = gameDataMap.get(i);
             listGames.append(displayGame(game));
             listGames.append("\n");
         }
@@ -107,7 +106,7 @@ public class ChessClient {
     public void updateGameDataMap() throws ClientException {
         clearGameDataMap();
         for (GameData game : server.list(getAuthorization())) {
-            GAME_DATA_MAP.put(game.gameID(), game);
+            gameDataMap.put(game.gameID(), game);
         }
         log.info("Updated Client gameData hashMap");
     }
@@ -168,28 +167,8 @@ public class ChessClient {
         return authData != null ? authData.authToken() : null;
     }
 
-    public boolean userIsInGameAsColor(int gameID, String color) {
-        GameData game = getGameData(gameID);
-        if (game == null) {
-            return false;
-        }
-        String username = authData.username();
-        if (Objects.equals(color, "white")) {
-            return Objects.equals(username, game.whiteUsername());
-        } else if (Objects.equals(color, "black")) {
-            return Objects.equals(username, game.blackUsername());
-        }
-        else {
-            return false;
-        }
-    }
-
     // Draw state and functions
     private GameplayState drawState = GameplayState.WHITE;
-
-    public void switchDrawState() {
-        drawState = (drawState == GameplayState.WHITE) ? GameplayState.BLACK : GameplayState.WHITE;
-    }
 
     public void setDrawState(GameplayState state) {
         drawState = state;
@@ -223,7 +202,7 @@ public class ChessClient {
 
     public void loadGame(GameData gameData) {
         log.info("Added game to Client gameData hashMap");
-        GAME_DATA_MAP.put(currentGameID, gameData);
+        gameDataMap.put(currentGameID, gameData);
         draw();
     }
 
