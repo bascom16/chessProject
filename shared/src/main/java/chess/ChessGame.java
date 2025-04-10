@@ -103,7 +103,7 @@ public class ChessGame {
                 throw new InvalidMoveException("Invalid move. There is no piece at that location.");
             }
             if (piece.getTeamColor() != teamTurn) {
-                throw new InvalidMoveException("Invalid move. It's not your turn!");
+                throw new InvalidMoveException("Invalid move. You can't move the other team's pieces.");
             }
             if (!isValidMove(move)) {
                 throw new InvalidMoveException("Invalid move. The move you entered is not possible.");

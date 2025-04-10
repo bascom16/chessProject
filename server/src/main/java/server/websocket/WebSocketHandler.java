@@ -112,11 +112,11 @@ public class WebSocketHandler {
     }
 
     private void makeMove(MakeMoveCommand command) throws IOException {
-//        TODO: MAKE SURE MOVE MAKER IS NOT OBSERVER
         log.info("Websocket received move command " + command.getMove());
         validateGameNotOver(command.getGameID());
         String username = authenticate(command.getAuthToken()).username();
         validateNotObserver(username, command.getGameID());
+        validateMyTurn(username, command.getGameID());
         ChessMove move = command.getMove();
         ChessGame game = getGame(command.getGameID()).game();
         try {
@@ -136,30 +136,34 @@ public class WebSocketHandler {
         log.fine("Updated game data in database for move " + move);
 
         log.fine("Broadcasting load message");
-        connectionManager.broadcast(username, new LoadGameMessage(updatedGameData));
+        connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
         log.fine("Sent load message");
 
         log.fine("Broadcasting move notification");
-        connectionManager.broadcast(null, new NotificationMessage
+        connectionManager.broadcast(username, new NotificationMessage
                 (String.format("[%s] made move %s.", username, move.toSimpleString())));
         log.fine("Sent move notification");
 
+        checkEndOfTurnConditions(command, username, game, updatedGameData);
+    }
+
+private void checkEndOfTurnConditions(MakeMoveCommand command,
+                                      String username,
+                                      ChessGame game,
+                                      GameData updatedGameData) throws IOException {
         ChessGame.TeamColor otherUserColor = getUserColor(username, command.getGameID()).equals("White")
                 ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
         String otherUser = Objects.equals(username, updatedGameData.whiteUsername())
                 ? updatedGameData.blackUsername() : updatedGameData.whiteUsername();
+
         if (game.isInCheckmate(otherUserColor)) {
             log.info("Game is in checkmate");
             game.setGameOver();
-            updatedGameData = updateGameData(command.getGameID(), game);
-            connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
             connectionManager.broadcast(null, new NotificationMessage
                     (String.format("Checkmate! [%s] wins.", username)));
         } else if (game.isInStalemate(otherUserColor)) {
             log.info("Game is in stalemate");
             game.setGameOver();
-            updatedGameData = updateGameData(command.getGameID(), game);
-            connectionManager.broadcast(null, new LoadGameMessage(updatedGameData));
             connectionManager.broadcast(null, new NotificationMessage
                     (String.format("[%s] cannot move. The game ends in a stalemate.", otherUser)));
         } else if (game.isInCheck(otherUserColor)) {
@@ -209,7 +213,6 @@ public class WebSocketHandler {
     }
 
     private void resign(ResignCommand command) throws IOException {
-//            TODO: CHECK THAT RESIGN IS NOT OBSERVER
         String username = authenticate(command.getAuthToken()).username();
         validateGameNotOver(command.getGameID());
         validateNotObserver(username, command.getGameID());
@@ -254,5 +257,20 @@ public class WebSocketHandler {
                 !Objects.equals(username, gameData.blackUsername())) {
             throw new IOException("Observer cannot participate.");
         }
+    }
+
+    private void validateMyTurn(String username, int gameID) throws IOException {
+        GameData gameData = getGame(gameID);
+        ChessGame.TeamColor teamTurn = gameData.game().getTeamTurn();
+        if (teamTurn == ChessGame.TeamColor.WHITE) {
+            if (Objects.equals(username, gameData.whiteUsername())) {
+                return;
+            }
+        } else if (teamTurn == ChessGame.TeamColor.BLACK) {
+            if (Objects.equals(username, gameData.blackUsername())) {
+                return;
+            }
+        }
+        throw new IOException("It's not your turn!");
     }
 }
