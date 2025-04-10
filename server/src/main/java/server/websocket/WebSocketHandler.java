@@ -116,6 +116,7 @@ public class WebSocketHandler {
         log.info("Websocket received move command " + command.getMove());
         validateGameNotOver(command.getGameID());
         String username = authenticate(command.getAuthToken()).username();
+        validateNotObserver(username, command.getGameID());
         ChessMove move = command.getMove();
         ChessGame game = getGame(command.getGameID()).game();
         try {
@@ -211,6 +212,7 @@ public class WebSocketHandler {
 //            TODO: CHECK THAT RESIGN IS NOT OBSERVER
         String username = authenticate(command.getAuthToken()).username();
         validateGameNotOver(command.getGameID());
+        validateNotObserver(username, command.getGameID());
         GameData gameData = getGame(command.getGameID());
         String otherUser = (Objects.equals(username, gameData.whiteUsername()))
                 ? gameData.blackUsername() : gameData.whiteUsername();
@@ -244,5 +246,13 @@ public class WebSocketHandler {
              log.info("Game over error.");
              throw new IOException("Game is over.");
          }
+    }
+
+    private void validateNotObserver(String username, int gameID) throws IOException {
+        GameData gameData = getGame(gameID);
+        if (    !Objects.equals(username, gameData.whiteUsername()) &&
+                !Objects.equals(username, gameData.blackUsername())) {
+            throw new IOException("Observer cannot participate.");
+        }
     }
 }
