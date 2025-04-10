@@ -1,11 +1,10 @@
 package client;
 
-import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import client.websocket.WebSocketFacade;
 import exception.ClientException;
-import model.GameData;
 import state.ClientState;
 import state.GameplayState;
 import ui.EscapeSequences;
@@ -69,14 +68,15 @@ public class Gameplay implements ClientStateInterface {
         log.fine(String.format("Starting: row %s, col %s", startPosition.getRow(), startPosition.getColumn()));
         ChessPosition endPosition = new ChessPosition(moveChars.charAt(3) - '0', colToNumber(moveChars.charAt(2)));
         log.fine(String.format("Ending: row %s, col %s", endPosition.getRow(), endPosition.getColumn()));
-        //TODO: PROMOTION PIECE
         ChessMove move = new ChessMove(startPosition, endPosition, null);
+        if (moveChars.length() == 5) {
+            move = convertPawnPromotionMove(move, moveChars.charAt(4));
+        }
         String output = String.format("Move: %s", move.toSimpleString());
         try {
             ws.makeMove(client.getAuthorization(), client.getCurrentGameID(), move);
         } catch (Exception ex) {
             log.info("makeMove exception: " + ex.getMessage());
-            output = "";
             throw new ClientException(400, ex.getMessage());
         }
         log.info("User made move " + move);
@@ -85,48 +85,98 @@ public class Gameplay implements ClientStateInterface {
 
     private String validateMoveInput(String... params) throws ClientException{
         String error = "Expected <[A1-H8]> <[A1-H8]> or <[A1-H8][A1-H8]> (Start tile, end tile)";
-        if (params.length == 1) { // 4 char move input
-            String move = params[0].toUpperCase();
-            log.fine(String.format("4 char move input %s", move));
-            log.fine(String.format("Char 1: %s", move.charAt(0)));
-            log.fine(String.format("Char 2: %s", move.charAt(1)));
-            log.fine(String.format("Char 3: %s", move.charAt(2)));
-            log.fine(String.format("Char 4: %s", move.charAt(3)));
-            // Validates alpha/number/alpha/number
-            if (    !isValidColumn(move.charAt(0)) ||
-                    !isValidRow(move.charAt(1)) ||
-                    !isValidColumn(move.charAt(2)) ||
-                    !isValidRow(move.charAt(3))
-            ) {
-                log.fine("Incorrect move A/#/A/# pattern");
-                throw new ClientException(400, error);
+        String singleStringError = "Expected <[A1-H8][A1-H8]> (Start tile, end tile)";
+        String doubleStringError = "Expected <[A1-H8]> <[A1-H8]> (Start tile, end tile)";
+        if (params.length == 1) { // 4 char move input or 5 char pawn move input
+            if (params[0].length() == 5) {
+                return parseFourCharInput(params[0].substring(0,4), singleStringError) + parseCharPawnInput(params[0].charAt(4));
             }
-            log.fine(String.format("Validated input %s", move));
-            return move;
-        } else if (params.length == 2) { // 2 x 2 char move input
-            String startTile = params[0].toUpperCase();
-            String endTile = params[1].toUpperCase();
-            log.fine(String.format("2 x 2 char move input %s %s", startTile, endTile));
-            // validates each tile has 2 chars
-            if (startTile.length() != 2 || endTile.length() != 2) {
-                log.fine("Move tiles did not have 2 chars");
-                throw new ClientException(400, error);
+            log.fine(String.format("Validated input %s", params[0]));
+            return parseFourCharInput(params[0], singleStringError);
+        } else if (params.length == 2) { // 2 x 2 char move input or 4 x 1 pawn move input
+            if (params[0].length() == 4) {
+                return parseFourCharInput(params[0], singleStringError) + parseCharPawnInput(params[1].charAt(0));
             }
-            // validates Alpha/Number Alpha/Number
-            if (    !isValidColumn(startTile.charAt(0)) ||
-                    !isValidRow(startTile.charAt(1)) ||
-                    !isValidColumn(endTile.charAt(0)) ||
-                    !isValidRow(endTile.charAt(1))
-            ) {
-                log.fine("Incorrect move A/#  A/# pattern");
-                throw new ClientException(400, error);
-            }
+            String startTile = params[0];
+            String endTile = params[1];
             log.fine(String.format("Validated input %s", startTile + endTile));
-            return startTile + endTile;
+            return parseTwoByTwoCharInput(startTile, endTile, doubleStringError);
+
+        } else if (params.length == 3) {
+            String startTile = params[0];
+            String endTile = params[1];
+            log.fine(String.format("Validated input %s", startTile + endTile + params[2].charAt(0)));
+            return parseTwoByTwoCharInput(startTile, endTile, doubleStringError) + parseCharPawnInput(params[2].charAt(0));
+
         } else {
             log.fine("0 or >3 params incorrect move");
             throw new ClientException(400, error);
         }
+    }
+
+    private String parseFourCharInput(String move, String error) throws ClientException {
+        move = move.toUpperCase();
+        log.fine(String.format("4 char move input %s", move));
+        log.fine(String.format("Char 1: %s", move.charAt(0)));
+        log.fine(String.format("Char 2: %s", move.charAt(1)));
+        log.fine(String.format("Char 3: %s", move.charAt(2)));
+        log.fine(String.format("Char 4: %s", move.charAt(3)));
+        // Validates alpha/number/alpha/number
+        if (    !isValidColumn(move.charAt(0)) ||
+                !isValidRow(move.charAt(1)) ||
+                !isValidColumn(move.charAt(2)) ||
+                !isValidRow(move.charAt(3))
+        ) {
+            log.fine("Incorrect move A/#/A/# pattern");
+            throw new ClientException(400, error);
+        }
+        return move;
+    }
+
+    private String parseTwoByTwoCharInput(String startTile, String endTile, String error) throws ClientException {
+        startTile = startTile.toUpperCase();
+        endTile = endTile.toUpperCase();
+        log.fine(String.format("2 x 2 char move input %s %s", startTile, endTile));
+        // validates each tile has 2 chars
+        if (startTile.length() != 2 || endTile.length() != 2) {
+            log.fine("Move tiles did not have 2 chars");
+            throw new ClientException(400, error);
+        }
+        // validates Alpha/Number Alpha/Number
+        if (    !isValidColumn(startTile.charAt(0)) ||
+                !isValidRow(startTile.charAt(1)) ||
+                !isValidColumn(endTile.charAt(0)) ||
+                !isValidRow(endTile.charAt(1))
+        ) {
+            log.fine("Incorrect move A/#  A/# pattern");
+            throw new ClientException(400, error);
+        }
+        return startTile + endTile;
+    }
+
+    private String parseCharPawnInput(char c) throws ClientException {
+        String output = switch (c) {
+            case 'r', 'R' -> "r";
+            case 'k', 'K', 'n', 'N' -> "n";
+            case 'b', 'B' -> "b";
+            case 'q', 'Q' -> "q";
+            default -> null;
+        };
+        if (output == null) {
+            throw new ClientException(400,  "For pawn promotion piece, add r, k, b, q to your move.");
+        }
+        return output;
+    }
+
+    private ChessMove convertPawnPromotionMove(ChessMove move, char c) {
+        ChessPiece.PieceType type = switch (c) {
+            case 'r' -> ChessPiece.PieceType.ROOK;
+            case 'k' -> ChessPiece.PieceType.KNIGHT;
+            case 'b' -> ChessPiece.PieceType.BISHOP;
+            case 'q' -> ChessPiece.PieceType.QUEEN;
+            default -> null;
+        };
+        return new ChessMove(move.getStartPosition(), move.getEndPosition(), type);
     }
 
     private Boolean isValidColumn(char c) {
@@ -201,18 +251,4 @@ public class Gameplay implements ClientStateInterface {
         log.fine("Invalid highlight input");
         throw new ClientException(400, "Expected piece position [A1-H8]");
     }
-
-    private void validateMyTurn() throws ClientException {
-        GameData gameData = client.getGameData(client.getCurrentGameID());
-        ChessGame.TeamColor teamTurn = gameData.game().getTeamTurn();
-        if ( teamTurn == ChessGame.TeamColor.WHITE && client.getGameplayState() == GameplayState.WHITE) {
-            return;
-        } else if ( teamTurn == ChessGame.TeamColor.BLACK && client.getGameplayState() == GameplayState.BLACK) {
-            return;
-        }
-        log.info("User acted out of turn");
-        throw new ClientException(400, "It's not your turn! Please be patient.");
-    }
-
-
 }
